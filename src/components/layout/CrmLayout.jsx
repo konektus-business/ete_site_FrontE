@@ -1,17 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import Sidebar from './components/layout/Sidebar';
-import Header from './components/layout/Header';
-
-import Dashboard from './pages/crm/Dashboard';
-import Clients from './pages/crm/Clients';
-import Tickets from './pages/crm/Tickets';
-import Factures from './pages/crm/Factures';
-import Settings from './pages/crm/Settings';
-import { currentUser } from './api/auth';
+import { Outlet, useLocation } from 'react-router-dom';
+import Sidebar from './Sidebar';
+import Header from './Header';
+import { currentUser } from '../../api/auth';
 
 const tabsConfig = {
-  factures: [
+  ventes: [
     { key: 'toutes', label: 'Toutes les ventes' },
     { key: 'en-attente', label: 'En attente' },
     { key: 'remboursements', label: 'Remboursements' },
@@ -53,30 +47,8 @@ function CrmLayout() {
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
           <Outlet context={{ activeTab }} />
         </main>
-        
+       
       </div>
     </div>
   );
 }
-
-function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<div className="p-8">Page d'accueil (Vitrine)</div>} />
-        <Route path="/login" element={<div className="p-8">Page Connexion</div>} />
-
-        <Route path="/crm" element={<CrmLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="clients" element={<Clients />} />
-          <Route path="tickets" element={<Tickets />} />
-          <Route path="factures" element={<Factures />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-export default App;
