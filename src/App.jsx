@@ -1,63 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import Sidebar from './components/layout/Sidebar';
-import Header from './components/layout/Header';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import CrmLayout from './components/layout/CrmLayout';
 
 import Dashboard from './pages/crm/Dashboard';
 import Clients from './pages/crm/Clients';
 import Tickets from './pages/crm/Tickets';
 import Factures from './pages/crm/Factures';
 import Settings from './pages/crm/Settings';
-import { currentUser } from './api/auth';
-
-const tabsConfig = {
-  factures: [
-    { key: 'toutes', label: 'Toutes les ventes' },
-    { key: 'en-attente', label: 'En attente' },
-    { key: 'remboursements', label: 'Remboursements' },
-    { key: 'statistiques', label: 'Statistiques' },
-  ],
-  clients: [
-    { key: 'tous', label: 'Tous les clients' },
-    { key: 'essais', label: 'Essais en cours' },
-    { key: 'suspendus', label: 'Comptes suspendus' },
-  ],
-};
-
-function CrmLayout() {
-  const location = useLocation();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const currentPath = location.pathname.split('/')[2];
-  const isDashboard = currentPath === 'dashboard';
-  const tabs = tabsConfig[currentPath] || [];
-
-  const [activeTab, setActiveTab] = useState(tabs[0]?.key ?? null);
-
-  useEffect(() => {
-    setActiveTab(tabs[0]?.key ?? null);
-  }, [currentPath]);
-
-  return (
-    <div className="flex h-screen w-full bg-crmBg overflow-hidden">
-      <Sidebar user={currentUser} />
-      <div className="flex flex-col flex-1 h-full overflow-hidden">
-        <Header
-          user={currentUser}
-          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-          showSearch={isDashboard}
-          showMenuButton={isDashboard}
-          tabs={tabs}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-        />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
-          <Outlet context={{ activeTab }} />
-        </main>
-        
-      </div>
-    </div>
-  );
-}
 
 function App() {
   return (
