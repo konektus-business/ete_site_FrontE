@@ -1,4 +1,4 @@
-export const mockClients = [
+const mockClients = [
 {
   id: 1,
   nom: "hannibal",
@@ -186,3 +186,9 @@ export const mockClients = [
     pays: "Tunisie",
   },
 ];
+export const getClients = async () => {
+  // Plus tard : return axios.get('/api/clients')
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(mockClients), 300);
+  });
+};
