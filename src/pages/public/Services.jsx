@@ -1,65 +1,412 @@
-import { CircleDollarSign, Headphones, UsersRound } from "lucide-react";
+// src/pages/Services.jsx
+import { motion } from "framer-motion";
 
-const services = [
+// --- Assets (local imports) ---
+import servicesBg from "../../assets/services/services-bg.png";
+import heroImg from "../../assets/services/hero.png";
+import telVoipImg from "../../assets/services/tel-voip.png";
+import cloudImg from "../../assets/services/cloud.png";
+import conseilImg from "../../assets/services/conseil.png";
+import bigDataImg from "../../assets/services/big-data.png";
+import supportImg from "../../assets/services/support.png";
+
+import iconTelVoip from "../../assets/icons/icon-tel-voip.svg";
+import iconCloud from "../../assets/icons/icon-cloud.svg";
+import iconConseil from "../../assets/icons/icon-conseil.svg";
+import iconBigData from "../../assets/icons/icon-big-data.svg";
+import iconSupport from "../../assets/icons/icon-support.svg";
+import iconCheck from "../../assets/icons/icon-check.svg";
+
+import iconPerf from "../../assets/icons/icon-performance.svg";
+import iconFlex from "../../assets/icons/icon-flexibilite.svg";
+import iconIntegration from "../../assets/icons/icon-integration.svg";
+
+// --- Data ---
+const FEATURES = [
   {
-    icon: UsersRound,
-    title: "Gestion clients (CRM)",
-    description: "Centralisez les profils clients, l'historique, les notes et les suivis commerciaux.",
-    accent: "text-teal-600 bg-teal-50",
+    id: "performance",
+    icon: iconPerf,
+    title: "Performance",
+    description: "Latence minimale et haute disponibilité",
   },
   {
-    icon: Headphones,
-    title: "Support & tickets",
-    description: "Priorisez les demandes, assignez les tickets et gardez une vision claire des urgences.",
-    accent: "text-amber-600 bg-amber-50",
+    id: "flexibilite",
+    icon: iconFlex,
+    title: "Flexibilité",
+    description: "Évoluez sans contrainte technique",
   },
   {
-    icon: CircleDollarSign,
-    title: "Facturation",
-    description: "Creez, suivez et organisez vos factures sans multiplier les outils.",
-    accent: "text-rose-600 bg-rose-50",
+    id: "integration",
+    icon: iconIntegration,
+    title: "Intégration",
+    description: "Compatible avec +2000 applications",
   },
 ];
 
+const SERVICES = [
+  {
+    id: "tel-voip",
+    icon: iconTelVoip,
+    image: telVoipImg,
+    title: "Téléphonie & VoIP",
+    description:
+      "Révolutionnez vos échanges avec une infrastructure voix robuste et flexible. Connectez vos équipes partout dans le monde avec une qualité optimale.",
+    bullets: [
+      "Trunk SIP haute qualité avec gestion avancée des appels",
+      "Webphone professionnel accessible de partout",
+      "Numéros internationaux et portabilité facile",
+      "Optimisation des coûts télécoms",
+    ],
+    objective:
+      "Objectif : Communication fluide, sécurisée et sans interruption",
+    imageSide: "right",
+  },
+  {
+    id: "cloud",
+    icon: iconCloud,
+    image: cloudImg,
+    title: "Cloud & Hébergement",
+    description:
+      "Propulsez vos applications sur une infrastructure cloud sécurisée. Une scalabilité sans limite pour accompagner votre croissance.",
+    bullets: [
+      "Hébergement cloud sécurisé (multi-sites)",
+      "Solutions de sauvegarde et continuité d'activité",
+      "Haute disponibilité avec supervision 24/7",
+      "Scalabilité adaptée à votre croissance",
+    ],
+    objective: "Objectif : Performance, sécurité et résilience garanties",
+    imageSide: "left",
+  },
+  {
+    id: "conseil",
+    icon: iconConseil,
+    image: conseilImg,
+    title: "Intégration & Conseil",
+    description:
+      "L'innovation ne vaut rien sans exécution. Nos experts vous accompagnent de l'audit initial à la maintenance opérationnelle pour garantir l'adoption de vos nouveaux outils.",
+    bullets: [
+      "Intégration téléphonie / CRM / systèmes métiers",
+      "Automatisation des flux de communication",
+      "Audit technique et conseils stratégiques",
+      "Déploiement 100% sur mesure",
+    ],
+    objective: "Objectif : Transformer vos outils en levier de performance.",
+    imageSide: "right",
+  },
+  {
+    id: "data",
+    icon: iconBigData,
+    image: bigDataImg,
+    title: "Data & Analyse",
+    description:
+      "Transformez vos données brutes en décisions stratégiques. Nous déployons des pipelines de données robustes pour capturer la valeur à chaque interaction.",
+    bullets: [
+      "Collecte et centralisation des données (appels, messages, interactions)",
+      "Reporting avancé et tableaux de bord personnalisés",
+      "Analyse de performance opérationnelle",
+      "Insights pour des décisions éclairées",
+    ],
+    objective:
+      "Objectif : Transformer vos données en insights concrets et actionnables.",
+    imageSide: "left",
+  },
+  {
+    id: "support",
+    icon: iconSupport,
+    image: supportImg,
+    title: "Support & Infogérance",
+    description:
+      "Dormez sur vos deux oreilles. Nos équipes surveillent vos systèmes jour et nuit pour prévenir les incidents avant même qu'ils ne surviennent.",
+    bullets: [
+      "Supervision proactive en temps réel",
+      "Maintenance et support technique dédié",
+      "Gestion des incidents et optimisations régulières",
+      "Assistance personnalisée",
+    ],
+    objective: "Objectif : Continuité et qualité de service assurées.",
+    imageSide: "right",
+  },
+];
+
+const STATS = [
+  {
+    id: "partners",
+    value: "+100",
+    label: "Entreprises partenaires",
+    description:
+      "Nous font confiance au quotidien pour leurs opérations critiques.",
+  },
+  {
+    id: "uptime",
+    value: "99.9%",
+    label: "Disponibilté garanti",
+    description: "Engagement contractuel pour une continuité sans faille.",
+  },
+  {
+    id: "support",
+    value: "24/7",
+    label: "Support expert",
+    description: "Une équipe d'ingénieurs dédiée à votre écoute en permanence.",
+  },
+];
+
+// --- Sub-components ---
+function FeatureBadge({ icon, title, description }) {
+  return (
+    <div className="flex items-center gap-4">
+      <div className="shrink-0 rounded-lg bg-[rgba(45,212,191,0.1)] p-3">
+        <img src={icon} alt="" className="size-8" />
+      </div>
+      <div className="flex flex-col text-white">
+        <p className="font-bold text-base leading-6">{title}</p>
+        <p className="text-sm leading-5">{description}</p>
+      </div>
+    </div>
+  );
+}
+
+function ServiceSection({ service }) {
+  const imageFirst = service.imageSide === "left";
+
+  const textBlock = (
+    <motion.div
+      initial={{ opacity: 0, x: imageFirst ? 40 : -40 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="flex flex-col items-start gap-4 flex-1"
+    >
+      <div
+        className="flex size-16 items-center justify-center rounded-2xl shadow-[0px_10px_15px_-3px_rgba(0,107,87,0.2),0px_4px_6px_-4px_rgba(0,107,87,0.2)]"
+        style={{
+          backgroundImage: "linear-gradient(135deg, #1eb394 0%, #006b57 100%)",
+        }}
+      >
+        <img src={service.icon} alt="" className="size-6" />
+      </div>
+
+      <h3 className="text-black text-[36px] font-bold leading-[1.2] tracking-[-0.72px]">
+        {service.title}
+      </h3>
+
+      <p className="text-black text-lg leading-[1.6]">{service.description}</p>
+
+      <ul className="flex flex-col gap-4 pt-2 w-full">
+        {service.bullets.map((bullet, i) => (
+          <li key={i} className="flex items-center gap-3">
+            <img src={iconCheck} alt="" className="size-5 shrink-0" />
+            <span className="flex-1 text-black text-base leading-6">
+              {bullet}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      <p className="pt-4 text-[#006b57] text-base font-bold leading-6">
+        {service.objective}
+      </p>
+    </motion.div>
+  );
+
+  const imageBlock = (
+    <motion.div
+      initial={{ opacity: 0, x: imageFirst ? -40 : 40 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="flex-1 flex justify-center"
+    >
+      <img
+        src={service.image}
+        alt={service.title}
+        className="w-full max-w-[496px] object-cover"
+      />
+    </motion.div>
+  );
+
+  return (
+    <div className="flex flex-col md:flex-row items-center gap-12 w-full">
+      {imageFirst ? (
+        <>
+          {imageBlock}
+          {textBlock}
+        </>
+      ) : (
+        <>
+          {textBlock}
+          {imageBlock}
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function Services() {
   return (
-    <section className="public-section services-page bg-white">
-      <div className="public-container mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-20">
-        <div className="section-heading max-w-2xl">
-          <span className="section-kicker text-sm font-bold uppercase tracking-wider text-teal-700">
-            Services
-          </span>
-          <h1 className="section-title mt-3 text-4xl font-black tracking-tight text-slate-950">
-            Des outils simples pour gerer la relation client.
-          </h1>
-          <p className="section-description mt-4 text-lg leading-8 text-slate-600">
-            KoneKtUS rassemble les operations importantes dans une interface
-            claire pour aider votre equipe a travailler plus vite.
-          </p>
+    <div
+      className="relative w-full bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(${servicesBg})` }}
+    >
+      {/* Hero */}
+      <section className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-8 px-6 pt-16 md:flex-row md:gap-14 md:px-24 md:pt-24 mt-[160px]">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="flex flex-1 flex-col items-start gap-8"
+        >
+          <div className="flex flex-col gap-4">
+            <h1 className="text-[#0b3f34] text-[44px] font-extrabold leading-[1.5]">
+              Transformez votre{" "}
+              <span className="bg-gradient-to-b from-[#0b3f34] to-[#1da588] bg-clip-text text-transparent">
+                communication en levier de performance
+              </span>
+            </h1>
+            <p className="text-black text-xl leading-[1.75]">
+              Optimisez vos flux opérationnels avec une infrastructure de
+              pointe. Performance inégalée, flexibilité totale et intégration
+              native pour propulser votre entreprise vers de nouveaux sommets.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            className="flex items-center gap-4 rounded-3xl px-8 py-4 text-base font-medium text-white transition-transform hover:scale-[1.02]"
+            style={{
+              backgroundImage:
+                "linear-gradient(155deg, #1eb394 15%, #006b57 84%)",
+            }}
+          >
+            Découvrir nos services
+            <svg
+              className="size-3"
+              viewBox="0 0 12 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M2.5 4.5L6 8l3.5-3.5"
+                stroke="white"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7, ease: "easeOut", delay: 0.15 }}
+          className="flex-1"
+        >
+          <img
+            src={heroImg}
+            alt="Illustration KoneKtUS"
+            className="w-full max-w-[612px] object-cover"
+          />
+        </motion.div>
+      </section>
+
+      {/* Feature badges bar */}
+      <section className="relative mx-auto -mt-8 hidden max-w-[1024px] px-6 md:mt-16 md:block md:px-24">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.6 }}
+          className="grid grid-cols-1 gap-8 rounded-2xl border border-[rgba(45,212,191,0.1)] bg-[rgba(13,81,67,0.8)] p-8 shadow-[0px_8px_32px_0px_rgba(0,0,0,0.37)] backdrop-blur-md md:grid-cols-3"
+        >
+          {FEATURES.map((feature) => (
+            <FeatureBadge key={feature.id} {...feature} />
+          ))}
+        </motion.div>
+      </section>
+
+      {/* Services */}
+      <section className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-16 px-6 py-24 md:px-24 md:py-32">
+        <div className="flex items-center gap-5">
+          <span className="hidden h-px w-[165px] bg-[#0d5143]/20 md:block" />
+          <h2 className="text-center text-[36px] font-black uppercase text-[#0d5143]">
+            Nos services
+          </h2>
+          <span className="hidden h-px w-[165px] bg-[#0d5143]/20 md:block" />
         </div>
 
-        <div className="services-grid mt-10 grid gap-6 md:grid-cols-3">
-          {services.map((service) => {
-            const Icon = service.icon;
-            return (
-              <article
-                key={service.title}
-                className="service-card rounded-md border border-slate-200 bg-slate-50 p-6 shadow-sm transition hover:-translate-y-1 hover:bg-white hover:shadow-lg hover:shadow-slate-900/10"
-              >
-                <span className={`service-card__icon inline-grid h-12 w-12 place-items-center rounded-md ${service.accent}`}>
-                  <Icon size={24} />
-                </span>
-                <h2 className="service-card__title mt-5 text-xl font-black text-slate-950">
-                  {service.title}
-                </h2>
-                <p className="service-card__text mt-3 text-sm leading-6 text-slate-600">
-                  {service.description}
-                </p>
-              </article>
-            );
-          })}
+        <div className="flex w-full flex-col gap-24 md:gap-32">
+          {SERVICES.map((service) => (
+            <ServiceSection key={service.id} service={service} />
+          ))}
         </div>
-      </div>
-    </section>
+      </section>
+
+      {/* Trust stats */}
+      <section className="relative mx-auto flex max-w-[1245px] flex-col items-center gap-16 px-6 pb-24 md:px-24">
+        <div className="flex items-center gap-5">
+          <span className="hidden h-px w-[165px] bg-[#0d5143]/20 md:block" />
+          <h2 className="text-center text-[32px] font-extrabold uppercase text-[#0d5143]">
+            Ils nous font confiance
+          </h2>
+          <span className="hidden h-px w-[165px] bg-[#0d5143]/20 md:block" />
+        </div>
+
+        <div className="grid w-full grid-cols-1 gap-16 md:grid-cols-3">
+          {STATS.map((stat) => (
+            <motion.div
+              key={stat.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.5 }}
+              className="flex flex-col items-center gap-2 text-center"
+            >
+              <p className="text-[48px] font-black tracking-[-2.4px] text-[#006b57]">
+                {stat.value}
+              </p>
+              <p className="pt-2 text-lg font-bold text-[#1a1c1c]">
+                {stat.label}
+              </p>
+              <p className="max-w-[330px] text-sm text-[#3c4a45]">
+                {stat.description}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="relative mx-auto max-w-[1216px] px-6 pb-24 md:px-0">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.6 }}
+          className="relative flex flex-col items-center gap-8 overflow-hidden rounded-[48px] bg-[#126b59] px-8 py-16 text-center md:py-24"
+        >
+          <div className="pointer-events-none absolute -right-48 -top-40 size-96 rounded-full bg-[rgba(119,249,214,0.3)] blur-[50px]" />
+          <div className="pointer-events-none absolute -bottom-48 -left-48 size-96 rounded-full bg-[rgba(0,62,50,0.3)] blur-[50px]" />
+
+          <h2 className="max-w-[944px] text-[44px] font-extrabold leading-[1.36] tracking-[-1.5px] text-white">
+            Transformez votre communication dès aujourd'hui
+          </h2>
+
+          <div className="flex flex-col gap-6 sm:flex-row">
+            <button
+              type="button"
+              className="w-[279px] rounded-full bg-white px-8 py-4 text-lg font-bold text-[#2b6859] drop-shadow-[0px_8px_10px_rgba(0,0,0,0.25)] transition-transform hover:scale-[1.02]"
+            >
+              Contactez-Nous
+            </button>
+            <button
+              type="button"
+              className="w-[279px] rounded-full bg-white px-8 py-4 text-lg font-bold text-[#2b6859] drop-shadow-[0px_8px_10px_rgba(0,0,0,0.25)] transition-transform hover:scale-[1.02]"
+            >
+              Démarrer l'essai gratuit
+            </button>
+          </div>
+        </motion.div>
+      </section>
+    </div>
   );
 }

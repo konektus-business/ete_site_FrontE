@@ -6,6 +6,7 @@ import './App.css'
 import Login from './pages/auth/Login'
 import ForgotPassword from './pages/auth/ForgotPassword'
 import Register from './pages/auth/Register'
+import Services from './pages/public/Services'
 
 function App() {
 
@@ -13,7 +14,9 @@ function App() {
     <>
       <Route path='/' element={<PublicLayout />}>
         <Route index element={<Home />} />
+        <Route path='services' element={<Services />} />
       </Route>
+      
       <Route path='/login' element={<Login />} />
       <Route path='/forgot-password' element={<ForgotPassword />} />
       <Route path='/register' element={<Register />} />

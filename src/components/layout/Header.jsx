@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 const imgLogo = "src/assets/company_logo.png";
 
 const NAV_LINKS = [
   { label: "Solutions", href: "#solutions" },
-  { label: "Services", href: "#services" },
+  { label: "Services", href: "/services" },
   { label: "Cas d’usage", href: "#cas-dusage" },
   { label: "Entreprise", href: "#entreprise" },
   { label: "Prix", href: "#prix" },
@@ -104,16 +104,21 @@ function LanguageDropdown() {
 }
 
 export default function Header() {
+  const location = useLocation();
+  const isServicesPage = location.pathname === "/services";
+
   return (
     <header className="flex w-[1248px] items-start gap-[10px] py-2 mt-[52px]">
       <div
-        className="
+        className={`
           flex flex-[1_0_0] items-center justify-end gap-[90px]
           rounded-full border border-white/5
-          bg-[#0d5143]/40 backdrop-blur-md
+          backdrop-blur-md
           shadow-[0px_10px_30px_0px_rgba(0,0,0,0.5)]
           h-[78px] pl-[15px] pr-[40px] py-0
-        "
+          transition-colors duration-300
+          ${isServicesPage ? "bg-[#0d5143]" : "bg-[#0d5143]/40"}
+        `}
       >
         {/* Logo */}
         <NavLink to="/" end className="shrink-0 p-2" aria-label="KoneKtUS home">
