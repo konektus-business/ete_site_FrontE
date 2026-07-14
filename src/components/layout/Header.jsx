@@ -9,7 +9,7 @@ const NAV_LINKS = [
   { label: "Cas d’usage", href: "#cas-dusage" },
   { label: "Entreprise", href: "#entreprise" },
   { label: "Prix", href: "#prix" },
-  { label: "Contact", href: "#contact" },
+  { label: "Contact", href: "/contact" },
   { label: "Ressources", href: "#ressources" },
 ];
 
