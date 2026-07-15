@@ -23,7 +23,6 @@ const StatusBadge = ({ status }) => {
         font-bold text-[11px] leading-none align-middle
         ${statusColors[status] || 'bg-gray-100 text-gray-800'}
       `}
-      style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
     >
       {statusLabels[status] || status}
     </span>
