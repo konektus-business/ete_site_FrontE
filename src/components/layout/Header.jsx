@@ -7,7 +7,7 @@ const NAV_LINKS = [
   { label: "Solutions", href: "#solutions" },
   { label: "Services", href: "/services" },
   { label: "Cas d’usage", href: "#cas-dusage" },
-  { label: "Entreprise", href: "#entreprise" },
+  { label: "Entreprise", href: "/about" },
   { label: "Prix", href: "#prix" },
   { label: "Contact", href: "/contact" },
   { label: "Ressources", href: "#ressources" },
@@ -105,7 +105,8 @@ function LanguageDropdown() {
 
 export default function Header() {
   const location = useLocation();
-  const isServicesPage = location.pathname === "/services";
+  // Detect both Services and About pages for solid background
+  const isSpecialPage = location.pathname === "/services" || location.pathname === "/about";
 
   return (
     <header className="flex w-[1248px] items-start gap-[10px] py-2 mt-[52px]">
@@ -117,7 +118,7 @@ export default function Header() {
           shadow-[0px_10px_30px_0px_rgba(0,0,0,0.5)]
           h-[78px] pl-[15px] pr-[40px] py-0
           transition-colors duration-300
-          ${isServicesPage ? "bg-[#0d5143]" : "bg-[#0d5143]/40"}
+          ${isSpecialPage ? "bg-[#0d5143]/80" : "bg-[#0d5143]/40"}
         `}
       >
         {/* Logo */}

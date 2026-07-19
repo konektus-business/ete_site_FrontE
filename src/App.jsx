@@ -8,6 +8,7 @@ import ForgotPassword from './pages/auth/ForgotPassword'
 import Register from './pages/auth/Register'
 import Services from './pages/public/Services'
 import Contact from './pages/public/Contact'
+import About from './pages/public/About'
 
 function App() {
 
@@ -17,6 +18,7 @@ function App() {
         <Route index element={<Home />} />
         <Route path='services' element={<Services />} />
         <Route path='contact' element={<Contact />} />
+        <Route path='about' element={<About />} />
       </Route>
       
       <Route path='/login' element={<Login />} />

@@ -1,4 +1,3 @@
-// src/pages/Services.jsx
 import { motion } from "framer-motion";
 
 // --- Assets (local imports) ---
@@ -16,58 +15,59 @@ import iconConseil from "../../assets/icons/icon-conseil.svg";
 import iconBigData from "../../assets/icons/icon-big-data.svg";
 import iconSupport from "../../assets/icons/icon-support.svg";
 import iconCheck from "../../assets/icons/icon-check.svg";
-
 import iconPerf from "../../assets/icons/icon-performance.svg";
 import iconFlex from "../../assets/icons/icon-flexibilite.svg";
 import iconIntegration from "../../assets/icons/icon-integration.svg";
 
-// --- Data ---
+// --- Regroupement des assets pour faciliter l'import ---
+const assets = {
+  servicesBg,
+  heroImg,
+  telVoipImg,
+  cloudImg,
+  conseilImg,
+  bigDataImg,
+  supportImg,
+  iconTelVoip,
+  iconCloud,
+  iconConseil,
+  iconBigData,
+  iconSupport,
+  iconCheck,
+  iconPerf,
+  iconFlex,
+  iconIntegration,
+};
+
+// --- Données ---
 const FEATURES = [
-  {
-    id: "performance",
-    icon: iconPerf,
-    title: "Performance",
-    description: "Latence minimale et haute disponibilité",
-  },
-  {
-    id: "flexibilite",
-    icon: iconFlex,
-    title: "Flexibilité",
-    description: "Évoluez sans contrainte technique",
-  },
-  {
-    id: "integration",
-    icon: iconIntegration,
-    title: "Intégration",
-    description: "Compatible avec +2000 applications",
-  },
+  { id: "performance", icon: assets.iconPerf, title: "Performance", description: "Latence minimale et haute disponibilité" },
+  { id: "flexibilite", icon: assets.iconFlex, title: "Flexibilité", description: "Évoluez sans contrainte technique" },
+  { id: "integration", icon: assets.iconIntegration, title: "Intégration", description: "Compatible avec +2000 applications" },
 ];
 
 const SERVICES = [
   {
     id: "tel-voip",
-    icon: iconTelVoip,
-    image: telVoipImg,
+    icon: assets.iconTelVoip,
+    image: assets.telVoipImg,
     title: "Téléphonie & VoIP",
-    description:
-      "Révolutionnez vos échanges avec une infrastructure voix robuste et flexible. Connectez vos équipes partout dans le monde avec une qualité optimale.",
+    description: "Révolutionnez vos échanges avec une infrastructure voix robuste et flexible. Connectez vos équipes partout dans le monde avec une qualité optimale.",
     bullets: [
       "Trunk SIP haute qualité avec gestion avancée des appels",
       "Webphone professionnel accessible de partout",
       "Numéros internationaux et portabilité facile",
       "Optimisation des coûts télécoms",
     ],
-    objective:
-      "Objectif : Communication fluide, sécurisée et sans interruption",
+    objective: "Objectif : Communication fluide, sécurisée et sans interruption",
     imageSide: "right",
   },
   {
     id: "cloud",
-    icon: iconCloud,
-    image: cloudImg,
+    icon: assets.iconCloud,
+    image: assets.cloudImg,
     title: "Cloud & Hébergement",
-    description:
-      "Propulsez vos applications sur une infrastructure cloud sécurisée. Une scalabilité sans limite pour accompagner votre croissance.",
+    description: "Propulsez vos applications sur une infrastructure cloud sécurisée. Une scalabilité sans limite pour accompagner votre croissance.",
     bullets: [
       "Hébergement cloud sécurisé (multi-sites)",
       "Solutions de sauvegarde et continuité d'activité",
@@ -79,11 +79,10 @@ const SERVICES = [
   },
   {
     id: "conseil",
-    icon: iconConseil,
-    image: conseilImg,
+    icon: assets.iconConseil,
+    image: assets.conseilImg,
     title: "Intégration & Conseil",
-    description:
-      "L'innovation ne vaut rien sans exécution. Nos experts vous accompagnent de l'audit initial à la maintenance opérationnelle pour garantir l'adoption de vos nouveaux outils.",
+    description: "L'innovation ne vaut rien sans exécution. Nos experts vous accompagnent de l'audit initial à la maintenance opérationnelle pour garantir l'adoption de vos nouveaux outils.",
     bullets: [
       "Intégration téléphonie / CRM / systèmes métiers",
       "Automatisation des flux de communication",
@@ -95,28 +94,25 @@ const SERVICES = [
   },
   {
     id: "data",
-    icon: iconBigData,
-    image: bigDataImg,
+    icon: assets.iconBigData,
+    image: assets.bigDataImg,
     title: "Data & Analyse",
-    description:
-      "Transformez vos données brutes en décisions stratégiques. Nous déployons des pipelines de données robustes pour capturer la valeur à chaque interaction.",
+    description: "Transformez vos données brutes en décisions stratégiques. Nous déployons des pipelines de données robustes pour capturer la valeur à chaque interaction.",
     bullets: [
       "Collecte et centralisation des données (appels, messages, interactions)",
       "Reporting avancé et tableaux de bord personnalisés",
       "Analyse de performance opérationnelle",
       "Insights pour des décisions éclairées",
     ],
-    objective:
-      "Objectif : Transformer vos données en insights concrets et actionnables.",
+    objective: "Objectif : Transformer vos données en insights concrets et actionnables.",
     imageSide: "left",
   },
   {
     id: "support",
-    icon: iconSupport,
-    image: supportImg,
+    icon: assets.iconSupport,
+    image: assets.supportImg,
     title: "Support & Infogérance",
-    description:
-      "Dormez sur vos deux oreilles. Nos équipes surveillent vos systèmes jour et nuit pour prévenir les incidents avant même qu'ils ne surviennent.",
+    description: "Dormez sur vos deux oreilles. Nos équipes surveillent vos systèmes jour et nuit pour prévenir les incidents avant même qu'ils ne surviennent.",
     bullets: [
       "Supervision proactive en temps réel",
       "Maintenance et support technique dédié",
@@ -129,123 +125,110 @@ const SERVICES = [
 ];
 
 const STATS = [
-  {
-    id: "partners",
-    value: "+100",
-    label: "Entreprises partenaires",
-    description:
-      "Nous font confiance au quotidien pour leurs opérations critiques.",
-  },
-  {
-    id: "uptime",
-    value: "99.9%",
-    label: "Disponibilté garanti",
-    description: "Engagement contractuel pour une continuité sans faille.",
-  },
-  {
-    id: "support",
-    value: "24/7",
-    label: "Support expert",
-    description: "Une équipe d'ingénieurs dédiée à votre écoute en permanence.",
-  },
+  { id: "partners", value: "+100", label: "Entreprises partenaires", description: "Nous font confiance au quotidien pour leurs opérations critiques." },
+  { id: "uptime", value: "99.9%", label: "Disponibilté garanti", description: "Engagement contractuel pour une continuité sans faille." },
+  { id: "support", value: "24/7", label: "Support expert", description: "Une équipe d'ingénieurs dédiée à votre écoute en permanence." },
 ];
 
-// --- Sub-components ---
-function FeatureBadge({ icon, title, description }) {
-  return (
-    <div className="flex items-center gap-4">
-      <div className="shrink-0 rounded-lg bg-[rgba(45,212,191,0.1)] p-3">
-        <img src={icon} alt="" className="size-8" />
-      </div>
-      <div className="flex flex-col text-white">
-        <p className="font-bold text-base leading-6">{title}</p>
-        <p className="text-sm leading-5">{description}</p>
-      </div>
+// --- Composants réutilisables ---
+
+const SectionTitle = ({ title }) => (
+  <div className="flex items-center gap-5">
+    <span className="hidden h-px w-[165px] bg-[#0d5143]/20 md:block" />
+    <h2 className="text-center text-[36px] font-black uppercase text-[#0d5143]">{title}</h2>
+    <span className="hidden h-px w-[165px] bg-[#0d5143]/20 md:block" />
+  </div>
+);
+
+const FeatureBadge = ({ icon, title, description }) => (
+  <div className="flex items-center gap-4">
+    <div className="shrink-0 rounded-lg bg-[rgba(45,212,191,0.1)] p-3">
+      <img src={icon} alt="" className="size-8" />
     </div>
-  );
-}
+    <div className="flex flex-col text-white">
+      <p className="font-bold text-base leading-6">{title}</p>
+      <p className="text-sm leading-5">{description}</p>
+    </div>
+  </div>
+);
 
-function ServiceSection({ service }) {
-  const imageFirst = service.imageSide === "left";
+const StatCard = ({ value, label, description }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, amount: 0.4 }}
+    transition={{ duration: 0.5 }}
+    className="flex flex-col items-center gap-2 text-center"
+  >
+    <p className="text-[48px] font-black tracking-[-2.4px] text-[#006b57]">{value}</p>
+    <p className="pt-2 text-lg font-bold text-[#1a1c1c]">{label}</p>
+    <p className="max-w-[330px] text-sm text-[#3c4a45]">{description}</p>
+  </motion.div>
+);
 
-  const textBlock = (
+const ServiceBullet = ({ text }) => (
+  <li className="flex items-center gap-3">
+    <img src={assets.iconCheck} alt="" className="size-5 shrink-0" />
+    <span className="flex-1 text-black text-base leading-6">{text}</span>
+  </li>
+);
+
+// --- Composant principal de service (avec animation) ---
+const ServiceSection = ({ service }) => {
+  const { imageSide, icon, title, description, bullets, objective, image } = service;
+  const isLeft = imageSide === "left";
+
+  const MotionDiv = ({ children, x, className }) => (
     <motion.div
-      initial={{ opacity: 0, x: imageFirst ? 40 : -40 }}
+      initial={{ opacity: 0, x }}
       whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="flex flex-col items-start gap-4 flex-1"
+      className={className}
     >
+      {children}
+    </motion.div>
+  );
+
+  const textBlock = (
+    <MotionDiv x={isLeft ? 40 : -40} className="flex flex-col items-start gap-4 flex-1">
       <div
         className="flex size-16 items-center justify-center rounded-2xl shadow-[0px_10px_15px_-3px_rgba(0,107,87,0.2),0px_4px_6px_-4px_rgba(0,107,87,0.2)]"
-        style={{
-          backgroundImage: "linear-gradient(135deg, #1eb394 0%, #006b57 100%)",
-        }}
+        style={{ backgroundImage: "linear-gradient(135deg, #1eb394 0%, #006b57 100%)" }}
       >
-        <img src={service.icon} alt="" className="size-6" />
+        <img src={icon} alt="" className="size-6" />
       </div>
-
-      <h3 className="text-black text-[36px] font-bold leading-[1.2] tracking-[-0.72px]">
-        {service.title}
-      </h3>
-
-      <p className="text-black text-lg leading-[1.6]">{service.description}</p>
-
+      <h3 className="text-black text-[36px] font-bold leading-[1.2] tracking-[-0.72px]">{title}</h3>
+      <p className="text-black text-lg leading-[1.6]">{description}</p>
       <ul className="flex flex-col gap-4 pt-2 w-full">
-        {service.bullets.map((bullet, i) => (
-          <li key={i} className="flex items-center gap-3">
-            <img src={iconCheck} alt="" className="size-5 shrink-0" />
-            <span className="flex-1 text-black text-base leading-6">
-              {bullet}
-            </span>
-          </li>
+        {bullets.map((bullet, i) => (
+          <ServiceBullet key={i} text={bullet} />
         ))}
       </ul>
-
-      <p className="pt-4 text-[#006b57] text-base font-bold leading-6">
-        {service.objective}
-      </p>
-    </motion.div>
+      <p className="pt-4 text-[#006b57] text-base font-bold leading-6">{objective}</p>
+    </MotionDiv>
   );
 
   const imageBlock = (
-    <motion.div
-      initial={{ opacity: 0, x: imageFirst ? -40 : 40 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="flex-1 flex justify-center"
-    >
-      <img
-        src={service.image}
-        alt={service.title}
-        className="w-full max-w-[496px] object-cover"
-      />
-    </motion.div>
+    <MotionDiv x={isLeft ? -40 : 40} className="flex-1 flex justify-center">
+      <img src={image} alt={title} className="w-full max-w-[496px] object-cover" />
+    </MotionDiv>
   );
 
   return (
-    <div className="flex flex-col md:flex-row items-center gap-12 w-full">
-      {imageFirst ? (
-        <>
-          {imageBlock}
-          {textBlock}
-        </>
-      ) : (
-        <>
-          {textBlock}
-          {imageBlock}
-        </>
-      )}
+    <div className={`flex flex-col md:flex-row items-center gap-12 w-full ${isLeft ? "md:flex-row" : "md:flex-row-reverse"}`}>
+      {imageBlock}
+      {textBlock}
     </div>
   );
-}
+};
 
+// --- Composant principal ---
 export default function Services() {
   return (
     <div
       className="relative w-full bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: `url(${servicesBg})` }}
+      style={{ backgroundImage: `url(${assets.servicesBg})` }}
     >
       {/* Hero */}
       <section className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-8 px-6 pt-16 md:flex-row md:gap-14 md:px-24 md:pt-24 mt-[160px]">
@@ -263,34 +246,18 @@ export default function Services() {
               </span>
             </h1>
             <p className="text-black text-xl leading-[1.75]">
-              Optimisez vos flux opérationnels avec une infrastructure de
-              pointe. Performance inégalée, flexibilité totale et intégration
-              native pour propulser votre entreprise vers de nouveaux sommets.
+              Optimisez vos flux opérationnels avec une infrastructure de pointe. Performance inégalée, flexibilité totale et intégration native pour propulser votre entreprise vers de nouveaux sommets.
             </p>
           </div>
 
           <button
             type="button"
             className="flex items-center gap-4 rounded-3xl px-8 py-4 text-base font-medium text-white transition-transform hover:scale-[1.02]"
-            style={{
-              backgroundImage:
-                "linear-gradient(155deg, #1eb394 15%, #006b57 84%)",
-            }}
+            style={{ backgroundImage: "linear-gradient(155deg, #1eb394 15%, #006b57 84%)" }}
           >
             Découvrir nos services
-            <svg
-              className="size-3"
-              viewBox="0 0 12 12"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M2.5 4.5L6 8l3.5-3.5"
-                stroke="white"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+            <svg className="size-3" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.5 4.5L6 8l3.5-3.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
         </motion.div>
@@ -301,11 +268,7 @@ export default function Services() {
           transition={{ duration: 0.7, ease: "easeOut", delay: 0.15 }}
           className="flex-1"
         >
-          <img
-            src={heroImg}
-            alt="Illustration KoneKtUS"
-            className="w-full max-w-[612px] object-cover"
-          />
+          <img src={assets.heroImg} alt="Illustration KoneKtUS" className="w-full max-w-[612px] object-cover" />
         </motion.div>
       </section>
 
@@ -326,14 +289,7 @@ export default function Services() {
 
       {/* Services */}
       <section className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-16 px-6 py-24 md:px-24 md:py-32">
-        <div className="flex items-center gap-5">
-          <span className="hidden h-px w-[165px] bg-[#0d5143]/20 md:block" />
-          <h2 className="text-center text-[36px] font-black uppercase text-[#0d5143]">
-            Nos services
-          </h2>
-          <span className="hidden h-px w-[165px] bg-[#0d5143]/20 md:block" />
-        </div>
-
+        <SectionTitle title="Nos services" />
         <div className="flex w-full flex-col gap-24 md:gap-32">
           {SERVICES.map((service) => (
             <ServiceSection key={service.id} service={service} />
@@ -343,34 +299,10 @@ export default function Services() {
 
       {/* Trust stats */}
       <section className="relative mx-auto flex max-w-[1245px] flex-col items-center gap-16 px-6 pb-24 md:px-24">
-        <div className="flex items-center gap-5">
-          <span className="hidden h-px w-[165px] bg-[#0d5143]/20 md:block" />
-          <h2 className="text-center text-[32px] font-extrabold uppercase text-[#0d5143]">
-            Ils nous font confiance
-          </h2>
-          <span className="hidden h-px w-[165px] bg-[#0d5143]/20 md:block" />
-        </div>
-
+        <SectionTitle title="Ils nous font confiance" />
         <div className="grid w-full grid-cols-1 gap-16 md:grid-cols-3">
           {STATS.map((stat) => (
-            <motion.div
-              key={stat.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.4 }}
-              transition={{ duration: 0.5 }}
-              className="flex flex-col items-center gap-2 text-center"
-            >
-              <p className="text-[48px] font-black tracking-[-2.4px] text-[#006b57]">
-                {stat.value}
-              </p>
-              <p className="pt-2 text-lg font-bold text-[#1a1c1c]">
-                {stat.label}
-              </p>
-              <p className="max-w-[330px] text-sm text-[#3c4a45]">
-                {stat.description}
-              </p>
-            </motion.div>
+            <StatCard key={stat.id} {...stat} />
           ))}
         </div>
       </section>
@@ -392,18 +324,15 @@ export default function Services() {
           </h2>
 
           <div className="flex flex-col gap-6 sm:flex-row">
-            <button
-              type="button"
-              className="w-[279px] rounded-full bg-white px-8 py-4 text-lg font-bold text-[#2b6859] drop-shadow-[0px_8px_10px_rgba(0,0,0,0.25)] transition-transform hover:scale-[1.02]"
-            >
-              Contactez-Nous
-            </button>
-            <button
-              type="button"
-              className="w-[279px] rounded-full bg-white px-8 py-4 text-lg font-bold text-[#2b6859] drop-shadow-[0px_8px_10px_rgba(0,0,0,0.25)] transition-transform hover:scale-[1.02]"
-            >
-              Démarrer l'essai gratuit
-            </button>
+            {["Contactez-Nous", "Démarrer l'essai gratuit"].map((label, idx) => (
+              <button
+                key={idx}
+                type="button"
+                className="w-[279px] rounded-full bg-white px-8 py-4 text-lg font-bold text-[#2b6859] drop-shadow-[0px_8px_10px_rgba(0,0,0,0.25)] transition-transform hover:scale-[1.02]"
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </motion.div>
       </section>
