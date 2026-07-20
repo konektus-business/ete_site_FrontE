@@ -1,4 +1,4 @@
-const mockCurrentUser = {
+export const mockCurrentUser = {
   name: 'Karim Ben Ali',
   role: 'Super Admin',
   avatarUrl: '/avatar.jpg',

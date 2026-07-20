@@ -2,10 +2,18 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import CrmLayout from './components/layout/CrmLayout';
 
 import Dashboard from './pages/crm/Dashboard';
-import Clients from './pages/crm/Clients';
-import Tickets from './pages/crm/Tickets';
-import Factures from './pages/crm/Factures';
-import Settings from './pages/crm/Settings';
+import CDR from './pages/crm/CDR';
+import Compagne from './pages/crm/Compagne';
+import Enregistrement from './pages/crm/Enregistrement';
+import Integration from './pages/crm/Integration';
+import Stats from './pages/crm/Stats';
+import Leads from './pages/crm/Leads';
+import Operateur from './pages/crm/Operateur';
+import PanneauLive from './pages/crm/PanneauLive';
+import Users from './pages/crm/Users';
+import VOIP from './pages/crm/VOIP';
+import VTM from './pages/crm/VTM';
+
 
 function App() {
   return (
@@ -14,14 +22,21 @@ function App() {
         <Route path="/" element={<div className="p-8">Page d'accueil (Vitrine)</div>} />
         <Route path="/login" element={<div className="p-8">Page Connexion</div>} />
 
-        <Route path="/crm" element={<CrmLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="clients" element={<Clients />} />
-          <Route path="tickets" element={<Tickets />} />
-          <Route path="factures" element={<Factures />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
+      <Route path="/crm" element={<CrmLayout />}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="users" element={<Users />} />
+        <Route path="panneauLive" element={<PanneauLive />} />
+        <Route path="stats" element={<Stats />} />
+        <Route path="enregistrement" element={<Enregistrement />} />
+        <Route path="operateur" element={<Operateur />} />
+        <Route path="compagnes" element={<Compagne />} />
+        <Route path="leads" element={<Leads />} />
+        <Route path="CDR" element={<CDR />} />
+        <Route path="VTM" element={<VTM />} />
+        <Route path="integration" element={<Integration />} />
+        <Route path="VOIP" element={<VOIP />} />
+      </Route>
       </Routes>
     </BrowserRouter>
   );

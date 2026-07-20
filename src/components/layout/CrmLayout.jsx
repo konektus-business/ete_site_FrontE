@@ -3,20 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import { getCurrentUser } from '../../api/auth';
-
-const tabsConfig = {
-  factures: [
-    { key: 'toutes', label: 'Toutes les ventes' },
-    { key: 'en-attente', label: 'En attente' },
-    { key: 'remboursements', label: 'Remboursements' },
-    { key: 'statistiques', label: 'Statistiques' },
-  ],
-  clients: [
-    { key: 'tous', label: 'Tous les clients' },
-    { key: 'essais', label: 'Essais en cours' },
-    { key: 'suspendus', label: 'Comptes suspendus' },
-  ],
-};
+import { tabsConfig } from '../../config/tabsConfig';
 
 function CrmLayout() {
   const location = useLocation();
@@ -35,14 +22,14 @@ function CrmLayout() {
   useEffect(() => {
     getCurrentUser().then((data) => setUser(data));
   }, []);
-
+console.log('CrmLayout render, user =', user);
   if (!user) {
     return <div className="flex h-screen items-center justify-center">Chargement...</div>;
   }
 
   return (
     <div className="flex h-screen w-full bg-crmBg overflow-hidden">
-      <Sidebar user={user} />
+      <Sidebar isOpen={sidebarOpen} />
       <div className="flex flex-col flex-1 h-full overflow-hidden">
         <Header
           user={user}

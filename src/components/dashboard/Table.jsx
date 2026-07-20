@@ -1,7 +1,7 @@
 const Table = ({ data, columns, onRowClick }) => { 
     return (
         <div className="overflow-x-auto w-full rounded-xl shadow-md overflow-hidden bg-white  ">
-        <table>
+        <table className=" w-full">
             <thead className="bg-[#DDF4EF] text-[#6C798B] font-bold text-[10px] uppercase text-left tracking-[0.5px] leading-none"> 
                 <tr className="even:bg-gray-50 hover:bg-[#DDF4EF]">
                     {columns.map((column) => (

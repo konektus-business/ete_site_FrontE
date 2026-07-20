@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { Bell, User, Search, Menu, Calendar, ChevronDown } from 'lucide-react';
+import { Bell, User, Search, Menu, Calendar, ChevronDown, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { pageLabels } from '../../utils/pageLabels';
 import { getInitials } from '../../utils/avatar';
@@ -18,6 +18,7 @@ export default function Header({
   const currentPath = location.pathname.split('/').pop();
   const pageTitle = pageLabels[currentPath] || 'CRM';
   const [query, setQuery] = useState('');
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const today = new Date().toLocaleDateString('fr-FR', {
     day: '2-digit',
     month: '2-digit',
@@ -127,38 +128,59 @@ export default function Header({
             <span>{today}</span>
           </div>
 
-          <div className="flex items-center gap-2 cursor-pointer group">
-            {user.avatarUrl ? (
-              <img
-                src={user.avatarUrl}
-                alt={user.name}
-                className="w-9 h-9 rounded-full object-cover border border-slate-300 shrink-0"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'flex';
-                }}
-              />
-            ) : null}
+          <div className="relative">
             <div
-              className="w-9 h-9 bg-slate-200 text-slate-600 rounded-full items-center justify-center font-medium border border-slate-300 text-sm shrink-0"
-              style={{ display: user.avatarUrl ? 'none' : 'flex' }}
+              className="flex items-center gap-2 cursor-pointer group"
+              onClick={() => setShowUserMenu(!showUserMenu)}
             >
-              {getInitials(`${user.prenom} ${user.nom}`)}
+              {user.avatarUrl ? (
+                <img
+                  src={user.avatarUrl}
+                  alt={user.name}
+                  className="w-9 h-9 rounded-full object-cover border border-slate-300 shrink-0"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+              ) : null}
+              <div
+                className="w-9 h-9 bg-slate-200 text-slate-600 rounded-full items-center justify-center font-medium border border-slate-300 text-sm shrink-0"
+                style={{ display: user.avatarUrl ? 'none' : 'flex' }}
+              >
+                {getInitials(`${user.prenom} ${user.nom}`)}
+              </div>
+
+              <div className="hidden lg:flex flex-col min-w-0">
+                <span
+                  className="truncate max-w-[100px]"
+                  style={{
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontWeight: 700,
+                    fontSize: '12px',
+                    lineHeight: '16px',
+                    letterSpacing: '0px',
+                    color: '#1E293B',
+                  }}
+                >
+                  {user.name}
+                </span>
+                <span className="text-[10px] font-medium text-crmPrimary truncate max-w-[100px]">
+                  {user.role}
+                </span>
+              </div>
+
+              <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition shrink-0" />
             </div>
-            <span
-              className="hidden lg:block truncate max-w-[100px]"
-              style={{
-                fontFamily: 'Plus Jakarta Sans',
-                fontWeight: 700,
-                fontSize: '12px',
-                lineHeight: '16px',
-                letterSpacing: '0px',
-                color: '#1E293B',
-              }}
-            >
-              {user.name}
-            </span>
-            <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition shrink-0" />
+
+            {showUserMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-2 z-50">
+                <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition">
+                  <LogOut className="w-4 h-4" />
+                  Déconnexion
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

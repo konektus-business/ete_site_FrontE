@@ -1,6 +1,14 @@
 export const pageLabels = {
-  dashboard: "Vue d'ensemble",
-  factures: 'Ventes & paiements',
-  clients: 'Clients',
-  settings: 'Paramètres',
+  dashboard: "Dashbord",
+  CDR: 'CDR',
+  compagnes: 'Compagnes',
+  enregistrement: 'Enregistrement',
+  integration: 'Integration',
+  leads:'Leads',
+  operateur: "Operateur",
+  panneauLive: 'PanneauLive',
+  stats: 'Statistiques',
+  users: 'Utilisateurs',
+  VOIP: 'VOIP',
+  VTM:'VTM',  
 };
