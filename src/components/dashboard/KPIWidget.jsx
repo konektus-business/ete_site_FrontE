@@ -6,16 +6,16 @@ export default function KPIWidget({ icon, title, badge, value, variation, variat
 
       <div className="flex items-center justify-between w-full gap-2">
         <div className="flex items-center gap-2 min-w-0">
-          <div className="w-[38px] h-[40px] shrink-0 bg-emerald-50 rounded-lg flex items-center justify-center">
+          <div className="w-[36px] h-[38px] shrink-0 bg-emerald-50 rounded-lg flex items-center justify-center">
             {icon}
           </div>
-      <span className="font-semibold text-[14px] leading-5 text-[#536175] break-words">
+      <span className="font-semibold text-[13px] leading-5 text-[#536175] break-words">
         {title}
       </span>
         </div>
         {badge && (
           <div className="flex flex-col items-start pt-1 pr-[13.09px] pb-1 pl-2 bg-[#F0FDF4] rounded-[4px] shrink-0">
-            <span className="font-['Plus_Jakarta_Sans'] font-bold text-[10px] leading-[15px] uppercase text-[#059669] whitespace-nowrap">
+            <span className="font-bold text-[10px] leading-[15px] uppercase text-[#059669] whitespace-nowrap">
               {badge}
             </span>
           </div>
@@ -23,11 +23,11 @@ export default function KPIWidget({ icon, title, badge, value, variation, variat
       </div>
 
       <div className="flex flex-col gap-1 w-full">
-        <div className="font-bold text-[30px] leading-[36px] text-[#1E293B] truncate">
+        <div className="font-bold text-[25px] leading-[36px] text-[#1E293B] truncate">
           {value}
         </div>
         {subLabel && (
-          <div className="font-['Plus_Jakarta_Sans'] font-normal text-[11px] leading-[16.5px] align-middle text-[#536175] mb-0.5">
+          <div className="font-normal text-[11px] leading-[16.5px] align-middle text-[#536175] mb-0.5">
             {subLabel}
           </div>
         )}
