@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { getInitials } from '../../utils/avatar';
 import logo from '../../assets/logo.png';
 import { ChevronDown, LayoutDashboard, Users, Radio, BarChart3, Mic, Headset, Megaphone, UserPlus, FileClock, Link2, Plug, Phone } from 'lucide-react';
-// Icônes custom exportées depuis Figma
+
 
 const LogOutIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">

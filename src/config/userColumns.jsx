@@ -21,10 +21,10 @@ export const usersTable = {
       label: 'Nom complet',
       render: (row) => (
         <div className="flex items-center gap-3">
-          <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold ${getAvatarColor(row.id)}`}>
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-white text-xs font-bold ${getAvatarColor(row.id)}`}>
             {getInitials(row.full_name)}
           </div>
-          <p className="font-sans font-medium text-xs leading-4 tracking-normal align-middle text-gray-900">
+          <p className="font-bold text-[12px] leading-[20px] tracking-normal align-middle">
             {row.full_name}
           </p>
         </div>

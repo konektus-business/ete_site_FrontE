@@ -119,40 +119,41 @@ export default function AddSupUser() {
           </div>
         </div>
 
-        {/* Droits d'accès */}
-        <div className="pt-6">
-          <div className="flex items-center justify-between mb-4">
-            <h4 className="text-sm font-semibold text-gray-900">Droits d'accès</h4>
-            <label className="flex items-center gap-2 text-xs font-medium text-emerald-700 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={allChecked}
-                onChange={handleCheckAll}
-                className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
-              />
-              Tous les droits
-            </label>
-          </div>
+      {/* Droits d'accès */}
+      <div className="pt-6">
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="text-sm font-semibold text-gray-900">Droits d'accès</h4>
+          <label className="flex items-center gap-2 text-xs font-medium text-emerald-700 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={allChecked}
+              onChange={handleCheckAll}
+              className="appearance-none w-4 h-4 rounded-[4px] border-[1px] border-solid border-[#6B7280] bg-white cursor-pointer relative checked:after:content-[''] checked:after:absolute checked:after:left-[4px] checked:after:top-[0px] checked:after:w-[5px] checked:after:h-[10px] checked:after:border-r-2 checked:after:border-b-2 checked:after:border-[#006B57] checked:after:rotate-45"
+            />
+            Tous les droits
+          </label>
+        </div>
 
-          <div className="max-h-80 overflow-y-auto rounded-lg border border-gray-100 bg-gray-50/50 p-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-3">
-              {userRights.map((right) => (
-                <label
-                  key={right.field}
-                  className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none"
-                >
-                  <input
-                    type="checkbox"
-                    checked={rights[right.field]}
-                    onChange={() => handleRightToggle(right.field)}
-                    className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 shrink-0"
-                  />
-                  {right.label}
-                </label>
-              ))}
-            </div>
+        <div className="max-h-80 overflow-y-auto rounded-lg border border-gray-100 bg-gray-50/50 p-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-3">
+            {userRights.map((right) => (
+              <label
+                key={right.field}
+                className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none"
+              >
+                <input
+                  type="checkbox"
+                  checked={rights[right.field]}
+                  onChange={() => handleRightToggle(right.field)}
+                  className="appearance-none w-4 h-4 rounded-[4px] border-[1px] border-solid border-[#6B7280] bg-white cursor-pointer relative checked:after:content-[''] checked:after:absolute checked:after:left-[4px] checked:after:top-[0px] checked:after:w-[5px] checked:after:h-[10px] checked:after:border-r-2 checked:after:border-b-2 checked:after:border-[#006B57] checked:after:rotate-45 shrink-0"
+                />
+                {right.label}
+              </label>
+            ))}
           </div>
         </div>
+      </div>
+
 
         {error && <p className="text-xs text-red-600 mt-4">{error}</p>}
 

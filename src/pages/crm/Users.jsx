@@ -1,8 +1,8 @@
 import { useOutletContext } from 'react-router-dom';
 import UsersList from './Users/UserList';
-import AddAgent from './users/AddAgent';
-import AddSupUser from './users/AddSupUser';
-import Groups from './users/Groups';
+import AddAgent from './Users/AddAgent';
+import AddSupUser from './Users/AddSupUser';
+import Groups from './Users/Groups';
 
 export default function Users() {
   const { activeTab } = useOutletContext();
