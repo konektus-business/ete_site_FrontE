@@ -1,0 +1,2 @@
+export const checkboxClass =
+  "appearance-none w-4 h-4 rounded-[4px] border-[1px] border-solid border-[#6B7280] bg-white cursor-pointer relative shrink-0 checked:after:content-[''] checked:after:absolute checked:after:left-[4px] checked:after:top-[0px] checked:after:w-[5px] checked:after:h-[10px] checked:after:border-r-2 checked:after:border-b-2 checked:after:border-[#006B57] checked:after:rotate-45";

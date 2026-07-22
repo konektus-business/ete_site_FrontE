@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { createSupUser } from '../../../api/agent';
 import { userGroups } from '../../../config/userGroups';
 import { userRights } from '../../../config/userRights';
+import Select from '../../../components/common/Select';
+import { checkboxClass } from '../../../styles/checkboxClass';
 
 const initialForm = {
   user: '',
@@ -18,6 +20,16 @@ const initialRights = userRights.reduce(
   {}
 );
 
+const userLevelOptions = Array.from({ length: 9 }, (_, i) => i + 1).map((level) => ({
+  value: level,
+  label: String(level),
+}));
+
+const userGroupOptions = [
+  { value: '', label: '-- Aucun --' },
+  ...userGroups.map((group) => ({ value: group, label: group })),
+];
+
 export default function AddSupUser() {
   const [form, setForm] = useState(initialForm);
   const [rights, setRights] = useState(initialRights);
@@ -28,6 +40,10 @@ export default function AddSupUser() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFieldChange = (name) => (value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -61,7 +77,7 @@ export default function AddSupUser() {
   };
 
   const inputClass =
-    'w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white transition-colors';
+    'w-full h-[38px] rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white transition-colors';
   const labelClass = 'block text-xs font-medium text-gray-500 mb-1.5';
 
   return (
@@ -76,84 +92,122 @@ export default function AddSupUser() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pb-6 border-b border-gray-100">
           <div>
             <label htmlFor="user" className={labelClass}>Login *</label>
-            <input type="text" id="user" name="user" required value={form.user} onChange={handleChange} className={inputClass} placeholder="ex: supervisor01" />
+            <input
+              type="text"
+              id="user"
+              name="user"
+              required
+              value={form.user}
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="ex: supervisor01"
+            />
           </div>
 
           <div>
             <label htmlFor="pass" className={labelClass}>Mot de passe *</label>
-            <input type="password" id="pass" name="pass" required value={form.pass} onChange={handleChange} className={inputClass} />
+            <input
+              type="password"
+              id="pass"
+              name="pass"
+              required
+              value={form.pass}
+              onChange={handleChange}
+              className={inputClass}
+            />
           </div>
 
           <div>
             <label htmlFor="full_name" className={labelClass}>Nom complet *</label>
-            <input type="text" id="full_name" name="full_name" required value={form.full_name} onChange={handleChange} className={inputClass} placeholder="ex: Sarra Trabelsi" />
+            <input
+              type="text"
+              id="full_name"
+              name="full_name"
+              required
+              value={form.full_name}
+              onChange={handleChange}
+              className={inputClass}
+              placeholder="ex: Sarra Trabelsi"
+            />
           </div>
 
           <div>
-            <label htmlFor="user_level" className={labelClass}>Niveau utilisateur</label>
-            <select id="user_level" name="user_level" value={form.user_level} onChange={handleChange} className={inputClass}>
-              {Array.from({ length: 9 }, (_, i) => i + 1).map((level) => (
-                <option key={level} value={level}>{level}</option>
-              ))}
-            </select>
+            <label className={labelClass}>Niveau utilisateur</label>
+            <Select
+              value={form.user_level}
+              onChange={handleFieldChange('user_level')}
+              options={userLevelOptions}
+            />
           </div>
 
           <div>
-            <label htmlFor="user_group" className={labelClass}>Groupe</label>
-            <select id="user_group" name="user_group" value={form.user_group} onChange={handleChange} className={inputClass}>
-              <option value="">-- Aucun --</option>
-              {userGroups.map((group) => (
-                <option key={group} value={group}>{group}</option>
-              ))}
-            </select>
+            <label className={labelClass}>Groupe</label>
+            <Select
+              value={form.user_group}
+              onChange={handleFieldChange('user_group')}
+              options={userGroupOptions}
+            />
           </div>
 
           <div>
             <label htmlFor="phone_login" className={labelClass}>Login téléphone</label>
-            <input type="text" id="phone_login" name="phone_login" value={form.phone_login} onChange={handleChange} className={inputClass} />
+            <input
+              type="text"
+              id="phone_login"
+              name="phone_login"
+              value={form.phone_login}
+              onChange={handleChange}
+              className={inputClass}
+            />
           </div>
 
           <div>
             <label htmlFor="phone_pass" className={labelClass}>Mot de passe téléphone</label>
-            <input type="text" id="phone_pass" name="phone_pass" value={form.phone_pass} onChange={handleChange} className={inputClass} />
-          </div>
-        </div>
-
-      {/* Droits d'accès */}
-      <div className="pt-6">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="text-sm font-semibold text-gray-900">Droits d'accès</h4>
-          <label className="flex items-center gap-2 text-xs font-medium text-emerald-700 cursor-pointer select-none">
             <input
-              type="checkbox"
-              checked={allChecked}
-              onChange={handleCheckAll}
-              className="appearance-none w-4 h-4 rounded-[4px] border-[1px] border-solid border-[#6B7280] bg-white cursor-pointer relative checked:after:content-[''] checked:after:absolute checked:after:left-[4px] checked:after:top-[0px] checked:after:w-[5px] checked:after:h-[10px] checked:after:border-r-2 checked:after:border-b-2 checked:after:border-[#006B57] checked:after:rotate-45"
+              type="text"
+              id="phone_pass"
+              name="phone_pass"
+              value={form.phone_pass}
+              onChange={handleChange}
+              className={inputClass}
             />
-            Tous les droits
-          </label>
-        </div>
-
-        <div className="max-h-80 overflow-y-auto rounded-lg border border-gray-100 bg-gray-50/50 p-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-3">
-            {userRights.map((right) => (
-              <label
-                key={right.field}
-                className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none"
-              >
-                <input
-                  type="checkbox"
-                  checked={rights[right.field]}
-                  onChange={() => handleRightToggle(right.field)}
-                  className="appearance-none w-4 h-4 rounded-[4px] border-[1px] border-solid border-[#6B7280] bg-white cursor-pointer relative checked:after:content-[''] checked:after:absolute checked:after:left-[4px] checked:after:top-[0px] checked:after:w-[5px] checked:after:h-[10px] checked:after:border-r-2 checked:after:border-b-2 checked:after:border-[#006B57] checked:after:rotate-45 shrink-0"
-                />
-                {right.label}
-              </label>
-            ))}
           </div>
         </div>
-      </div>
 
+        {/* Droits d'accès */}
+        <div className="pt-6">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-sm font-semibold text-gray-900">Droits d'accès</h4>
+            <label className="flex items-center gap-2 text-xs font-medium text-emerald-700 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={allChecked}
+                onChange={handleCheckAll}
+                className={checkboxClass}
+              />
+              Tous les droits
+            </label>
+          </div>
+
+          <div className="max-h-80 overflow-y-auto rounded-lg border border-gray-100 bg-gray-50/50 p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-3">
+              {userRights.map((right) => (
+                <label
+                  key={right.field}
+                  className="flex items-center gap-2 text-xs text-gray-700 cursor-pointer select-none"
+                >
+                  <input
+                    type="checkbox"
+                    checked={rights[right.field]}
+                    onChange={() => handleRightToggle(right.field)}
+                    className={checkboxClass}
+                  />
+                  {right.label}
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {error && <p className="text-xs text-red-600 mt-4">{error}</p>}
 
@@ -161,13 +215,13 @@ export default function AddSupUser() {
           <button
             type="submit"
             disabled={loading}
-            className="px-5 py-2.5 rounded-lg text-sm font-medium text-white bg-[#1EB394] hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+            className="h-[38px] px-5 rounded-lg text-sm font-medium text-white bg-crmPrimary hover:brightness-95 disabled:opacity-50 transition-colors whitespace-nowrap"
           >
             {loading ? 'Création...' : 'Créer le super-utilisateur'}
           </button>
           <button
             type="button"
-            className="px-5 py-2.5 rounded-lg text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors"
+            className="h-[38px] px-5 rounded-lg text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors whitespace-nowrap"
           >
             Annuler
           </button>

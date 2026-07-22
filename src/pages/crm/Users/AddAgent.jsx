@@ -1,7 +1,8 @@
 // src/pages/crm/users/AddAgent.jsx
 import { useState } from 'react';
 import { createAgent } from '../../../api/agent';
-import { userGroups } from '../../../config/userGroups'; 
+import { userGroups } from '../../../config/userGroups';
+import Select from '../../../components/common/Select';
 
 const initialForm = {
   user: '',
@@ -13,6 +14,16 @@ const initialForm = {
   phone_pass: '',
 };
 
+const userLevelOptions = Array.from({ length: 9 }, (_, i) => i + 1).map((level) => ({
+  value: level,
+  label: String(level),
+}));
+
+const userGroupOptions = [
+  { value: '', label: '-- Aucun --' },
+  ...userGroups.map((group) => ({ value: group, label: group })),
+];
+
 export default function AddAgent() {
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(false);
@@ -20,6 +31,10 @@ export default function AddAgent() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFieldChange = (name) => (value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -67,22 +82,21 @@ export default function AddAgent() {
           </div>
 
           <div>
-            <label htmlFor="user_level" className={labelClass}>Niveau utilisateur</label>
-            <select id="user_level" name="user_level" value={form.user_level} onChange={handleChange} className={inputClass}>
-              {Array.from({ length: 9 }, (_, i) => i + 1).map((level) => (
-                <option key={level} value={level}>{level}</option>
-              ))}
-            </select>
+            <label className={labelClass}>Niveau utilisateur</label>
+            <Select
+              value={form.user_level}
+              onChange={handleFieldChange('user_level')}
+              options={userLevelOptions}
+            />
           </div>
 
           <div>
-            <label htmlFor="user_group" className={labelClass}>Groupe</label>
-            <select id="user_group" name="user_group" value={form.user_group} onChange={handleChange} className={inputClass}>
-              <option value="">-- Aucun --</option>
-              {userGroups.map((group) => (
-                <option key={group} value={group}>{group}</option>
-              ))}
-            </select>
+            <label className={labelClass}>Groupe</label>
+            <Select
+              value={form.user_group}
+              onChange={handleFieldChange('user_group')}
+              options={userGroupOptions}
+            />
           </div>
 
           <div>
