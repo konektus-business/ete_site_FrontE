@@ -5,7 +5,7 @@ export default function Factures() {
 
   return (
     <div className="p-4 bg-white rounded shadow">
-      <p>Contenu de la page des factures</p>
+      <p>Factures</p>
     </div>
   );
 }
