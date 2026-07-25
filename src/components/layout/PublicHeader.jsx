@@ -1,7 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
+import logo from "../../assets/company_logo.png"; // <-- IMPORT the image
 
-// ----- Language dropdown (used only by PublicHeader) -----
+// ----- Custom hook for outside clicks -----
+function useOnClickOutside(ref, handler) {
+  useEffect(() => {
+    const listener = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) handler();
+    };
+    document.addEventListener("mousedown", listener);
+    return () => document.removeEventListener("mousedown", listener);
+  }, [ref, handler]);
+}
+
+// ----- Language dropdown -----
 function LanguageDropdown() {
   const LANGUAGES = [
     { code: "FR", label: "Français" },
@@ -10,14 +22,7 @@ function LanguageDropdown() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(LANGUAGES[0]);
   const ref = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  useOnClickOutside(ref, () => setOpen(false));
 
   return (
     <div className="relative shrink-0" ref={ref}>
@@ -28,9 +33,7 @@ function LanguageDropdown() {
         aria-expanded={open}
         className="flex items-center justify-center gap-2 p-2 text-white"
       >
-        <span className="font-medium text-sm leading-5 whitespace-nowrap">
-          {selected.code}
-        </span>
+        <span className="font-medium text-sm leading-5 whitespace-nowrap">{selected.code}</span>
         <svg
           width="10"
           height="6"
@@ -78,10 +81,70 @@ function LanguageDropdown() {
   );
 }
 
-// ----- Public header (used on public pages) -----
+// ----- Ressources dropdown -----
+function RessourcesDropdown() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useOnClickOutside(ref, () => setOpen(false));
+  const items = [
+    { label: "Blog", to: "ressources/blog" },
+    { label: "Webinaires", to: "/webinaires" },
+    { label: "Nos Guides", to: "/guides" },
+    { label: "Support Technique", to: "/support" },
+  ];
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-haspopup="true"
+        aria-expanded={open}
+        className="flex items-center gap-1 font-medium text-sm leading-5 whitespace-nowrap text-white transition-colors hover:text-[#1eb394]"
+      >
+        Ressources
+        <svg
+          width="10"
+          height="6"
+          viewBox="0 0 10 6"
+          fill="none"
+          className={`ml-1 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        >
+          <path
+            d="M1 1L5 5L9 1"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+      {open && (
+        <ul className="absolute left-0 mt-2 w-48 rounded-xl border border-white/10 bg-[#0d5143] backdrop-blur-md shadow-[0px_10px_30px_0px_rgba(0,0,0,0.5)] py-1 z-10">
+          {items.map((item) => (
+            <li key={item.label}>
+              <NavLink
+                to={item.to}
+                onClick={() => setOpen(false)}
+                className={({ isActive }) =>
+                  `block px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
+                    isActive ? "text-[#1eb394]" : "text-white hover:text-[#1eb394]"
+                  }`
+                }
+              >
+                {item.label}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+// ----- Public header -----
 export function PublicHeader() {
   const location = useLocation();
-  const imgLogo = "src/assets/company_logo.png";
   const NAV_LINKS = [
     { label: "Solutions", href: "#solutions" },
     { label: "Services", href: "/services" },
@@ -89,10 +152,12 @@ export function PublicHeader() {
     { label: "Entreprise", href: "/about" },
     { label: "Prix", href: "/pricing" },
     { label: "Contact", href: "/contact" },
-    { label: "Ressources", href: "#ressources" },
   ];
   const isSpecialPage =
-    location.pathname === "/services" || location.pathname === "/about" || location.pathname === "/pricing";
+    location.pathname === "/services" ||
+    location.pathname === "/about" ||
+    location.pathname === "/pricing" ||
+    location.pathname === "/ressources/blog";
   const headerBg = isSpecialPage ? "bg-[#0d5143]/80" : "bg-[#0d5143]/40";
 
   return (
@@ -100,12 +165,9 @@ export function PublicHeader() {
       <div
         className={`flex flex-[1_0_0] items-center justify-end gap-[90px] rounded-full border border-white/5 backdrop-blur-md shadow-[0px_10px_30px_0px_rgba(0,0,0,0.5)] h-[78px] pl-[15px] pr-[40px] py-0 transition-colors duration-300 ${headerBg}`}
       >
-        {/* Logo */}
         <NavLink to="/" end className="shrink-0 p-2" aria-label="KoneKtUS home">
-          <img src={imgLogo} alt="KoneKtUS logo" className="h-10 w-auto" />
+          <img src={logo} alt="KoneKtUS logo" className="h-10 w-auto" />
         </NavLink>
-
-        {/* Nav links */}
         <nav className="hidden lg:flex flex-1 items-center gap-7">
           {NAV_LINKS.map((link) => (
             <NavLink
@@ -116,9 +178,8 @@ export function PublicHeader() {
               {link.label}
             </NavLink>
           ))}
+          <RessourcesDropdown />
         </nav>
-
-        {/* CTAs + language switcher */}
         <div className="flex items-center gap-4 shrink-0">
           <div className="hidden sm:flex items-center gap-[14px]">
             <NavLink
