@@ -1,34 +1,41 @@
-import { useState } from 'react';
-import { createBrowserRouter, Navigate,  createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
+import { useState } from "react";
+import {
+  createBrowserRouter,
+  Navigate,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+} from "react-router-dom";
 
 // Public layout & pages
-import PublicLayout from './pages/public/PublicLayout';
-import Home from './pages/public/Home';
-import Services from './pages/public/Services';
-import Contact from './pages/public/Contact';
-import About from './pages/public/About';
+import PublicLayout from "./pages/public/PublicLayout";
+import Home from "./pages/public/Home";
+import Services from "./pages/public/Services";
+import Contact from "./pages/public/Contact";
+import About from "./pages/public/About";
 
 // Auth pages
-import Login from './pages/auth/Login';
-import ForgotPassword from './pages/auth/ForgotPassword';
-import Register from './pages/auth/Register';
+import Login from "./pages/auth/Login";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import Register from "./pages/auth/Register";
 
 // CRM layout & pages
-import CrmLayout from './pages/crm/CrmLayout';
-import Dashboard from './pages/crm/Dashboard';
-import CDR from './pages/crm/CDR';
-import Compagne from './pages/crm/Compagne';
-import Enregistrement from './pages/crm/Enregistrement';
-import Integration from './pages/crm/Integration';
-import Stats from './pages/crm/Stats';
-import Leads from './pages/crm/Leads';
-import Operateur from './pages/crm/Operateur';
-import PanneauLive from './pages/crm/PanneauLive';
-import Users from './pages/crm/Users';
-import VOIP from './pages/crm/VOIP';
-import VTM from './pages/crm/VTM';
+import CrmLayout from "./pages/crm/CrmLayout";
+import Dashboard from "./pages/crm/Dashboard";
+import CDR from "./pages/crm/CDR";
+import Compagne from "./pages/crm/Compagne";
+import Enregistrement from "./pages/crm/Enregistrement";
+import Integration from "./pages/crm/Integration";
+import Stats from "./pages/crm/Stats";
+import Leads from "./pages/crm/Leads";
+import Operateur from "./pages/crm/Operateur";
+import PanneauLive from "./pages/crm/PanneauLive";
+import Users from "./pages/crm/Users";
+import VOIP from "./pages/crm/VOIP";
+import VTM from "./pages/crm/VTM";
 
-import './styles/index.css';
+import "./styles/index.css";
+import Pricing from "./pages/public/Pricing";
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -37,8 +44,9 @@ function App() {
         <Route path="/" element={<PublicLayout />}>
           <Route index element={<Home />} />
           <Route path="services" element={<Services />} />
-          <Route path="contact" element={<Contact />} />
           <Route path="about" element={<About />} />
+          <Route path="pricing" element={<Pricing />} />
+          <Route path="contact" element={<Contact />} />
         </Route>
 
         {/* Auth routes – no layout */}
@@ -62,8 +70,8 @@ function App() {
           <Route path="integration" element={<Integration />} />
           <Route path="VOIP" element={<VOIP />} />
         </Route>
-      </>
-    )
+      </>,
+    ),
   );
 
   return <RouterProvider router={router} />;
