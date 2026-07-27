@@ -5,7 +5,7 @@ export const pageLabels = {
   enregistrement: 'Enregistrement',
   integration: 'Integration',
   leads:'Leads',
-  operateur: "Operateur",
+  operateur: "Operateurs",
   panneauLive: 'PanneauLive',
   stats: 'Statistiques',
   users: 'Utilisateurs',

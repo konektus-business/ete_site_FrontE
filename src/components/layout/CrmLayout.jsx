@@ -41,7 +41,7 @@ console.log('CrmLayout render, user =', user);
           onTabChange={setActiveTab}
         />
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-6">
-          <Outlet context={{ activeTab }} />
+          <Outlet context={{ activeTab, setActiveTab }} />
         </main>
       </div>
     </div>

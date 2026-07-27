@@ -5,7 +5,7 @@ module.exports = {
     "./*.html"
   ],
   theme: {
-extend: {
+ extend: {
       colors: {
         crmPrimary: '#1EB394',       
         crmSidebarBg: '#062D24', 

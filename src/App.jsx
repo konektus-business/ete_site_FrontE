@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, createBrowserRouter, createRoutesFromChildren, createRoutesFromElements, RouterProvider } from 'react-router-dom';
 import CrmLayout from './components/layout/CrmLayout';
 
 import Dashboard from './pages/crm/Dashboard';
@@ -16,13 +16,9 @@ import VTM from './pages/crm/VTM';
 
 
 function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<div className="p-8">Page d'accueil (Vitrine)</div>} />
-        <Route path="/login" element={<div className="p-8">Page Connexion</div>} />
-
-      <Route path="/crm" element={<CrmLayout />}>
+  const router = createBrowserRouter(createRoutesFromElements(
+    <>
+     <Route path="/crm" element={<CrmLayout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="users" element={<Users />} />
@@ -37,8 +33,12 @@ function App() {
         <Route path="integration" element={<Integration />} />
         <Route path="VOIP" element={<VOIP />} />
       </Route>
-      </Routes>
-    </BrowserRouter>
+    </>
+
+  ))
+  return (
+      <RouterProvider router={router} />
+
   );
 }
 

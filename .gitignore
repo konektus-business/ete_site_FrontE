@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# SonarQube temporary files
+.scannerwork/
+.sonar/
+
+# Si tu ne veux PAS non plus mettre le fichier de configuration sur Git :
+sonar-project.properties

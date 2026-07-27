@@ -70,3 +70,12 @@ export function getGroupColor(group) {
   const index = hashString(group) % genericGroupColors.length;
   return genericGroupColors[index];
 }
+
+// --- État SIP peers (Opérateurs) ---
+export const getStatusColorClass = (row) => {
+  if (row.status !== 'OK') return 'text-red-600';
+  if (row.latency == null) return 'text-emerald-600';
+  if (row.latency < 20) return 'text-emerald-600';
+  if (row.latency < 100) return 'text-amber-600';
+  return 'text-red-600';
+};

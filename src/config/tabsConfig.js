@@ -13,5 +13,11 @@ export const tabsConfig = {
   { key: 'rh', label: 'Rapports RH' },
   { key: 'status', label: 'Rapports de statuts' },
   ],
-  // Ajout au fur et à mesure : compagnes, leads, operateur, etc.
+    operateur: [
+    { key: 'liste', label: 'Liste carriers' },
+    { key: 'ajouter', label: 'Ajouter un carrier' },
+    { key: 'sip', label: 'État SIP' },
+    { key: 'horaires', label: 'Horaires' },
+  ],
+  // Ajout au fur et à mesure : compagnes, leads, etc.
 };
