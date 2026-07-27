@@ -1,0 +1,40 @@
+name: Build Front React
+
+on:
+  push:
+    branches: [dev, main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint --if-present
+
+      - name: Build
+        run: npm run build
+
+      # Upload FTP désactivé en attendant les accès LWS
+      # - name: Upload via FTP to LWS
+      #   uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      #   with:
+      #     server: ${{ secrets.LWS_FTP_HOST }}
+      #     username: ${{ secrets.LWS_FTP_USER }}
+      #     password: ${{ secrets.LWS_FTP_PASSWORD }}
+      #     local-dir: ./dist/    # ou ./build/ selon Vite/CRA
+      #     server-dir: /www/front/
