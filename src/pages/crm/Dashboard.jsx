@@ -4,16 +4,12 @@ import { getDashboardStats } from '../../api/dashboardStats';
 import { widgetsConfig } from '../../config/dashboardWidgets';
 import KPIWidget from '../../components/dashboard/KPIWidget';
 import KPISkeleton from '../../components/dashboard/KPISkeleton';
-
-
-
-const getDefaultDates = () => {
-  const end = new Date();
-  const start = new Date();
-  start.setDate(start.getDate() - 7);
-  const format = (d) => d.toISOString().split('T')[0];
-  return { startDate: format(start), endDate: format(end) };
-};
+import EvolutionChart from '../../components/dashboard/EvolutionChart';
+import CampaignDonutChart from '../../components/dashboard/CampaignDonutChart';
+import { getCallsEvolution, getCampaignsRepartition } from '../../api/dashboardCharts';
+import { getDefaultDates } from '../../utils/dateUtils';
+import { formInputClass as inputClass, labelClass } from '../../styles/formClasses';
+import Button from '../../components/common/Button';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -43,8 +39,6 @@ export default function Dashboard() {
     fetchStats(defaults.startDate, defaults.endDate);
   };
 
-  const inputClass =
-    'rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white transition-colors';
 
   return (
     <div className="space-y-6">
@@ -69,19 +63,9 @@ export default function Dashboard() {
               className={inputClass}
             />
           </div>
-          <button
-            type="submit"
-            className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-crmPrimary hover:brightness-95 transition-colors"
-          >
-            Appliquer
-          </button>
-          <button
-            type="button"
-            onClick={handleReset}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors"
-          >
-            Réinitialiser
-          </button>
+
+          <Button type="submit" variant="primary">Appliquer</Button>
+          <Button type="button" variant="secondary" onClick={handleReset}>Réinitialiser</Button>
         </form>
       </div>
 
@@ -106,11 +90,22 @@ export default function Dashboard() {
                 variation={data.variation}
                 variationLabel={variationLabel}
                 showPercent={false}
+                sparklineData={data.sparkline}
               />
             );
           })}
         </div>
       )}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          <EvolutionChart title="Évolution des appels" fetchData={getCallsEvolution} />
+        </div>
+        <div className="lg:col-span-1">
+          <CampaignDonutChart fetchData={getCampaignsRepartition} />
+        </div>
+      </div>
     </div>
+    
   );
+
 }

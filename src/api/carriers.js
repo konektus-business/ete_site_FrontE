@@ -57,3 +57,8 @@ export const updateCarrier = async (originalCarrierId, data) => {
   }
   return mockCarriers[index];
 };
+export const deleteCarrier = async (carrierId) => {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const index = mockCarriers.findIndex((c) => c.carrier_id === carrierId);
+  if (index !== -1) mockCarriers.splice(index, 1);
+};

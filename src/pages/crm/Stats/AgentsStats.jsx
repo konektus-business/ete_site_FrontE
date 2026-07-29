@@ -4,6 +4,10 @@ import { agentsStatsColumns } from '../../../config/statsColumns';
 import Select from '../../../components/common/Select';
 import Table from '../../../components/dashboard/Table';
 import { getDefaultDates } from '../../../utils/dateUtils';
+import { periodOptions } from '../../../config/periodOptions';
+import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
+import PeriodFilter from '../../../components/dashboard/PeriodFilter';
+import Button from '../../../components/common/Button';
 
 export default function AgentsStats() {
   const [period, setPeriod] = useState('today');
@@ -23,11 +27,7 @@ export default function AgentsStats() {
     fetchStats();
   }, []);
 
-  const isCustom = period === 'custom';
 
-  const inputClass =
-    'w-full h-[38px] rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white transition-colors';
-  const labelClass = 'block text-xs font-medium text-gray-500 mb-1.5';
 
   return (
     <div className="space-y-6">
@@ -40,50 +40,11 @@ export default function AgentsStats() {
         </div>
 
         <div className="flex flex-wrap items-end gap-3">
-          <div className="w-40">
-            <label className={labelClass}>Période</label>
-            <Select
-              value={period}
-              onChange={setPeriod}
-              options={[
-                { value: 'today', label: "Aujourd'hui" },
-                { value: 'yesterday', label: 'Hier' },
-                { value: 'week', label: 'Cette semaine' },
-                { value: 'month', label: 'Ce mois' },
-                { value: 'custom', label: 'Personnalisée' },
-              ]}
-            />
-          </div>
+          <PeriodFilter period={period} setPeriod={setPeriod} dates={dates} setDates={setDates} />
 
-          {isCustom && (
-            <>
-              <div className="w-40">
-                <label className={labelClass}>Date début</label>
-                <input
-                  type="date"
-                  value={dates.startDate}
-                  onChange={(e) => setDates((prev) => ({ ...prev, startDate: e.target.value }))}
-                  className={inputClass}
-                />
-              </div>
-              <div className="w-40">
-                <label className={labelClass}>Date fin</label>
-                <input
-                  type="date"
-                  value={dates.endDate}
-                  onChange={(e) => setDates((prev) => ({ ...prev, endDate: e.target.value }))}
-                  className={inputClass}
-                />
-              </div>
-            </>
-          )}
 
-          <button
-            onClick={fetchStats}
-            className="h-[38px] px-4 rounded-lg text-sm font-medium text-white bg-crmPrimary hover:brightness-95 transition-colors"
-          >
-            Appliquer
-          </button>
+        <Button type="submit" variant="primary">Appliquer</Button>
+
         </div>
       </div>
 

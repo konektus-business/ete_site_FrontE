@@ -32,3 +32,26 @@ export const getUsers = async () => {
     setTimeout(() => resolve(mockUsers), 300);
   });
 };
+
+// Met à jour un utilisateur existant (édition depuis la modale)
+export const updateUser = async (userId, data) => {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const index = mockUsers.findIndex((u) => u.id === userId);
+  if (index !== -1) {
+    mockUsers[index] = { ...mockUsers[index], ...data };
+  }
+  return mockUsers[index];
+};
+
+// "Suppression" d'un utilisateur = désactivation logique, PAS de suppression
+// en base. On passe active à 'N' (et on retire un éventuel flag "inactif"
+// hérité de données incohérentes) pour que l'utilisateur disparaisse des
+// listes actives mais reste consultable/réactivable plus tard.
+export const softDeleteUser = async (userId) => {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  const index = mockUsers.findIndex((u) => u.id === userId);
+  if (index !== -1) {
+    mockUsers[index] = { ...mockUsers[index], active: 'N', inactif: undefined };
+  }
+  return mockUsers[index];
+};

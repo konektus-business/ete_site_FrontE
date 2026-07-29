@@ -10,3 +10,10 @@ export const getCurrentUser = async () => {
     setTimeout(() => resolve(mockCurrentUser), 300);
   });
 };
+const MOCK_ADMIN_PASSWORD = 'admin123';
+
+export const verifyAdminPassword = async (password) => {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(password === MOCK_ADMIN_PASSWORD), 300);
+  });
+};

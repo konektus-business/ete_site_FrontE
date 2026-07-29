@@ -15,3 +15,11 @@ export const timeInputToHhmm = (timeStr) => {
   // ex: '09:00' -> 9 * 100 + 0 = 900
   return parseInt(h, 10) * 100 + parseInt(m, 10);
 };
+
+// Convertit une durée "HH:MM:SS" en nombre de minutes (pour les graphiques),
+// ex: "00:20:00" -> 20, "01:05:30" -> 65.5
+export const durationToMinutes = (hhmmss) => {
+  if (!hhmmss) return 0;
+  const [h, m, s] = hhmmss.split(':').map(Number);
+  return h * 60 + m + (s || 0) / 60;
+};

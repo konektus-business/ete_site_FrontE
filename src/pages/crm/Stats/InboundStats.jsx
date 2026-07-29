@@ -4,6 +4,11 @@ import MultiSelect from '../../../components/common/MultiSelect';
 import { getCampaignsList, getInboundStats } from '../../../api/statsReports';
 import { checkboxClass } from '../../../styles/checkboxClass'; 
 import { getDefaultDates } from '../../../utils/dateUtils';
+import MultiMetricChart from '../../../components/dashboard/MultiMetricChart';
+import { periodOptions } from '../../../config/periodOptions';
+import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
+import PeriodFilter from '../../../components/dashboard/PeriodFilter';
+import Button from '../../../components/common/Button';
 
 const metricsConfig = [
   { key: 'total_fiches', label: 'Total Fiches' },
@@ -12,6 +17,15 @@ const metricsConfig = [
   { key: 'avg_wait', label: 'Durée Attente (s)' },
   { key: 'avg_pause', label: 'Durée Mise en attente (s)' },
 ];
+// Fait le lien entre les clés "snake_case" des checkboxes (metricsConfig)
+// et les champs "camelCase" réellement renvoyés par getInboundStats()
+const metricsFieldMap = {
+  total_fiches: { field: 'totalFiches', color: '#1EB394' },
+  avg_talk: { field: 'avgTalk', color: '#2563EB' },
+  avg_dispo: { field: 'avgDispo', color: '#F59E0B' },
+  avg_wait: { field: 'avgWait', color: '#EF4444' },
+  avg_pause: { field: 'avgPause', color: '#8B5CF6' },
+};
 
 const initialMetrics = metricsConfig.reduce((acc, m) => ({ ...acc, [m.key]: true }), {});
 
@@ -37,6 +51,7 @@ export default function InboundStats() {
       setLoading(false);
     });
   };
+  
 
   const toggleMetric = (key) => {
     setMetrics((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -44,10 +59,15 @@ export default function InboundStats() {
 
   const isCustom = period === 'custom';
 
-  const inputClass =
-    'w-full h-[38px] rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white transition-colors';
-  const labelClass = 'block text-xs font-medium text-gray-500 mb-1.5';
 
+  // Construit dynamiquement les séries à afficher, en filtrant sur les
+  // métriques cochées (metrics) et en piochant les bonnes couleurs/labels
+  const activeSeries = metricsConfig
+    .filter((m) => metrics[m.key])
+    .map((m) => {
+      const { field, color } = metricsFieldMap[m.key];
+      return { key: m.key, label: m.label, color, data: chartData?.[field] ?? [] };
+    });
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
@@ -59,43 +79,8 @@ export default function InboundStats() {
         <div className="p-6">
           {/* Filtres — tous alignés sur la même ligne */}
           <div className="flex flex-wrap items-end gap-4 mb-6">
-            <div className="w-40">
-              <label className={labelClass}>Période</label>
-              <Select
-                value={period}
-                onChange={setPeriod}
-                options={[
-                  { value: 'today', label: "Aujourd'hui" },
-                  { value: 'yesterday', label: 'Hier' },
-                  { value: 'week', label: 'Cette semaine' },
-                  { value: 'month', label: 'Ce mois' },
-                  { value: 'custom', label: 'Personnalisée' },
-                ]}
-              />
-            </div>
+            <PeriodFilter period={period} setPeriod={setPeriod} dates={dates} setDates={setDates} />
 
-            {isCustom && (
-              <>
-                <div className="w-40">
-                  <label className={labelClass}>Date début</label>
-                  <input
-                    type="date"
-                    value={dates.startDate}
-                    onChange={(e) => setDates((prev) => ({ ...prev, startDate: e.target.value }))}
-                    className={inputClass}
-                  />
-                </div>
-                <div className="w-40">
-                  <label className={labelClass}>Date fin</label>
-                  <input
-                    type="date"
-                    value={dates.endDate}
-                    onChange={(e) => setDates((prev) => ({ ...prev, endDate: e.target.value }))}
-                    className={inputClass}
-                  />
-                </div>
-              </>
-            )}
 
             {/* Dropdown Campagnes via MultiSelect */}
             <div className="w-60">
@@ -108,12 +93,9 @@ export default function InboundStats() {
               />
             </div>
 
-            <button
-              onClick={fetchStats}
-              className="h-[38px] px-4 rounded-lg text-sm font-medium text-white bg-crmPrimary hover:brightness-95 transition-colors whitespace-nowrap"
-            >
-              Appliquer
-            </button>
+
+              <Button type="submit" variant="primary">Appliquer</Button>
+             
           </div>
 
           {/* Métriques */}
@@ -137,16 +119,20 @@ export default function InboundStats() {
             </div>
           </div>
 
-          {/* Graphique */}
-          <div className="h-[400px] w-full rounded-xl border border-gray-100 bg-gray-50/60 flex items-center justify-center">
-            {loading ? (
+        {/* Graphique */}
+        <div className="h-[400px] w-full rounded-xl border border-gray-100 bg-gray-50/60 p-4">
+          {loading ? (
+            <div className="h-full flex items-center justify-center">
               <span className="text-xs text-gray-400">Chargement...</span>
-            ) : (
-              <span className="text-xs text-gray-400">
-                Graphique Chart.js à venir — {chartData?.labels.length ?? 0} points de données prêts
-              </span>
-            )}
-          </div>
+            </div>
+          ) : (
+            <MultiMetricChart
+              labels={chartData?.labels ?? []}
+              series={activeSeries}
+              height={370}
+            />
+          )}
+        </div>
         </div>
       </div>
     </div>

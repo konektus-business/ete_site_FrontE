@@ -1,14 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   getGlobalStatusStats,
   getAgentStatusSummary,
   getAgentStatusDetail,
 } from '../../../api/statsReports';
 import { globalStatusColumns, agentSummaryColumns, agentDetailColumns } from '../../../config/statsColumns';
-import Select from '../../../components/common/Select';
 import Table from '../../../components/dashboard/Table';
 import { checkboxClass } from '../../../styles/checkboxClass';
 import { getDefaultDates } from '../../../utils/dateUtils';
+import BarChart from '../../../components/dashboard/BarChart';
+import { labelClass } from '../../../styles/formClasses';
+import PeriodFilter from '../../../components/dashboard/PeriodFilter';
+import Button from '../../../components/common/Button';
+import { useExportReport } from '../../../hooks/useExportReport';
+
+// Colonnes exportées en Excel pour l'onglet "Statuts globaux"
+const statusExportColumns = [
+  { key: 'qualification', label: 'Qualification' },
+  { key: 'code', label: 'Code' },
+  { key: 'nombre', label: 'Nombre' },
+  { key: 'pourcentage', label: 'Pourcentage' },
+];
 
 export default function StatusStats() {
   const [period, setPeriod] = useState('today');
@@ -22,6 +34,11 @@ export default function StatusStats() {
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [agentDetail, setAgentDetail] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Référence vers la zone à capturer en PNG (tableau + graphique),
+  // utilisée par le hook useExportReport
+  const captureRef = useRef(null);
+  const { exportExcel, exportPng } = useExportReport(captureRef);
 
   const fetchGlobal = () => {
     setLoading(true);
@@ -51,10 +68,11 @@ export default function StatusStats() {
     getAgentStatusDetail(row.id).then(setAgentDetail);
   };
 
-  const isCustom = period === 'custom';
-  const labelClass = 'block text-xs font-medium text-gray-500 mb-1.5';
-  const inputClass =
-    'w-full h-[38px] rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white transition-colors';
+  const handleExportExcel = () =>
+    exportExcel(globalData?.rows, statusExportColumns, `rapport-statuts-${dates.startDate}-au-${dates.endDate}`);
+
+  const handleExportPng = () =>
+    exportPng(`rapport-statuts-${dates.startDate}-au-${dates.endDate}`);
 
   return (
     <div className="space-y-6">
@@ -67,43 +85,7 @@ export default function StatusStats() {
         <div className="p-6">
           {/* Filtres */}
           <div className="flex flex-wrap items-end gap-4 mb-4">
-            <div className="w-40">
-              <label className={labelClass}>Période</label>
-              <Select
-                value={period}
-                onChange={setPeriod}
-                options={[
-                  { value: 'today', label: "Aujourd'hui" },
-                  { value: 'yesterday', label: 'Hier' },
-                  { value: 'week', label: 'Cette semaine' },
-                  { value: 'month', label: 'Ce mois' },
-                  { value: 'custom', label: 'Personnalisée' },
-                ]}
-              />
-            </div>
-
-            {isCustom && (
-              <>
-                <div className="w-40">
-                  <label className={labelClass}>Date début</label>
-                  <input
-                    type="date"
-                    value={dates.startDate}
-                    onChange={(e) => setDates((prev) => ({ ...prev, startDate: e.target.value }))}
-                    className={inputClass}
-                  />
-                </div>
-                <div className="w-40">
-                  <label className={labelClass}>Date fin</label>
-                  <input
-                    type="date"
-                    value={dates.endDate}
-                    onChange={(e) => setDates((prev) => ({ ...prev, endDate: e.target.value }))}
-                    className={inputClass}
-                  />
-                </div>
-              </>
-            )}
+            <PeriodFilter period={period} setPeriod={setPeriod} dates={dates} setDates={setDates} />
 
             <div>
               <label className={labelClass}>Qualifications</label>
@@ -129,21 +111,11 @@ export default function StatusStats() {
               </div>
             </div>
 
-            <button
-              onClick={handleApply}
-              className="h-[38px] px-4 rounded-lg text-sm font-medium text-white bg-crmPrimary hover:brightness-95 transition-colors whitespace-nowrap"
-            >
-              Appliquer
-            </button>
+            <Button type="button" variant="primary" onClick={handleApply}>Appliquer</Button>
 
-            {/* TODO: brancher exports Excel/PNG une fois les libs xlsx/FileSaver installées */}
             <div className="flex gap-2 ml-auto">
-              <button disabled className="h-[38px] px-4 rounded-lg text-sm font-medium text-amber-600 border border-amber-200 opacity-50 cursor-not-allowed">
-                Excel
-              </button>
-              <button disabled className="h-[38px] px-4 rounded-lg text-sm font-medium text-red-500 border border-red-200 opacity-50 cursor-not-allowed">
-                PNG
-              </button>
+              <Button variant="warning" onClick={handleExportExcel} disabled={!globalData}>Excel</Button>
+              <Button variant="danger" onClick={handleExportPng} disabled={!globalData}>PNG</Button>
             </div>
           </div>
 
@@ -167,48 +139,55 @@ export default function StatusStats() {
             ))}
           </div>
 
-          {loading ? (
-            <div className="text-center text-sm text-gray-400 py-6">Chargement...</div>
-          ) : innerTab === 'global' ? (
-            <div className="space-y-6">
-              <Table
-                columns={globalStatusColumns()}
-                data={globalData.rows}
-                onRowClick={() => {}}
-                itemLabel="qualifications"
-              />
-
-              <div>
-                <h4 className="text-sm font-semibold text-gray-900 mb-3">Évolution horaire</h4>
-                <div className="h-[300px] w-full rounded-xl border border-gray-100 bg-gray-50/60 flex items-center justify-center">
-                  <span className="text-xs text-gray-400">
-                    Graphique Chart.js à venir — {globalData.hourly.labels.length} points de données prêts
-                  </span>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              <div>
-                <h4 className="text-sm font-semibold text-gray-900 mb-3">Récapitulatif par agent</h4>
+          {/* captureRef entoure uniquement le contenu exportable
+              (tableau + graphique), pas les filtres ni les onglets */}
+          <div ref={captureRef}>
+            {loading ? (
+              <div className="text-center text-sm text-gray-400 py-6">Chargement...</div>
+            ) : innerTab === 'global' ? (
+              <div className="space-y-6">
                 <Table
-                  columns={agentSummaryColumns(handleSelectAgent)}
-                  data={agentSummary}
+                  columns={globalStatusColumns()}
+                  data={globalData.rows}
                   onRowClick={() => {}}
-                  itemLabel="agents"
+                  itemLabel="qualifications"
                 />
-              </div>
 
-              {selectedAgent && (
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-900 mb-3">
-                    Détail des statuts pour {selectedAgent.agent}
-                  </h4>
-                  <Table columns={agentDetailColumns} data={agentDetail} onRowClick={() => {}} itemLabel="statuts" />
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Évolution horaire</h4>
+                  <div className="h-[300px] w-full rounded-xl border border-gray-100 bg-gray-50/60 p-4">
+                    <BarChart
+                      labels={globalData.hourly.labels}
+                      data={globalData.hourly.data}
+                      color="#1EB394"
+                      height={270}
+                    />
+                  </div>
                 </div>
-              )}
-            </div>
-          )}
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Récapitulatif par agent</h4>
+                  <Table
+                    columns={agentSummaryColumns(handleSelectAgent)}
+                    data={agentSummary}
+                    onRowClick={() => {}}
+                    itemLabel="agents"
+                  />
+                </div>
+
+                {selectedAgent && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">
+                      Détail des statuts pour {selectedAgent.agent}
+                    </h4>
+                    <Table columns={agentDetailColumns} data={agentDetail} onRowClick={() => {}} itemLabel="statuts" />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

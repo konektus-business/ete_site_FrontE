@@ -3,24 +3,26 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-"scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "lint": "eslint .",
-  "preview": "vite preview",
-  "sonar": "npx sonarqube-scanner"
-},
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "sonar": "npx sonarqube-scanner"
+  },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",
     "axios": "^1.18.1",
     "chart.js": "^4.5.1",
     "flag-icons": "^7.5.0",
+    "html2canvas": "^1.4.1",
     "lucide-react": "^1.23.0",
     "react": "^19.2.7",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.7",
     "react-hook-form": "^7.81.0",
-    "react-router-dom": "^7.18.1"
+    "react-router-dom": "^7.18.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

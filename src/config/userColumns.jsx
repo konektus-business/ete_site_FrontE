@@ -1,11 +1,14 @@
 import StatusBadge from '../components/common/StatusBadge';
 import { userStatusLabels, userStatusColors } from '../utils/statusConstants';
 import { getInitials, getAvatarColor } from '../utils/avatar';
-import { Pencil, Ban, CheckCircle } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { paysFlags } from '../utils/paysFlags';
 import { getGroupColor } from '../utils/statusConstants';
 
-export const usersTable = {
+// usersTable devient une fonction (onEdit, onDelete) au lieu d'un objet
+// statique, pour pouvoir brancher les callbacks depuis UserList.jsx —
+// même pattern que carrierColumns(onEdit, onDelete, onClone)
+export const usersTable = (onEdit, onDelete) => ({
   columns: [
     {
       key: 'user',
@@ -99,15 +102,23 @@ export const usersTable = {
         row.user === '6666' ? (
           <span className="text-gray-400 text-xs">(protégé)</span>
         ) : (
-          <div className="flex items-center gap-2 text-gray-400">
-            <Pencil className="w-4 h-4 cursor-pointer hover:text-gray-700" />
-            {row.active === 'Y' ? (
-              <Ban className="w-4 h-4 cursor-pointer hover:text-amber-600" />
-            ) : (
-              <CheckCircle className="w-4 h-4 cursor-pointer hover:text-emerald-600" />
-            )}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => { e.stopPropagation(); onEdit?.(row); }}
+              title="Éditer"
+              className="p-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-emerald-700 transition-colors"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete?.(row); }}
+              title="Désactiver"
+              className="p-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
           </div>
         ),
     },
   ],
-};
+});

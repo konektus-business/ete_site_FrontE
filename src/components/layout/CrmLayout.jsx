@@ -22,7 +22,7 @@ function CrmLayout() {
   useEffect(() => {
     getCurrentUser().then((data) => setUser(data));
   }, []);
-console.log('CrmLayout render, user =', user);
+
   if (!user) {
     return <div className="flex h-screen items-center justify-center">Chargement...</div>;
   }

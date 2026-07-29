@@ -3,6 +3,20 @@ import { getCampaignsList, getListsData, getOutboundStats } from '../../../api/s
 import Select from '../../../components/common/Select';
 import MultiSelect from '../../../components/common/MultiSelect';
 import { getDefaultDates } from '../../../utils/dateUtils';
+import MultiMetricChart from '../../../components/dashboard/MultiMetricChart';
+import { periodOptions } from '../../../config/periodOptions';
+import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
+import PeriodFilter from '../../../components/dashboard/PeriodFilter';
+import Button from '../../../components/common/Button';
+
+// Définit les 5 métriques fixes à afficher, avec les mêmes couleurs
+const outboundMetrics = [
+  { field: 'totalFiches', label: 'Total Fiches', color: '#1EB394' },
+  { field: 'avgTalk', label: 'Durée Com. (s)', color: '#2563EB' },
+  { field: 'avgDispo', label: 'Durée Traitement (s)', color: '#F59E0B' },
+  { field: 'avgWait', label: 'Durée Attente (s)', color: '#EF4444' },
+  { field: 'avgPause', label: 'Durée Mise en attente (s)', color: '#8B5CF6' },
+];
 
 export default function OutboundStats() {
   const [period, setPeriod] = useState('today');
@@ -28,11 +42,15 @@ export default function OutboundStats() {
     });
   };
 
-  const isCustom = period === 'custom';
-  const labelClass = 'block text-xs font-medium text-gray-500 mb-1.5';
-  const inputClass =
-    'w-full h-[38px] rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white transition-colors';
 
+  // Transforme la config statique en séries prêtes pour le graphique,
+  // en piochant les données réelles dans chartData
+  const activeSeries = outboundMetrics.map((m) => ({
+    key: m.field,
+    label: m.label,
+    color: m.color,
+    data: chartData?.[m.field] ?? [],
+  }));
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100">
@@ -43,43 +61,7 @@ export default function OutboundStats() {
 
         <div className="p-6">
           <div className="flex flex-wrap items-end gap-4 mb-6">
-            <div className="w-40">
-              <label className={labelClass}>Période</label>
-              <Select
-                value={period}
-                onChange={setPeriod}
-                options={[
-                  { value: 'today', label: "Aujourd'hui" },
-                  { value: 'yesterday', label: 'Hier' },
-                  { value: 'week', label: 'Cette semaine' },
-                  { value: 'month', label: 'Ce mois' },
-                  { value: 'custom', label: 'Personnalisée' },
-                ]}
-              />
-            </div>
-
-            {isCustom && (
-              <>
-                <div className="w-40">
-                  <label className={labelClass}>Date début</label>
-                  <input
-                    type="date"
-                    value={dates.startDate}
-                    onChange={(e) => setDates((prev) => ({ ...prev, startDate: e.target.value }))}
-                    className={inputClass}
-                  />
-                </div>
-                <div className="w-40">
-                  <label className={labelClass}>Date fin</label>
-                  <input
-                    type="date"
-                    value={dates.endDate}
-                    onChange={(e) => setDates((prev) => ({ ...prev, endDate: e.target.value }))}
-                    className={inputClass}
-                  />
-                </div>
-              </>
-            )}
+              <PeriodFilter period={period} setPeriod={setPeriod} dates={dates} setDates={setDates} />
 
             <div className="w-56">
               <label className={labelClass}>Campagnes</label>
@@ -101,23 +83,24 @@ export default function OutboundStats() {
               />
             </div>
 
-            <button
-              onClick={fetchStats}
-              className="h-[38px] px-4 rounded-lg text-sm font-medium text-white bg-crmPrimary hover:brightness-95 transition-colors whitespace-nowrap"
-            >
-              Appliquer
-            </button>
+
+            <Button type="submit" variant="primary">Appliquer</Button>
+
           </div>
 
-          <div className="h-[400px] w-full rounded-xl border border-gray-100 bg-gray-50/60 flex items-center justify-center">
-            {loading ? (
+        <div className="h-[400px] w-full rounded-xl border border-gray-100 bg-gray-50/60 p-4">
+          {loading ? (
+            <div className="h-full flex items-center justify-center">
               <span className="text-xs text-gray-400">Chargement...</span>
-            ) : (
-              <span className="text-xs text-gray-400">
-                Graphique Chart.js à venir — {chartData?.labels.length ?? 0} points de données prêts
-              </span>
-            )}
-          </div>
+            </div>
+          ) : (
+            <MultiMetricChart
+              labels={chartData?.labels ?? []}
+              series={activeSeries}
+              height={370}
+            />
+          )}
+        </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,10 @@
-export default function KPIWidget({ icon, title, badge, value, variation, variationLabel, children ,subLabel , showPercent}) {
+// src/components/dashboard/KPIWidget.jsx
+import Sparkline from './Sparkline';
+
+export default function KPIWidget({
+  icon, title, badge, value, variation, variationLabel,
+  children, subLabel, showPercent, sparklineData, // <-- nouvelle prop
+}) {
   const isPositive = variation >= 0;
 
   return (
@@ -9,9 +15,9 @@ export default function KPIWidget({ icon, title, badge, value, variation, variat
           <div className="w-[36px] h-[38px] shrink-0 bg-emerald-50 rounded-lg flex items-center justify-center">
             {icon}
           </div>
-      <span className="font-semibold text-[13px] leading-5 text-[#536175] break-words">
-        {title}
-      </span>
+          <span className="font-semibold text-[13px] leading-5 text-[#536175] break-words">
+            {title}
+          </span>
         </div>
         {badge && (
           <div className="flex flex-col items-start pt-1 pr-[13.09px] pb-1 pl-2 bg-[#F0FDF4] rounded-[4px] shrink-0">
@@ -52,6 +58,19 @@ export default function KPIWidget({ icon, title, badge, value, variation, variat
           </div>
         )}
       </div>
+
+      {/* Sparkline : affichée seulement si des données sont fournies.
+          Placée EN DEHORS du bloc "variation", au même niveau que le
+          reste du contenu de la carte, avec sa propre séparation visuelle. */}
+      {sparklineData && sparklineData.length > 0 && (
+        <div className="w-full pt-3 border-t border-[#E0E5EA]">
+          <Sparkline
+            data={sparklineData}
+            color={isPositive ? '#1EB394' : '#EF4444'}
+            height={36}
+          />
+        </div>
+      )}
 
       {children && (
         <div className="w-full pt-4 border-t border-[#E0E5EA] flex flex-col gap-2">

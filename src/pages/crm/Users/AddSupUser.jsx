@@ -4,6 +4,8 @@ import { userGroups } from '../../../config/userGroups';
 import { userRights } from '../../../config/userRights';
 import Select from '../../../components/common/Select';
 import { checkboxClass } from '../../../styles/checkboxClass';
+import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
+import Button from '../../../components/common/Button';
 
 const initialForm = {
   user: '',
@@ -76,9 +78,6 @@ export default function AddSupUser() {
     }
   };
 
-  const inputClass =
-    'w-full h-[38px] rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white transition-colors';
-  const labelClass = 'block text-xs font-medium text-gray-500 mb-1.5';
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
@@ -212,19 +211,8 @@ export default function AddSupUser() {
         {error && <p className="text-xs text-red-600 mt-4">{error}</p>}
 
         <div className="flex items-center gap-3 mt-6 pt-5 border-t border-gray-100">
-          <button
-            type="submit"
-            disabled={loading}
-            className="h-[38px] px-5 rounded-lg text-sm font-medium text-white bg-crmPrimary hover:brightness-95 disabled:opacity-50 transition-colors whitespace-nowrap"
-          >
-            {loading ? 'Création...' : 'Créer le super-utilisateur'}
-          </button>
-          <button
-            type="button"
-            className="h-[38px] px-5 rounded-lg text-sm font-medium text-gray-600 border border-gray-200 hover:bg-gray-50 transition-colors whitespace-nowrap"
-          >
-            Annuler
-          </button>
+          <Button type="submit" variant="primary" disabled={loading}>{loading ? 'Création...' : "Créer l'agent"}</Button> 
+          <Button type="button" variant="secondary">Annuler</Button>
         </div>
       </form>
     </div>

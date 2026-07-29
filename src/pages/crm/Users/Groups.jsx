@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { getGroups, createGroup, deleteGroup } from '../../../api/groups';
 import { Pencil, Trash2, Plus, Check, X } from 'lucide-react';
+import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
+import Button from '../../../components/common/Button';
 
 export default function Groups() {
   const [groups, setGroups] = useState([]);
@@ -76,8 +78,6 @@ export default function Groups() {
     cancelEdit();
   };
 
-  const inputClass =
-    'w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white transition-colors';
 
   return (
     <div className="space-y-6">
@@ -101,13 +101,9 @@ export default function Groups() {
                 placeholder="ex: TEAM_SALES"
               />
             </div>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium bg-crmPrimary text-white shadow-md shadow-emerald-950/20 ring-1 ring-inset ring-white/20 hover:brightness-95 disabled:opacity-50 transition-colors shrink-0">
-              <Plus className="w-4 h-4" />
-              {submitting ? 'Création...' : 'Créer'}
-            </button>
+	            <Button type="submit" variant="primary" disabled={submitting} className="flex items-center gap-1.5">
+                <Plus className="w-4 h-4" />{submitting ? 'Création...' : 'Créer'}
+              </Button>
           </div>
 
           {error && (
