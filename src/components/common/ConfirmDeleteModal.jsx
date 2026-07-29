@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import Modal from './Modal';
-import Button from './Button';
+import Button from './ButtonCRM';
 import { verifyAdminPassword } from '../../api/auth';
 
 // Modale de confirmation générique pour toute action de suppression critique.

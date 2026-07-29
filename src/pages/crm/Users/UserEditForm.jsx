@@ -5,6 +5,7 @@ import { userGroups } from '../../../config/userGroups';
 import Select from '../../../components/common/Select';
 import Button from '../../../components/common/ButtonCRM';
 import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
+import { formatGroupName } from '../../../utils/formatGroupName';
 
 const userGroupOptions = userGroups.map((g) => ({ value: g, label: g }));
 
@@ -58,7 +59,12 @@ export default function UserEditForm({ user, onSuccess, onCancel }) {
           <label className={labelClass}>Groupe</label>
           <Select
             value={form.user_group}
-            onChange={(value) => setForm((prev) => ({ ...prev, user_group: value }))}
+            onChange={(value) =>
+              setForm((prev) => ({
+                ...prev,
+                user_group: formatGroupName(value),
+              }))
+            }
             options={userGroupOptions}
           />
         </div>

@@ -50,11 +50,18 @@ export const userStatusColors = {
   inactif: "bg-red-50 text-red-800 border border-red-100",
 };
 
+// 1. Couleurs attribuées spécifiquement à chaque rôle
+export const knownGroupColors = {
+  admin: "bg-[#F0FDF4] text-[#16A34A] border border-[#DCFCE7]",       // Vert (Emerald)
+  agent: "bg-[#FDF2F8] text-[#DB2777] border border-[#FCE7F3]",       // Rose
+  superviseur: "bg-[#EFF6FF] text-[#2563EB] border border-[#DBEAFE]", // Bleu
+  supervisor: "bg-[#EFF6FF] text-[#2563EB] border border-[#DBEAFE]",  // Support anglais au cas où
+};
+
+// 2. Couleurs génériques de secours (pour de futurs nouveaux groupes)
 export const genericGroupColors = [
-  "bg-[#FDF2F8] text-[#DB2777] border border-[#FCE7F3]",
-  "bg-[#EFF6FF] text-[#2563EB] border border-[#DBEAFE]",
-  "bg-[#ECFDF5] text-[#059669] border border-[#D1FAE5]",
-  "bg-[#FFFBEB] text-[#D97706] border border-[#FEF3C7]",
+  "bg-[#FFFBEB] text-[#D97706] border border-[#FEF3C7]", // Ambre / Orange
+  "bg-[#FAFAF9] text-[#57534E] border border-[#E7E5E4]", // Gris chaud
 ];
 
 function hashString(str) {
@@ -64,13 +71,26 @@ function hashString(str) {
   }
   return hash;
 }
-
 export function getGroupColor(group) {
   if (!group) return "bg-gray-100 text-gray-700 border border-gray-200";
-  const index = hashString(group) % genericGroupColors.length;
+
+  // Normalisation : minuscules et retrait des espaces inutiles
+  let normalized = group.trim().toLowerCase();
+
+  // Gestion du pluriel : supprime le 's' final (ex: "Superviseurs" -> "superviseur")
+  if (normalized.endsWith('s')) {
+    normalized = normalized.slice(0, -1);
+  }
+
+  // Retourne la couleur dédiée si elle existe
+  if (knownGroupColors[normalized]) {
+    return knownGroupColors[normalized];
+  }
+
+  // Fallback sur le tableau générique si le groupe n'est pas répertorié
+  const index = Math.abs(hashString(normalized)) % genericGroupColors.length;
   return genericGroupColors[index];
 }
-
 // --- État SIP peers (Opérateurs) ---
 export const getStatusColorClass = (row) => {
   if (row.status !== 'OK') return 'text-red-600';
