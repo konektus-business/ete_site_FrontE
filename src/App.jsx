@@ -38,6 +38,7 @@ import "./styles/index.css";
 import Pricing from "./pages/public/Pricing";
 import Blog from "./pages/public/Blog";
 import Webinar from "./pages/public/Webinar";
+import Guide from "./pages/public/Guide";
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -51,6 +52,7 @@ function App() {
           <Route path="contact" element={<Contact />} />
           <Route path="ressources/blog" element={<Blog />} />
           <Route path="ressources/webinar" element={<Webinar />} />
+          <Route path="ressources/guide" element={<Guide />} />
         </Route>
 
         {/* Auth routes – no layout */}
