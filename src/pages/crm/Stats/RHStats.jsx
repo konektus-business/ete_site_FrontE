@@ -91,7 +91,7 @@ const handleExportPng = async () => {
             <PeriodFilter period={period} setPeriod={setPeriod} dates={dates} setDates={setDates} />
 
 
-        <Button type="submit" variant="primary">Appliquer</Button>
+        <Button type="submit" variant="primary"onClick={fetchStats}>Appliquer</Button>
 
 
             {/* TODO: brancher exports Excel/PNG une fois les libs xlsx/FileSaver installées */}

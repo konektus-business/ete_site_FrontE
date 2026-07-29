@@ -43,7 +43,7 @@ export default function AgentsStats() {
           <PeriodFilter period={period} setPeriod={setPeriod} dates={dates} setDates={setDates} />
 
 
-        <Button type="submit" variant="primary">Appliquer</Button>
+        <Button type="submit" variant="primary" onClick={fetchStats}>Appliquer</Button>
 
         </div>
       </div>

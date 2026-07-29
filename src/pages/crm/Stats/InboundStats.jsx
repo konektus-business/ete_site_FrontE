@@ -94,7 +94,7 @@ export default function InboundStats() {
             </div>
 
 
-              <Button type="submit" variant="primary">Appliquer</Button>
+              <Button type="submit" variant="primary"onClick={fetchStats}>Appliquer</Button>
              
           </div>
 
