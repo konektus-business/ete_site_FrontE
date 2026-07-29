@@ -1,19 +1,27 @@
-// src/components/common/Button.jsx
-const variantClasses = {
-  primary: 'bg-crmPrimary text-white hover:brightness-95',
-  secondary: 'text-gray-600 border border-gray-200 hover:bg-gray-50 bg-white',
-  danger: 'text-red-600 border border-red-200 hover:bg-red-50 bg-white',
-  warning: 'text-amber-600 border border-amber-200 hover:bg-amber-50 bg-white',
-  // Nouveau : variant plein rouge, pour les actions destructives à confirmer
-  // (ex: bouton "Supprimer" dans ConfirmDeleteModal) — pas de conflit de
-  // classes puisqu'on ne surcharge plus "danger" via className ailleurs
-  dangerSolid: 'bg-red-600 text-white hover:bg-red-700',
+const variants = {
+  primary: "bg-teal-600 text-white shadow-sm shadow-teal-900/10 hover:bg-teal-700",
+  secondary: "border border-slate-200 bg-white text-slate-700 shadow-sm hover:border-slate-300 hover:bg-slate-50",
+  accent: "bg-slate-950 text-white shadow-sm shadow-slate-950/20 hover:bg-slate-800",
 };
 
-export default function Button({ variant = 'primary', className = '', children, ...props }) {
+const sizes = {
+  sm: "px-3 py-2 text-sm",
+  md: "px-4 py-2 text-sm",
+  lg: "px-5 py-3 text-base",
+};
+
+export default function Button({
+  children,
+  className = "",
+  variant = "primary",
+  size = "md",
+  type = "button",
+  ...props
+}) {
   return (
     <button
-      className={`h-[38px] px-4 rounded-lg text-sm font-medium transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed ${variantClasses[variant]} ${className}`}
+      type={type}
+      className={`ui-button ui-button--${variant} ui-button--${size} inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-all duration-200 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     >
       {children}

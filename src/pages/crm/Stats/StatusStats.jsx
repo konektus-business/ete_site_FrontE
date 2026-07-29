@@ -11,7 +11,7 @@ import { getDefaultDates } from '../../../utils/dateUtils';
 import BarChart from '../../../components/dashboard/BarChart';
 import { labelClass } from '../../../styles/formClasses';
 import PeriodFilter from '../../../components/dashboard/PeriodFilter';
-import Button from '../../../components/common/Button';
+import Button from '../../../components/common/ButtonCRM';
 import { useExportReport } from '../../../hooks/useExportReport';
 
 // Colonnes exportées en Excel pour l'onglet "Statuts globaux"

@@ -4,7 +4,7 @@ import { createAgent } from '../../../api/agent';
 import { userGroups } from '../../../config/userGroups';
 import Select from '../../../components/common/Select';
 import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
-import Button from '../../../components/common/Button';
+import Button from '../../../components/common/ButtonCRM';
 
 const initialForm = {
   user: '',

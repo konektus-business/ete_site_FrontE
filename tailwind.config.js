@@ -1,21 +1,21 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
-    "./src/**/*.{html,js,jsx}", 
-    "./*.html"
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx,vue}",
   ],
   theme: {
- extend: {
+    extend: {
       colors: {
-        crmPrimary: '#1EB394',       
-        crmSidebarBg: '#062D24', 
-        crmNavbarBg: '#E2E8F0',  
-        crmBg: '#F0FDFA',           
+        crmPrimary: '#1EB394',
+        crmSidebarBg: '#062D24',
+        crmNavbarBg: '#E2E8F0',
+        crmBg: '#F0FDFA',
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'sans-serif'], 
+        sans: ["Archivo", '"Plus Jakarta Sans"', "sans-serif"],
       },
     },
   },
   plugins: [],
-}
+};

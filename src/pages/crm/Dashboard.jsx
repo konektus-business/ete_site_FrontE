@@ -9,7 +9,7 @@ import CampaignDonutChart from '../../components/dashboard/CampaignDonutChart';
 import { getCallsEvolution, getCampaignsRepartition } from '../../api/dashboardCharts';
 import { getDefaultDates } from '../../utils/dateUtils';
 import { formInputClass as inputClass, labelClass } from '../../styles/formClasses';
-import Button from '../../components/common/Button';
+import Button from '../../components/common/ButtonCRM';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);

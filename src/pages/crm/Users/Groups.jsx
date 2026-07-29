@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { getGroups, createGroup, deleteGroup } from '../../../api/groups';
 import { Pencil, Trash2, Plus, Check, X } from 'lucide-react';
 import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
-import Button from '../../../components/common/Button';
+import Button from '../../../components/common/ButtonCRM';
 
 export default function Groups() {
   const [groups, setGroups] = useState([]);

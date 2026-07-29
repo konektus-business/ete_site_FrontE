@@ -6,7 +6,7 @@ import CarrierForm from './Operateur/CarrierForm';
 import EtatSip from './Operateur/EtatSip';
 import HorairesList from './Operateur/HorairesList';
 import ScheduleForm from './Operateur/ScheduleForm';
-import Button from '../../components/common/Button';
+import Button from '../../components/common/ButtonCRM';
 import { Plus } from 'lucide-react';
 
 export default function Operateurs() {

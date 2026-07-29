@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { updateUser } from '../../../api/users';
 import { userGroups } from '../../../config/userGroups';
 import Select from '../../../components/common/Select';
-import Button from '../../../components/common/Button';
+import Button from '../../../components/common/ButtonCRM';
 import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
 
 const userGroupOptions = userGroups.map((g) => ({ value: g, label: g }));

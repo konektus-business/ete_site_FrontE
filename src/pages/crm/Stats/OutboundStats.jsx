@@ -7,7 +7,7 @@ import MultiMetricChart from '../../../components/dashboard/MultiMetricChart';
 import { periodOptions } from '../../../config/periodOptions';
 import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
 import PeriodFilter from '../../../components/dashboard/PeriodFilter';
-import Button from '../../../components/common/Button';
+import Button from '../../../components/common/ButtonCRM';
 
 // Définit les 5 métriques fixes à afficher, avec les mêmes couleurs
 const outboundMetrics = [

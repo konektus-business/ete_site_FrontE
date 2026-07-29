@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { createCarrier, updateCarrier } from '../../../api/carriers';
 import Select from '../../../components/common/Select';
 import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
-import Button from '../../../components/common/Button';
+import Button from '../../../components/common/ButtonCRM';
 
 const protocolOptions = [
   { value: 'SIP', label: 'SIP' },

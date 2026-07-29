@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { createSchedule, updateSchedule } from '../../../api/schedules';
 import { hhmmToTimeInput, timeInputToHhmm } from '../../../utils/timeFormat';
 import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
-import Button from '../../../components/common/Button';
+import Button from '../../../components/common/ButtonCRM';
 
 // Valeurs par défaut d'un nouvel horaire (ct_default_start/stop en HHMM)
 const emptyForm = {

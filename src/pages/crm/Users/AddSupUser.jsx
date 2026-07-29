@@ -5,7 +5,7 @@ import { userRights } from '../../../config/userRights';
 import Select from '../../../components/common/Select';
 import { checkboxClass } from '../../../styles/checkboxClass';
 import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
-import Button from '../../../components/common/Button';
+import Button from '../../../components/common/ButtonCRM';
 
 const initialForm = {
   user: '',

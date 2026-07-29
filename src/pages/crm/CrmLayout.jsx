@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import Header from './Header';
+import Sidebar from '../../components/layout/Sidebar';
 import { getCurrentUser } from '../../api/auth';
 import { tabsConfig } from '../../config/tabsConfig';
+import CrmHeader from '../../components/layout/CrmHeader';
 
 function CrmLayout() {
   const location = useLocation();
@@ -31,7 +31,7 @@ function CrmLayout() {
     <div className="flex h-screen w-full bg-crmBg overflow-hidden">
       <Sidebar isOpen={sidebarOpen} />
       <div className="flex flex-col flex-1 h-full overflow-hidden">
-        <Header
+        <CrmHeader
           user={user}
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
           showSearch={isDashboard}

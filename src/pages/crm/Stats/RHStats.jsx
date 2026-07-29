@@ -13,7 +13,7 @@ import html2canvas from 'html2canvas';
 import { periodOptions } from '../../../config/periodOptions';
 import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
 import PeriodFilter from '../../../components/dashboard/PeriodFilter';
-import Button from '../../../components/common/Button';
+import Button from '../../../components/common/ButtonCRM';
 
 const rhExportColumns = [
   { key: 'agent', label: 'Agent' },

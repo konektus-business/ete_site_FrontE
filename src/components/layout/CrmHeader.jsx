@@ -1,10 +1,10 @@
-import { useLocation } from 'react-router-dom';
-import { Bell, User, Search, Menu, Calendar, ChevronDown, LogOut } from 'lucide-react';
-import { useState } from 'react';
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
+import { Menu, Search, ChevronDown, LogOut } from 'lucide-react';
 import { pageLabels } from '../../utils/pageLabels';
 import { getInitials } from '../../utils/avatar';
 
-export default function Header({
+export default function CrmHeader({
   user,
   onToggleSidebar,
   showSearch = false,
@@ -133,7 +133,7 @@ export default function Header({
               className="flex items-center gap-2 cursor-pointer group"
               onClick={() => setShowUserMenu(!showUserMenu)}
             >
-              {user.avatarUrl ? (
+              {user?.avatarUrl ? (
                 <img
                   src={user.avatarUrl}
                   alt={user.name}
@@ -146,9 +146,9 @@ export default function Header({
               ) : null}
               <div
                 className="w-9 h-9 bg-slate-200 text-slate-600 rounded-full items-center justify-center font-medium border border-slate-300 text-sm shrink-0"
-                style={{ display: user.avatarUrl ? 'none' : 'flex' }}
+                style={{ display: user?.avatarUrl ? 'none' : 'flex' }}
               >
-                {getInitials(`${user.prenom} ${user.nom}`)}
+                {getInitials(`${user?.prenom || ''} ${user?.nom || ''}`)}
               </div>
 
               <div className="hidden lg:flex flex-col min-w-0">
@@ -163,10 +163,10 @@ export default function Header({
                     color: '#1E293B',
                   }}
                 >
-                  {user.name}
+                  {user?.name || 'Utilisateur'}
                 </span>
                 <span className="text-[10px] font-medium text-crmPrimary truncate max-w-[100px]">
-                  {user.role}
+                  {user?.role || 'Rôle'}
                 </span>
               </div>
 

@@ -7,7 +7,7 @@ import { getDefaultDates } from '../../../utils/dateUtils';
 import { periodOptions } from '../../../config/periodOptions';
 import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
 import PeriodFilter from '../../../components/dashboard/PeriodFilter';
-import Button from '../../../components/common/Button';
+import Button from '../../../components/common/ButtonCRM';
 
 export default function AgentsStats() {
   const [period, setPeriod] = useState('today');
