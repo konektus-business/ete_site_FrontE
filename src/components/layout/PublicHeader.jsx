@@ -1,148 +1,107 @@
 import React, { useState, useRef, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import logo from "../../assets/company_logo.png"; // <-- IMPORT the image
+import logo from "../../assets/company_logo.png";
 
-// ----- Custom hook for outside clicks -----
 function useOnClickOutside(ref, handler) {
   useEffect(() => {
-    const listener = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) handler();
-    };
+    const listener = (e) => { if (ref.current && !ref.current.contains(e.target)) handler(); };
     document.addEventListener("mousedown", listener);
     return () => document.removeEventListener("mousedown", listener);
   }, [ref, handler]);
 }
 
-// ----- Language dropdown -----
+const Chevron = ({ open }) => (
+  <svg width="10" height="6" viewBox="0 0 10 6" fill="none" className={`ml-1 transition-transform duration-200 ${open ? "rotate-180" : ""}`}>
+    <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+function Dropdown({ trigger, triggerClassName, items, renderItem, menuClassName = "" }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  useOnClickOutside(ref, () => setOpen(false));
+  return (
+    <div className="relative" ref={ref}>
+      <button onClick={() => setOpen(!open)} className={triggerClassName}>
+        {typeof trigger === "function" ? trigger(open) : trigger}
+      </button>
+      {open && (
+        <ul className={`absolute mt-2 rounded-xl border border-white/10 bg-[#0d5143] backdrop-blur-md shadow-[0px_10px_30px_0px_rgba(0,0,0,0.5)] py-1 z-10 ${menuClassName}`}>
+          {items.map((item, idx) => (
+            <li key={idx}>{renderItem(item, () => setOpen(false))}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function LanguageDropdown() {
-  const LANGUAGES = [
+  const langs = [
     { code: "FR", label: "Français" },
     { code: "EN", label: "English" },
   ];
-  const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState(LANGUAGES[0]);
-  const ref = useRef(null);
-  useOnClickOutside(ref, () => setOpen(false));
-
+  const [selected, setSelected] = useState(langs[0]);
   return (
-    <div className="relative shrink-0" ref={ref}>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        className="flex items-center justify-center gap-2 p-2 text-white"
-      >
-        <span className="font-medium text-sm leading-5 whitespace-nowrap">{selected.code}</span>
-        <svg
-          width="10"
-          height="6"
-          viewBox="0 0 10 6"
-          fill="none"
-          className={`transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-        >
-          <path
-            d="M1 1L5 5L9 1"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </button>
-      {open && (
-        <ul
-          role="listbox"
-          className="absolute right-0 mt-2 w-32 rounded-xl border border-white/10 bg-[#0d5143] backdrop-blur-md shadow-[0px_10px_30px_0px_rgba(0,0,0,0.5)] py-1 z-10"
-        >
-          {LANGUAGES.map((lang) => (
-            <li key={lang.code}>
-              <button
-                type="button"
-                role="option"
-                aria-selected={selected.code === lang.code}
-                onClick={() => {
-                  setSelected(lang);
-                  setOpen(false);
-                }}
-                className={`w-full text-left px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
-                  selected.code === lang.code
-                    ? "text-[#1eb394]"
-                    : "text-white hover:text-[#1eb394]"
-                }`}
-              >
-                {lang.label}
-              </button>
-            </li>
-          ))}
-        </ul>
+    <Dropdown
+      trigger={(open) => (
+        <>
+          <span className="font-medium text-sm leading-5 whitespace-nowrap">{selected.code}</span>
+          <Chevron open={open} />
+        </>
       )}
-    </div>
+      triggerClassName="flex items-center justify-center gap-2 p-2 text-white"
+      items={langs}
+      renderItem={(lang, close) => (
+        <button
+          onClick={() => { setSelected(lang); close(); }}
+          className={`w-full text-left px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
+            selected.code === lang.code ? "text-[#1eb394]" : "text-white hover:text-[#1eb394]"
+          }`}
+        >
+          {lang.label}
+        </button>
+      )}
+      menuClassName="right-0 w-32"
+    />
   );
 }
 
-// ----- Ressources dropdown -----
 function RessourcesDropdown() {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-  useOnClickOutside(ref, () => setOpen(false));
   const items = [
     { label: "Blog", to: "ressources/blog" },
-    { label: "Webinaires", to: "/webinaires" },
-    { label: "Nos Guides", to: "/guides" },
+    { label: "Webinaires", to: "/ressources/webinar" },
+    { label: "Nos Guides", to: "ressources/guide" },
     { label: "Support Technique", to: "/support" },
   ];
-
   return (
-    <div className="relative" ref={ref}>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        aria-haspopup="true"
-        aria-expanded={open}
-        className="flex items-center gap-1 font-medium text-sm leading-5 whitespace-nowrap text-white transition-colors hover:text-[#1eb394]"
-      >
-        Ressources
-        <svg
-          width="10"
-          height="6"
-          viewBox="0 0 10 6"
-          fill="none"
-          className={`ml-1 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-        >
-          <path
-            d="M1 1L5 5L9 1"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </button>
-      {open && (
-        <ul className="absolute left-0 mt-2 w-48 rounded-xl border border-white/10 bg-[#0d5143] backdrop-blur-md shadow-[0px_10px_30px_0px_rgba(0,0,0,0.5)] py-1 z-10">
-          {items.map((item) => (
-            <li key={item.label}>
-              <NavLink
-                to={item.to}
-                onClick={() => setOpen(false)}
-                className={({ isActive }) =>
-                  `block px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
-                    isActive ? "text-[#1eb394]" : "text-white hover:text-[#1eb394]"
-                  }`
-                }
-              >
-                {item.label}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
+    <Dropdown
+      trigger={(open) => (
+        <>
+          <span>Ressources</span>
+          <Chevron open={open} />
+        </>
       )}
-    </div>
+      triggerClassName="flex items-center gap-1 font-medium text-sm leading-5 whitespace-nowrap text-white transition-colors hover:text-[#1eb394]"
+      items={items}
+      renderItem={(item, close) => (
+        <NavLink
+          to={item.to}
+          onClick={close}
+          className={({ isActive }) =>
+            `block px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
+              isActive ? "text-[#1eb394]" : "text-white hover:text-[#1eb394]"
+            }`
+          }
+        >
+          {item.label}
+        </NavLink>
+      )}
+      menuClassName="left-0 w-48"
+    />
   );
 }
 
-// ----- Public header -----
 export function PublicHeader() {
   const location = useLocation();
   const NAV_LINKS = [
@@ -153,12 +112,8 @@ export function PublicHeader() {
     { label: "Prix", href: "/pricing" },
     { label: "Contact", href: "/contact" },
   ];
-  const isSpecialPage =
-    location.pathname === "/services" ||
-    location.pathname === "/about" ||
-    location.pathname === "/pricing" ||
-    location.pathname === "/ressources/blog";
-  const headerBg = isSpecialPage ? "bg-[#0d5143]/80" : "bg-[#0d5143]/40";
+  const specialPaths = new Set(["/services", "/about", "/pricing", "/ressources/blog", "/ressources/webinar", "/ressources/guide"]);
+  const headerBg = specialPaths.has(location.pathname) ? "bg-[#0d5143]/80" : "bg-[#0d5143]/40";
 
   return (
     <header className="flex w-[1248px] items-start gap-[10px] py-2 mt-[52px]">

@@ -37,6 +37,7 @@ import VTM from "./pages/crm/VTM";
 import "./styles/index.css";
 import Pricing from "./pages/public/Pricing";
 import Blog from "./pages/public/Blog";
+import Webinar from "./pages/public/Webinar";
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -49,6 +50,7 @@ function App() {
           <Route path="pricing" element={<Pricing />} />
           <Route path="contact" element={<Contact />} />
           <Route path="ressources/blog" element={<Blog />} />
+          <Route path="ressources/webinar" element={<Webinar />} />
         </Route>
 
         {/* Auth routes – no layout */}
