@@ -35,5 +35,23 @@ CDR: [
   { key: 'list', label: 'Détails des appels' },
   { key: 'config', label: 'Configuration des coûts' },
 ],
+VTM: [
+  { key: 'chat', label: 'Chat' },
+  { key: 'mail', label: 'Mail' },
+  { key: 'meet', label: 'Meet' },
+],
+
+integration: [
+  { key: 'messenger', label: 'Messenger' },
+  { key: 'telegram', label: 'Telegram' },
+  { key: 'whatsapp', label: 'Whatsapp' },
+],
+
+VOIP: [
+  { key: 'console', label: 'console' },
+  { key: 'iptables', label: 'IpTables' },
+  { key: 'munin', label: 'Munin' },
+  { key: 'sip', label: 'SIP' },
+],
   // Ajout au fur et à mesure : compagnes, leads, etc.
 };
