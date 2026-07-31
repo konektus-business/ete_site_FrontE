@@ -23,3 +23,12 @@ export const durationToMinutes = (hhmmss) => {
   const [h, m, s] = hhmmss.split(':').map(Number);
   return h * 60 + m + (s || 0) / 60;
 };
+
+// Formate un nombre de secondes en "HH:MM:SS" (durées d'appel temps réel, PanneauLive)
+export const formatDuration = (seconds) => {
+  if (!seconds || seconds <= 0) return '00:00:00';
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+};

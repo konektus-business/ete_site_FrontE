@@ -3,7 +3,8 @@ import Sparkline from './Sparkline';
 
 export default function KPIWidget({
   icon, title, badge, value, variation, variationLabel,
-  children, subLabel, showPercent, sparklineData, // <-- nouvelle prop
+  children, subLabel, showPercent, sparklineData,
+  sparklineColor, // <-- permet de forcer la couleur (PanneauLive n'a pas de "variation")
 }) {
   const isPositive = variation >= 0;
 
@@ -66,7 +67,7 @@ export default function KPIWidget({
         <div className="w-full pt-3 border-t border-[#E0E5EA]">
           <Sparkline
             data={sparklineData}
-            color={isPositive ? '#1EB394' : '#EF4444'}
+            color={sparklineColor || (isPositive ? '#1EB394' : '#EF4444')}
             height={36}
           />
         </div>

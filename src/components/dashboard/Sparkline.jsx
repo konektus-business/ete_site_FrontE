@@ -1,4 +1,3 @@
-// src/components/dashboard/Sparkline.jsx
 import { useEffect, useRef } from 'react';
 import {
   Chart,
@@ -9,30 +8,44 @@ import {
   CategoryScale,
 } from 'chart.js';
 
-// On enregistre uniquement les modules Chart.js dont on a besoin
-// (line chart) : ça réduit la taille du bundle par rapport à un
-// import global de "chart.js/auto"
 Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale);
 
-// data : tableau de nombres, ex: [2, 5, 3, 7]
-// color : couleur de la ligne (par défaut le vert de la charte crmPrimary)
 export default function Sparkline({ data = [], color = '#1EB394', height = 40 }) {
   const canvasRef = useRef(null);
-  const chartRef = useRef(null); // garde une référence à l'instance Chart.js en cours
+  const chartRef = useRef(null);
 
   useEffect(() => {
     if (!canvasRef.current || data.length === 0) return;
 
-    // Si un graphique existe déjà sur ce canvas (re-render), on le détruit
-    // avant d'en recréer un nouveau, sinon Chart.js accumule les instances
+    // 1. Calcul des bornes Y pour gérer les séries de données plates (ex: [12, 12, 12])
+    const minVal = Math.min(...data);
+    const maxVal = Math.max(...data);
+    const isFlat = minVal === maxVal;
+
+    const yMin = isFlat ? (minVal === 0 ? -1 : minVal * 0.9) : undefined;
+    const yMax = isFlat ? (maxVal === 0 ? 1 : maxVal * 1.1) : undefined;
+
+    const labels = data.map(() => '');
+
+    // 2. Si le graphique existe déjà, on met à jour uniquement les données (plus fluide)
     if (chartRef.current) {
-      chartRef.current.destroy();
+      chartRef.current.data.labels = labels;
+      chartRef.current.data.datasets[0].data = data;
+      chartRef.current.data.datasets[0].borderColor = color;
+
+      // Mise à jour de l'axe Y si la série devient plate ou dynamique
+      chartRef.current.options.scales.y.suggestedMin = yMin;
+      chartRef.current.options.scales.y.suggestedMax = yMax;
+
+      chartRef.current.update('none'); // 'none' désactive les animations de transition
+      return;
     }
 
+    // 3. Création initiale de l'instance Chart.js
     chartRef.current = new Chart(canvasRef.current, {
       type: 'line',
       data: {
-        labels: data.map(() => ''), // pas de labels visibles, juste la forme de la courbe
+        labels,
         datasets: [
           {
             data,
@@ -40,7 +53,7 @@ export default function Sparkline({ data = [], color = '#1EB394', height = 40 })
             backgroundColor: 'transparent',
             pointRadius: 0,
             borderWidth: 2,
-            tension: 0.4, // arrondit la courbe, comme dans le PHP legacy
+            tension: 0.4,
           },
         ],
       },
@@ -48,23 +61,29 @@ export default function Sparkline({ data = [], color = '#1EB394', height = 40 })
         responsive: true,
         maintainAspectRatio: false,
         animation: false,
-        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false },
+        },
         scales: {
           x: { display: false },
-          y: { display: false },
+          y: {
+            display: false,
+            suggestedMin: yMin,
+            suggestedMax: yMax,
+          },
         },
       },
     });
 
-    // Nettoyage : détruit le graphique quand le composant est démonté
-    // (évite les fuites mémoire si on quitte la page dashboard)
     return () => {
       chartRef.current?.destroy();
+      chartRef.current = null;
     };
   }, [data, color]);
 
   return (
-    <div style={{ height }}>
+    <div className="relative w-full" style={{ height }}>
       <canvas ref={canvasRef} />
     </div>
   );

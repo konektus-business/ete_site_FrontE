@@ -13,11 +13,21 @@ export const tabsConfig = {
   { key: 'rh', label: 'Rapports RH' },
   { key: 'status', label: 'Rapports de statuts' },
   ],
-    operateur: [
-    { key: 'liste', label: 'Liste carriers' },
-    { key: 'ajouter', label: 'Ajouter un carrier' },
-    { key: 'sip', label: 'État SIP' },
-    { key: 'horaires', label: 'Horaires' },
+
+  operateur: [
+  { key: 'liste', label: 'Liste carriers' },
+  { key: 'ajouter', label: 'Ajouter un carrier' },
+  { key: 'sip', label: 'État SIP' },
+  { key: 'horaires', label: 'Horaires' },
   ],
+
+panneauLive: [
+  { key: 'overview', label: "Vue d'ensemble" },
+  { key: 'calls', label: 'Appels' },
+],
+enregistrement: [
+  { key: 'list', label: 'Liste des enregistrements' },
+  { key: 'settings', label: 'Paramètres' },
+],
   // Ajout au fur et à mesure : compagnes, leads, etc.
 };
