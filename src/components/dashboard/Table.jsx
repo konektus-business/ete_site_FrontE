@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 
-const Table = ({ data, columns, onRowClick, itemsPerPage: initialItemsPerPage = 12, itemLabel = 'résultats', minWidth, pageSizeOptions = [10, 12, 20, 50] }) => {  const [currentPage, setCurrentPage] = useState(1);
+const Table = ({ data, columns, onRowClick, itemsPerPage: initialItemsPerPage = 12, itemLabel = 'résultats', minWidth, pageSizeOptions = [10, 12, 20, 50], sortKey, sortOrder, onSort }) => {
+  const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(initialItemsPerPage);
 
   useEffect(() => {
@@ -23,7 +24,17 @@ const Table = ({ data, columns, onRowClick, itemsPerPage: initialItemsPerPage = 
           <tr>
             {columns.map((column) => (
               <th className="px-4 py-3" key={column.key}>
-                {column.label}
+                {column.sortable && onSort ? (
+                  <button
+                    onClick={() => onSort(column.key)}
+                    className="flex items-center gap-1 uppercase hover:text-gray-800 transition-colors"
+                  >
+                    {column.label}
+                    {sortKey === column.key && (sortOrder === 'ASC' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
+                  </button>
+                ) : (
+                  column.label
+                )}
               </th>
             ))}
           </tr>

@@ -25,9 +25,15 @@ panneauLive: [
   { key: 'overview', label: "Vue d'ensemble" },
   { key: 'calls', label: 'Appels' },
 ],
+
 enregistrement: [
   { key: 'list', label: 'Liste des enregistrements' },
   { key: 'settings', label: 'Paramètres' },
+],
+
+CDR: [
+  { key: 'list', label: 'Détails des appels' },
+  { key: 'config', label: 'Configuration des coûts' },
 ],
   // Ajout au fur et à mesure : compagnes, leads, etc.
 };
