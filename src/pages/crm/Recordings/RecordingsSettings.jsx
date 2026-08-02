@@ -54,32 +54,28 @@ export default function RecordingsSettings() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="p-6">
+      <form onSubmit={handleSubmit} className="p-6 space-y-5 max-w-2xl">
         {saved && (
-          <div className="mb-5 px-4 py-2.5 rounded-lg bg-[#ECFDF5] text-[#059669] border border-[#D1FAE5] text-sm">
+          <div className="px-4 py-2.5 rounded-lg bg-[#ECFDF5] text-[#059669] border border-[#D1FAE5] text-sm">
             Paramètres enregistrés.
           </div>
         )}
 
-        <div className="space-y-5">
-          <div>
-            <label className={`${labelClass} flex items-center gap-1.5`}>
-              <Folder className="w-3.5 h-3.5 text-gray-400" /> Chemin des enregistrements
-            </label>
-            <input
-              type="text"
-              value={settings.recordings_path}
-              onChange={(e) => handleChange('recordings_path', e.target.value)}
-              required
-              className={inputClass}
-            />
-            <p className="text-xs text-gray-400 mt-1">Chemin absolu sur le serveur où sont stockés les fichiers audio.</p>
-          </div>
+        <div>
+          <label className={labelClass}>Chemin des enregistrements</label>
+          <input
+            type="text"
+            value={settings.recordings_path}
+            onChange={(e) => handleChange('recordings_path', e.target.value)}
+            required
+            className={inputClass}
+          />
+          <p className="text-xs text-gray-400 mt-1">Chemin absolu sur le serveur où sont stockés les fichiers audio.</p>
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className={`${labelClass} flex items-center gap-1.5`}>
-              <Timer className="w-3.5 h-3.5 text-gray-400" /> Durée de conservation (jours)
-            </label>
+            <label className={labelClass}>Durée de conservation (jours)</label>
             <input
               type="number"
               min={1}
@@ -87,39 +83,37 @@ export default function RecordingsSettings() {
               onChange={(e) => handleChange('retention_days', Number(e.target.value))}
               className={inputClass}
             />
-            <p className="text-xs text-gray-400 mt-1">Nombre de jours avant suppression automatique (0 = désactivé).</p>
+            <p className="text-xs text-gray-400 mt-1">0 = suppression automatique désactivée.</p>
           </div>
 
-          <div className="w-48">
-            <label className={`${labelClass} flex items-center gap-1.5`}>
-              <FileAudio2 className="w-3.5 h-3.5 text-gray-400" /> Format préféré
-            </label>
+          <div>
+            <label className={labelClass}>Format préféré</label>
             <Select value={settings.preferred_format} onChange={(v) => handleChange('preferred_format', v)} options={FORMAT_OPTIONS} />
-            <p className="text-xs text-gray-400 mt-1">Format utilisé pour la lecture et le téléchargement.</p>
-          </div>
-
-          {/* Toggle switch identique à celui de CarrierForm.jsx (champ "Actif") */}
-          <div className="flex items-center gap-3 pt-1">
-            <button
-              type="button"
-              role="switch"
-              aria-checked={settings.direct_play}
-              onClick={handleToggleDirectPlay}
-              className={`relative w-10 h-5 rounded-full transition-colors ${
-                settings.direct_play ? 'bg-[#1EB394]' : 'bg-gray-300'
-              }`}
-            >
-              <span
-                className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                  settings.direct_play ? 'translate-x-5' : 'translate-x-0'
-                }`}
-              />
-            </button>
-            <span className="text-xs font-medium text-gray-600">Activer la lecture directe (streaming)</span>
+            <p className="text-xs text-gray-400 mt-1">Pour la lecture et le téléchargement.</p>
           </div>
         </div>
 
-        <div className="mt-6">
+        {/* Toggle switch identique à CarrierForm.jsx */}
+        <div className="flex items-center gap-3 pt-1">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={settings.direct_play}
+            onClick={handleToggleDirectPlay}
+            className={`relative w-10 h-5 rounded-full transition-colors ${
+              settings.direct_play ? 'bg-[#1EB394]' : 'bg-gray-300'
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                settings.direct_play ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
+          <span className="text-xs font-medium text-gray-600">Activer la lecture directe (streaming)</span>
+        </div>
+
+        <div className="pt-2">
           <Button type="submit" variant="primary" disabled={saving}>
             {saving ? 'Enregistrement...' : 'Enregistrer'}
           </Button>

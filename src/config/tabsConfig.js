@@ -53,5 +53,9 @@ VOIP: [
   { key: 'munin', label: 'Munin' },
   { key: 'sip', label: 'SIP' },
 ],
-  // Ajout au fur et à mesure : compagnes, leads, etc.
+compagnes: [
+  { key: 'liste', label: 'Campagnes' },
+  { key: 'add', label: 'Créer une campagne' },
+  { key: 'statuts', label: 'Statuts par campagne' },
+],  // Ajout au fur et à mesure : leads, etc.
 };

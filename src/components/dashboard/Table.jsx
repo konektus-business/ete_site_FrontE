@@ -18,7 +18,8 @@ const Table = ({ data, columns, onRowClick, itemsPerPage: initialItemsPerPage = 
   };
 
   return (
-    <div className="overflow-x-auto w-full rounded-xl shadow-md overflow-hidden bg-white border border-emerald-100">
+    <div className="w-full rounded-xl shadow-md overflow-hidden bg-white border border-emerald-100">
+      <div className="overflow-x-auto table-scroll">
       <table className="w-full" style={minWidth ? { minWidth } : undefined}>
         <thead className="bg-[#DDF4EF] text-[#6C798B] font-bold text-[10px] uppercase text-left tracking-[0.5px] leading-none">
           <tr>
@@ -55,6 +56,8 @@ const Table = ({ data, columns, onRowClick, itemsPerPage: initialItemsPerPage = 
           ))}
         </tbody>
       </table>
+      </div>
+
 
       {data.length > 0 && (
         <div className="flex items-center justify-between px-5 py-3.5 border-t border-emerald-100">

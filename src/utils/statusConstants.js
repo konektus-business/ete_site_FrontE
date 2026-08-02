@@ -164,3 +164,11 @@ export const recordingStatusColors = {
   CALLBK: 'bg-[#FFFBEB] text-[#D97706] border border-[#FEF3C7]',
   XFER: 'bg-[#EFF6FF] text-[#2563EB] border border-[#DBEAFE]',
 };
+
+export const booleanLabels = { Y: 'Oui', N: 'Non' };
+
+export const booleanColors = {
+  Y: 'bg-[#ECFDF5] text-[#059669] border border-[#D1FAE5]',
+  N: 'bg-red-50 text-red-800 border border-red-100',
+};
+
