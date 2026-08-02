@@ -1,125 +1,51 @@
+// ========== Core Imports ==========
 import React, { useEffect, useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
-import bg from "../../assets/ressources/bg-gradient.png";
-import heroImage from "../../assets/ressources/webinar-hero.png";
-import iconClock from "../../assets/ressources/clock.svg";
-import iconCalendar from "../../assets/ressources/calendar.svg";
-import iconGlobe from "../../assets/ressources/globe.svg";
-import iconPlay from "../../assets/ressources/play.png";
-import iconSlides from "../../assets/ressources/slides.svg";
-import iconGuide from "../../assets/ressources/guide.svg";
-import iconChevronRight from "../../assets/ressources/chevron-right.svg";
-import iconEvents from "../../assets/ressources/events.svg";
-import iconLearning from "../../assets/ressources/learning.svg";
-import iconCommunity from "../../assets/ressources/community.svg";
-import iconNetwork from "../../assets/ressources/network.svg";
-import avatar1 from "../../assets/ressources/avatar-1.png";
-import avatar2 from "../../assets/ressources/avatar-2.png";
-import avatar3 from "../../assets/ressources/avatar-3.png";
-import avatar4 from "../../assets/ressources/avatar-4.png";
-import replayThumb1 from "../../assets/ressources/replay-1.png";
-import replayThumb2 from "../../assets/ressources/replay-2.png";
-import replayThumb3 from "../../assets/ressources/replay-3.png";
-import replayThumb4 from "../../assets/ressources/replay-4.png";
-import webinarThumb1 from "../../assets/ressources/webinar-thumb-1.png";
-import webinarThumb2 from "../../assets/ressources/webinar-thumb-2.png";
 
-// ---------- Icons ----------
-const IconVideo = (p) => (
-  <svg viewBox="0 0 20 20" fill="none" {...p}>
-    <rect
-      x="1"
-      y="1"
-      width="18"
-      height="18"
-      rx="4"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    />
-    <path d="M8 6.5 14 10l-6 3.5v-7Z" fill="currentColor" />
-  </svg>
-);
+// ========== Asset Imports ==========
+// Background and hero
+import bg from "../../assets/webinar/bg-gradient.png";
+import heroImage from "../../assets/webinar/webinar-hero.png";
 
-const IconCases = (p) => (
-  <svg viewBox="0 0 18 18" fill="none" {...p}>
-    <rect
-      x="1"
-      y="10"
-      width="4"
-      height="7"
-      rx="1"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    />
-    <rect
-      x="7"
-      y="6"
-      width="4"
-      height="11"
-      rx="1"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    />
-    <rect
-      x="13"
-      y="1"
-      width="4"
-      height="16"
-      rx="1"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    />
-  </svg>
-);
+// Icons
+import iconClock from "../../assets/webinar/clock.svg";
+import iconCalendarModal from "../../assets/webinar/calendar-modal.svg";
+import iconCalendarCard from "../../assets/webinar/calendar-card.svg";
+import iconGlobe from "../../assets/webinar/globe.svg";
+import iconPlay from "../../assets/webinar/play.png";
+import iconSlides from "../../assets/webinar/slides.svg";
+import iconGuide from "../../assets/webinar/guide.svg";
+import iconChevronRight from "../../assets/webinar/chevron-right.svg";
+import iconEvents from "../../assets/webinar/events.svg";
+import iconLearning from "../../assets/webinar/learning.svg";
+import iconCommunity from "../../assets/webinar/community.svg";
+import iconNetwork from "../../assets/webinar/network.svg";
+import iconChevronDown from "../../assets/webinar/chevron-down.svg";
+import iconChevronDownGreen from "../../assets/webinar/chevron-down-green.svg";
 
-const IconQA = (p) => (
-  <svg viewBox="0 0 20 20" fill="none" {...p}>
-    <path
-      d="M1.5 3.5A1.5 1.5 0 0 1 3 2h14a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 17 14H8l-4.5 4v-4H3a1.5 1.5 0 0 1-1.5-1.5v-9Z"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+// Avatars (old and new)
+import avatar3 from "../../assets/webinar/avatar-3.png";
+import avatar4 from "../../assets/webinar/avatar-4.png";
+import newAvatar1 from "../../assets/webinar/new-avatar-1.png";
+import newAvatar2 from "../../assets/webinar/new-avatar-2.png";
 
-const IconCheckCircle = (p) => (
-  <svg viewBox="0 0 17 17" fill="none" {...p}>
-    <circle cx="8.5" cy="8.5" r="7.5" stroke="currentColor" strokeWidth="1.4" />
-    <path
-      d="m5 8.6 2.3 2.3 4.7-4.9"
-      stroke="currentColor"
-      strokeWidth="1.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+// Thumbnails for replays and webinars
+import replayThumb1 from "../../assets/webinar/replay-1.png";
+import replayThumb2 from "../../assets/webinar/replay-2.png";
+import replayThumb3 from "../../assets/webinar/replay-3.png";
+import replayThumb4 from "../../assets/webinar/replay-4.png";
+import webinarThumb1 from "../../assets/webinar/webinar-thumb-1.png";
+import webinarThumb2 from "../../assets/webinar/webinar-thumb-2.png";
 
-const IconChevronDown = (p) => (
-  <svg viewBox="0 0 24 24" fill="none" {...p}>
-    <path
-      d="m6 9 6 6 6-6"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+// Custom icons for registration modal
+import customVideoIcon from "../../assets/webinar/video.svg";
+import customCasesIcon from "../../assets/webinar/cases.svg";
+import customQAIcon from "../../assets/webinar/qa.svg";
+import customCheckIcon from "../../assets/webinar/check.svg";
+import customCloseIcon from "../../assets/webinar/close.svg";
 
-const IconClose = (p) => (
-  <svg viewBox="0 0 19 19" fill="none" {...p}>
-    <path
-      d="M1.5 1.5l16 16M17.5 1.5l-16 16"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </svg>
-);
-
-// ---------- Spring curve (unchanged) ----------
+// ========== Animation Presets ==========
+// Spring curve – custom easing array for smooth, natural motion
 const SPRING_CURVE = [
   0, 0.0188, 0.0679, 0.1374, 0.2195, 0.308, 0.3978, 0.4856, 0.5686, 0.6452,
   0.7142, 0.7753, 0.8283, 0.8735, 0.9113, 0.9423, 0.9671, 0.9866, 1.0014,
@@ -131,10 +57,11 @@ const SPRING_CURVE = [
 const SPRING_TIMES = SPRING_CURVE.map((_, i) => i / (SPRING_CURVE.length - 1));
 const SPRING_DURATION = 2.044188;
 
-// Offsets for the four feature cards (alternating)
+// Offsets for the four feature cards (alternating left/right)
 const FEATURE_OFFSETS = [424, -432, 424, -432];
 
-// ---------- NEW: SpringReveal (scroll‑trigger wrapper) ----------
+// ========== Reusable Wrapper: SpringReveal ==========
+// Scroll-triggered reveal with custom spring curve (translates from offsetX)
 const SpringReveal = ({ offsetX, children, className = "" }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.3 });
@@ -163,20 +90,220 @@ const SpringReveal = ({ offsetX, children, className = "" }) => {
   );
 };
 
-// ---------- Modal and sub‑components (unchanged) ----------
+// ========== Sub‑components ==========
+
+// ----- Avatars component (stacked circular images) -----
+const Avatars = ({ images, extra }) => (
+  <div className="flex items-start">
+    {images.map((src, i) => (
+      <div
+        key={i}
+        className="relative size-10 shrink-0 rounded-full border-2 border-white -mr-3 overflow-hidden"
+      >
+        <img src={src} alt="" className="size-full object-cover" />
+      </div>
+    ))}
+    {extra && (
+      <div className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-white bg-[#f3f4f6]">
+        <span className="text-[10px] font-bold text-[#6b7280]">{extra}</span>
+      </div>
+    )}
+  </div>
+);
+
+// ----- ChipRow: renders a list of tags with "+" separators -----
+const ChipRow = ({ items }) => (
+  <div className="flex items-center gap-2 pt-2">
+    {items.map((label, i) => (
+      <React.Fragment key={label}>
+        {i > 0 && <span className="text-xs font-bold text-[#1eb394]">+</span>}
+        <span className="rounded-md bg-[#f4fbf9] p-1 text-xs font-bold text-[#1eb394]">
+          {label}
+        </span>
+      </React.Fragment>
+    ))}
+  </div>
+);
+
+// ----- PrimaryButton (reusable CTA) -----
+const PrimaryButton = ({ children, className = "", ...rest }) => (
+  <button
+    type="button"
+    className={`flex items-center justify-center gap-3 rounded-2xl border border-[#1eb394] bg-[#126b59] px-6 py-3 text-base font-bold text-white transition-colors hover:bg-[#0d5143] ${className}`}
+    {...rest}
+  >
+    {children}
+    <img src={iconChevronRight} alt="" className="size-3" />
+  </button>
+);
+
+// ----- WebinarThumbnail: card thumbnail with index and play button -----
+const WebinarThumbnail = ({ index, title, thumbnail }) => (
+  <div className="relative h-[223px] w-[297px] shrink-0 overflow-hidden rounded-2xl bg-[#0d5143]">
+    <img
+      src={thumbnail}
+      alt={title}
+      className="absolute inset-0 h-full w-full object-cover opacity-40"
+    />
+    <div className="absolute inset-0 bg-black/10" />
+    <div className="absolute left-4 top-4 flex size-8 items-center justify-center rounded-full bg-white backdrop-blur-[4px]">
+      <span className="text-base font-bold text-black">{index}</span>
+    </div>
+    <div className="absolute inset-0 flex items-center justify-center">
+      <img src={iconPlay} alt="" className="size-16" />
+    </div>
+  </div>
+);
+
+// ----- WebinarCard: main webinar listing card -----
+const WebinarCard = ({
+  index,
+  live,
+  category,
+  title,
+  date,
+  duration,
+  timezones,
+  tags,
+  avatars,
+  extraAvatars,
+  spots,
+  highlighted,
+  thumbnail,
+  onReserve,
+}) => (
+  <article
+    className={`relative flex w-full items-start gap-8 rounded-[32px] p-8 shadow-[0px_10px_40px_-10px_rgba(13,81,67,0.1)] ${
+      highlighted
+        ? "border border-[#006b57] bg-white/80"
+        : "border border-[#006b57] bg-white"
+    }`}
+  >
+    <WebinarThumbnail index={index} title={title} thumbnail={thumbnail} />
+    <div className="flex min-w-0 flex-1 flex-col gap-4">
+      <div className="flex items-center gap-3">
+        {live && (
+          <span className="rounded-sm bg-[#ef4444] px-2 py-0.5 text-[10px] font-bold uppercase text-white">
+            ● Live
+          </span>
+        )}
+        <span className="text-xs font-bold uppercase tracking-[1.2px] text-[#9ca3af]">
+          {category}
+        </span>
+      </div>
+      <h3 className="text-2xl font-extrabold leading-tight text-[#0d5143]">
+        {title}
+      </h3>
+      <div className="flex flex-wrap items-center gap-6">
+        <div className="flex items-center gap-3">
+          <img src={iconCalendarCard} alt="" className="h-4 w-[15px]" />
+          <span className="text-sm font-semibold text-[#0d5143]">{date}</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <img src={iconClock} alt="" className="size-3.5" />
+          <span className="text-sm font-semibold text-[#0d5143]">
+            {duration}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <img src={iconGlobe} alt="" className="h-5 w-[10px]" />
+          <span className="text-sm text-[#6b7280]">{timezones}</span>
+        </div>
+      </div>
+      <ChipRow items={tags} />
+    </div>
+    <div className="flex h-full w-[295px] shrink-0 flex-col justify-between border-l border-[#f3f4f6] pl-8">
+      <div className="flex flex-col gap-3 pb-4">
+        <span className="text-[10px] font-bold uppercase text-[#9ca3af]">
+          Intervenants
+        </span>
+        <Avatars images={avatars} extra={extraAvatars} />
+      </div>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-bold text-[#9ca3af]">
+            Places limitées
+          </span>
+          <span className="text-xs font-bold text-[#1eb394]">{spots}</span>
+        </div>
+        <PrimaryButton className="h-12 w-full rounded-xl" onClick={onReserve}>
+          Réserver ma place
+        </PrimaryButton>
+      </div>
+    </div>
+  </article>
+);
+
+// ----- ReplayCard: for past webinar recordings -----
+const ReplayCard = ({ thumbnail, duration, category, title, date, dimmed }) => (
+  <div
+    className={`group flex flex-col overflow-hidden rounded-3xl border border-[#f3f4f6] bg-white shadow-[0px_10px_40px_-10px_rgba(13,81,67,0.5)] ${
+      dimmed ? "opacity-90" : ""
+    }`}
+  >
+    <div className="relative h-[164px] w-full shrink-0 overflow-hidden">
+      <img src={thumbnail} alt="" className="size-full object-cover" />
+      <div className="absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1">
+        <span className="text-[10px] font-bold text-white">{duration}</span>
+      </div>
+    </div>
+    <div className="flex flex-col gap-2 p-6">
+      <span className="text-[10px] font-bold uppercase tracking-[0.5px] text-[#1eb394]">
+        {category}
+      </span>
+      <h4 className="text-base font-bold leading-tight text-[#0d5143]">
+        {title}
+      </h4>
+      <span className="pt-1 text-xs text-[#9ca3af]">{date}</span>
+      <div className="flex gap-4 border-t border-[#f3f4f6] pt-4">
+        <button className="flex items-center gap-1.5 text-[10px] font-bold text-[#6b7280]">
+          <img src={iconSlides} alt="" className="size-4" />
+          Slides
+        </button>
+        <button className="flex items-center gap-1.5 text-[10px] font-bold text-[#6b7280]">
+          <img src={iconGuide} alt="" className="size-4" />
+          Guide associé
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+// ----- FeatureCard: for the "Events & Community" section -----
+const FeatureCard = ({ icon, title, description }) => (
+  <div className="flex h-[254px] w-full max-w-[327px] flex-col gap-3 rounded-[32px] border border-[#1eb394] bg-white p-8 shadow-[0px_10px_40px_-10px_rgba(13,81,67,0.5)]">
+    <div className="flex size-14 items-center justify-center rounded-2xl bg-[#f4fbf9]">
+      <img src={icon} alt="" className="size-8" />
+    </div>
+    <h4 className="pt-3 text-xl font-extrabold text-[#0d5143]">{title}</h4>
+    <p className="text-sm leading-relaxed text-[#343434]">{description}</p>
+  </div>
+);
+
+// ----- StatCard: used in the impact stats panel -----
+const StatCard = ({ value, label }) => (
+  <div className="flex h-[107px] w-[184px] flex-col justify-center gap-2.5 rounded-2xl border border-[#02473e] bg-[#003730] p-3">
+    <span className="text-4xl font-extrabold text-white">{value}</span>
+    <span className="text-xs font-bold uppercase tracking-[0.6px] text-white/60">
+      {label}
+    </span>
+  </div>
+);
+
+// ========== Registration Modal ==========
 const MODAL_HIGHLIGHTS = [
   {
-    icon: IconVideo,
+    icon: customVideoIcon,
     title: "Démo live VTM",
     description: "Découvrez l'interface en temps réel",
   },
   {
-    icon: IconCases,
+    icon: customCasesIcon,
     title: "Études de cas concrètes",
     description: "Retours d'expérience clients B2B",
   },
   {
-    icon: IconQA,
+    icon: customQAIcon,
     title: "Q&A en direct",
     description: "Posez vos questions aux experts",
   },
@@ -203,6 +330,7 @@ const WebinarRegistrationModal = ({ open, onClose, webinar, onSubmit }) => {
   });
   const [submitting, setSubmitting] = useState(false);
 
+  // Reset form and handle Escape key when modal opens
   useEffect(() => {
     if (open)
       setForm({
@@ -248,8 +376,9 @@ const WebinarRegistrationModal = ({ open, onClose, webinar, onSubmit }) => {
           aria-label="Fermer"
           className="absolute right-5 top-5 z-10 flex size-8 items-center justify-center text-[#3c4a45]/50 transition-colors hover:text-[#3c4a45]"
         >
-          <IconClose className="size-[16px]" />
+          <img src={customCloseIcon} alt="Fermer" className="size-[16px]" />
         </button>
+        {/* Left panel – webinar info */}
         <div
           className="relative hidden w-[45%] shrink-0 flex-col justify-between overflow-hidden p-7 sm:flex"
           style={{
@@ -274,20 +403,16 @@ const WebinarRegistrationModal = ({ open, onClose, webinar, onSubmit }) => {
               {webinar.title}
             </h2>
             <div className="flex items-center gap-3">
-              <img
-                src={iconCalendar}
-                alt=""
-                className="h-4 w-[15px] brightness-0 invert"
-              />
+              <img src={iconCalendarModal} alt="" className="h-4 w-[15px]" />
               <span className="text-sm font-semibold text-[#9ef3d9]">
                 {webinar.date} — {webinar.duration}
               </span>
             </div>
             <div className="flex flex-col gap-3 pt-3">
-              {MODAL_HIGHLIGHTS.map(({ icon: Icon, title, description }) => (
+              {MODAL_HIGHLIGHTS.map(({ icon, title, description }) => (
                 <div key={title} className="flex items-start gap-3">
-                  <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white">
-                    <Icon className="size-4" />
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-white/10">
+                    <img src={icon} alt="" className="size-4" />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm font-bold text-white">
@@ -301,7 +426,7 @@ const WebinarRegistrationModal = ({ open, onClose, webinar, onSubmit }) => {
           </div>
           <div className="relative flex items-center">
             <div className="flex items-start">
-              {[avatar1, avatar2].map((src, i) => (
+              {[newAvatar1, newAvatar2].map((src, i) => (
                 <div
                   key={i}
                   className="relative -mr-3 size-10 shrink-0 overflow-hidden rounded-full border-2 border-[#006b57]"
@@ -323,6 +448,7 @@ const WebinarRegistrationModal = ({ open, onClose, webinar, onSubmit }) => {
             </div>
           </div>
         </div>
+        {/* Right panel – registration form */}
         <div className="flex w-full flex-col overflow-y-auto px-6 py-6 sm:px-10 sm:py-8">
           <div className="flex w-full flex-col gap-5">
             <div className="flex flex-col gap-1.5">
@@ -363,7 +489,11 @@ const WebinarRegistrationModal = ({ open, onClose, webinar, onSubmit }) => {
                       className="w-full rounded-lg border border-[#bbcac3]/50 py-2.5 pl-4 pr-9 text-sm text-[#171d1b] placeholder:text-[#b3b3b3] outline-none focus:border-[#1eb394]"
                     />
                     {/^\S+@\S+\.\S+$/.test(form.email) && (
-                      <IconCheckCircle className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-4 text-[#1eb394]" />
+                      <img
+                        src={customCheckIcon}
+                        alt=""
+                        className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2"
+                      />
                     )}
                   </div>
                 </label>
@@ -397,7 +527,11 @@ const WebinarRegistrationModal = ({ open, onClose, webinar, onSubmit }) => {
                       </option>
                     ))}
                   </select>
-                  <IconChevronDown className="pointer-events-none absolute right-3 top-1/2 size-5 -translate-y-1/2 text-[#3c4a45]" />
+                  <img
+                    src={iconChevronDown}
+                    alt=""
+                    className="pointer-events-none absolute right-3 top-1/2 size-5 -translate-y-1/2"
+                  />
                 </div>
               </label>
               <button
@@ -431,191 +565,8 @@ const WebinarRegistrationModal = ({ open, onClose, webinar, onSubmit }) => {
   );
 };
 
-const Avatars = ({ images, extra }) => (
-  <div className="flex items-start">
-    {images.map((src, i) => (
-      <div
-        key={i}
-        className="relative size-10 shrink-0 rounded-full border-2 border-white -mr-3 overflow-hidden"
-      >
-        <img src={src} alt="" className="size-full object-cover" />
-      </div>
-    ))}
-    {extra && (
-      <div className="flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-white bg-[#f3f4f6]">
-        <span className="text-[10px] font-bold text-[#6b7280]">{extra}</span>
-      </div>
-    )}
-  </div>
-);
-
-const ChipRow = ({ items }) => (
-  <div className="flex items-center gap-2 pt-2">
-    {items.map((label, i) => (
-      <React.Fragment key={label}>
-        {i > 0 && <span className="text-xs font-bold text-[#1eb394]">+</span>}
-        <span className="rounded-md bg-[#f4fbf9] p-1 text-xs font-bold text-[#1eb394]">
-          {label}
-        </span>
-      </React.Fragment>
-    ))}
-  </div>
-);
-
-const PrimaryButton = ({ children, className = "", ...rest }) => (
-  <button
-    type="button"
-    className={`flex items-center justify-center gap-3 rounded-2xl border border-[#1eb394] bg-[#126b59] px-6 py-3 text-base font-bold text-white transition-colors hover:bg-[#0d5143] ${className}`}
-    {...rest}
-  >
-    {children}
-    <img src={iconChevronRight} alt="" className="size-3" />
-  </button>
-);
-
-const WebinarThumbnail = ({ index, title, thumbnail }) => (
-  <div className="relative h-[223px] w-[297px] shrink-0 overflow-hidden rounded-2xl bg-[#0d5143]">
-    <img
-      src={thumbnail}
-      alt={title}
-      className="absolute inset-0 h-full w-full object-cover opacity-40"
-    />
-    <div className="absolute inset-0 bg-black/10" />
-    <div className="absolute left-4 top-4 flex size-8 items-center justify-center rounded-full bg-white backdrop-blur-[4px]">
-      <span className="text-base font-bold text-black">{index}</span>
-    </div>
-    <div className="absolute inset-0 flex items-center justify-center">
-      <img src={iconPlay} alt="" className="size-16" />
-    </div>
-  </div>
-);
-
-const WebinarCard = ({
-  index,
-  live,
-  category,
-  title,
-  date,
-  duration,
-  timezones,
-  tags,
-  avatars,
-  extraAvatars,
-  spots,
-  highlighted,
-  thumbnail,
-  onReserve,
-}) => (
-  <article
-    className={`relative flex w-full items-start gap-8 rounded-[32px] p-8 shadow-[0px_10px_40px_-10px_rgba(13,81,67,0.1)] ${highlighted ? "border border-[#006b57] bg-white/80" : "border border-[#006b57] bg-white"}`}
-  >
-    <WebinarThumbnail index={index} title={title} thumbnail={thumbnail} />
-    <div className="flex min-w-0 flex-1 flex-col gap-4">
-      <div className="flex items-center gap-3">
-        {live && (
-          <span className="rounded-sm bg-[#ef4444] px-2 py-0.5 text-[10px] font-bold uppercase text-white">
-            ● Live
-          </span>
-        )}
-        <span className="text-xs font-bold uppercase tracking-[1.2px] text-[#9ca3af]">
-          {category}
-        </span>
-      </div>
-      <h3 className="text-2xl font-extrabold leading-tight text-[#0d5143]">
-        {title}
-      </h3>
-      <div className="flex flex-wrap items-center gap-6">
-        <div className="flex items-center gap-3">
-          <img src={iconCalendar} alt="" className="h-4 w-[15px]" />
-          <span className="text-sm font-semibold text-[#0d5143]">{date}</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <img src={iconClock} alt="" className="size-3.5" />
-          <span className="text-sm font-semibold text-[#0d5143]">
-            {duration}
-          </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <img src={iconGlobe} alt="" className="h-5 w-[10px]" />
-          <span className="text-sm text-[#6b7280]">{timezones}</span>
-        </div>
-      </div>
-      <ChipRow items={tags} />
-    </div>
-    <div className="flex h-full w-[295px] shrink-0 flex-col justify-between border-l border-[#f3f4f6] pl-8">
-      <div className="flex flex-col gap-3 pb-4">
-        <span className="text-[10px] font-bold uppercase text-[#9ca3af]">
-          Intervenants
-        </span>
-        <Avatars images={avatars} extra={extraAvatars} />
-      </div>
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-[#9ca3af]">
-            Places limitées
-          </span>
-          <span className="text-xs font-bold text-[#1eb394]">{spots}</span>
-        </div>
-        <PrimaryButton className="h-12 w-full rounded-xl" onClick={onReserve}>
-          Réserver ma place
-        </PrimaryButton>
-      </div>
-    </div>
-  </article>
-);
-
-const ReplayCard = ({ thumbnail, duration, category, title, date, dimmed }) => (
-  <div
-    className={`group flex flex-col overflow-hidden rounded-3xl border border-[#f3f4f6] bg-white shadow-[0px_10px_40px_-10px_rgba(13,81,67,0.5)] ${dimmed ? "opacity-90" : ""}`}
-  >
-    <div className="relative h-[164px] w-full shrink-0 overflow-hidden">
-      <img src={thumbnail} alt="" className="size-full object-cover" />
-      <div className="absolute bottom-2 right-2 rounded bg-black/60 px-2 py-1">
-        <span className="text-[10px] font-bold text-white">{duration}</span>
-      </div>
-    </div>
-    <div className="flex flex-col gap-2 p-6">
-      <span className="text-[10px] font-bold uppercase tracking-[0.5px] text-[#1eb394]">
-        {category}
-      </span>
-      <h4 className="text-base font-bold leading-tight text-[#0d5143]">
-        {title}
-      </h4>
-      <span className="pt-1 text-xs text-[#9ca3af]">{date}</span>
-      <div className="flex gap-4 border-t border-[#f3f4f6] pt-4">
-        <button className="flex items-center gap-1.5 text-[10px] font-bold text-[#6b7280]">
-          <img src={iconSlides} alt="" className="size-4" />
-          Slides
-        </button>
-        <button className="flex items-center gap-1.5 text-[10px] font-bold text-[#6b7280]">
-          <img src={iconGuide} alt="" className="size-4" />
-          Guide associé
-        </button>
-      </div>
-    </div>
-  </div>
-);
-
-const FeatureCard = ({ icon, title, description }) => (
-  <div className="flex h-[254px] w-full max-w-[327px] flex-col gap-3 rounded-[32px] border border-[#1eb394] bg-white p-8 shadow-[0px_10px_40px_-10px_rgba(13,81,67,0.5)]">
-    <div className="flex size-14 items-center justify-center rounded-2xl bg-[#f4fbf9]">
-      <img src={icon} alt="" className="size-8" />
-    </div>
-    <h4 className="pt-3 text-xl font-extrabold text-[#0d5143]">{title}</h4>
-    <p className="text-sm leading-relaxed text-[#343434]">{description}</p>
-  </div>
-);
-
-const StatCard = ({ value, label }) => (
-  <div className="flex h-[107px] w-[184px] flex-col justify-center gap-2.5 rounded-2xl border border-[#02473e] bg-[#003730] p-3">
-    <span className="text-4xl font-extrabold text-white">{value}</span>
-    <span className="text-xs font-bold uppercase tracking-[0.6px] text-white/60">
-      {label}
-    </span>
-  </div>
-);
-
-// ---------- Data ----------
+// ========== Content Data ==========
+// Webinar cards data (upcoming)
 const WEBINARS = [
   {
     id: 1,
@@ -626,7 +577,7 @@ const WEBINARS = [
     duration: "75 min",
     timezones: "14h00 (Paris) / 15h00 (Tunis) / 15h00 (Rabat)",
     tags: ["Démo live", "témoignage", "Q&A"],
-    avatars: [avatar1, avatar2],
+    avatars: [newAvatar1, newAvatar2],
     extraAvatars: "+1",
     spots: "200 places",
     highlighted: false,
@@ -641,7 +592,7 @@ const WEBINARS = [
     duration: "75 min",
     timezones: "14h00 (Paris) / 15h00 (Tunis) / 15h00 (Rabat)",
     tags: ["Présentation", "cas concret", "débat"],
-    avatars: [avatar3, avatar4, avatar1],
+    avatars: [avatar3, avatar4, newAvatar1],
     extraAvatars: "+1",
     spots: "200 places",
     highlighted: true,
@@ -649,6 +600,7 @@ const WEBINARS = [
   },
 ];
 
+// Replay cards (past webinars)
 const REPLAYS = [
   {
     id: 1,
@@ -688,6 +640,7 @@ const REPLAYS = [
   },
 ];
 
+// Feature cards for "Events & Community" section
 const FEATURES = [
   {
     icon: iconEvents,
@@ -715,6 +668,7 @@ const FEATURES = [
   },
 ];
 
+// Statistics for the impact panel
 const STATS = [
   ["+25", "Webinars organisés"],
   ["+18 000", "Inscriptions"],
@@ -722,7 +676,7 @@ const STATS = [
   ["+3 000", "Membres actifs"],
 ];
 
-// ---------- Main Webinar component ----------
+// ========== Main Component ==========
 export default function Webinar() {
   const [selectedWebinar, setSelectedWebinar] = useState(null);
   const handleRegistrationSubmit = async (data) =>
@@ -737,7 +691,7 @@ export default function Webinar() {
         className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover object-top"
       />
       <div className="mx-auto flex w-full max-w-[1440px] flex-col items-center px-6 pt-[220px]">
-        {/* Hero section */}
+        {/* ===== HERO SECTION ===== */}
         <section className="flex w-full flex-col items-center gap-6 text-center">
           <motion.h1
             initial={{ opacity: 0, y: -168 }}
@@ -774,15 +728,15 @@ export default function Webinar() {
                   "linear-gradient(153deg, #1eb394 16%, #006b57 82%)",
               }}
             >
-              Voir les webinaires{" "}
-              <img src={iconChevronRight} alt="" className="size-3" />
+              Voir les webinaires
+              <img src={iconChevronDown} alt="" className="size-3" />
             </button>
             <button
               type="button"
               className="flex items-center gap-3 rounded-2xl border-2 border-[#006b57] px-6 py-3 text-base font-semibold text-[#006b57]"
             >
-              Voir les replays{" "}
-              <img src={iconChevronRight} alt="" className="size-3" />
+              Voir les replays
+              <img src={iconChevronDownGreen} alt="" className="size-3" />
             </button>
           </motion.div>
           <motion.img
@@ -796,7 +750,7 @@ export default function Webinar() {
           />
         </section>
 
-        {/* Prochains webinaires */}
+        {/* ===== PROCHAINS WEBINAIRES ===== */}
         <section className="mt-24 flex w-full flex-col gap-12">
           <motion.h2
             initial={{ opacity: 0, x: -60 }}
@@ -826,7 +780,7 @@ export default function Webinar() {
           </div>
         </section>
 
-        {/* Replays */}
+        {/* ===== REPLAYS & RESSOURCES ===== */}
         <section className="mt-24 flex w-full flex-col gap-12">
           <motion.h2
             initial={{ opacity: 0, x: -60 }}
@@ -856,9 +810,8 @@ export default function Webinar() {
           </div>
         </section>
 
-        {/* Événements & Communauté (FIXED) */}
+        {/* ===== ÉVÉNEMENTS & COMMUNAUTÉ ===== */}
         <section className="mt-24 flex w-full flex-col gap-16">
-          {/* Heading */}
           <SpringReveal offsetX={728}>
             <h2 className="text-4xl font-extrabold text-[#0b3f34]">
               Événements & Communauté KonektUs
@@ -866,7 +819,6 @@ export default function Webinar() {
           </SpringReveal>
 
           <div className="flex flex-col items-end gap-10 lg:flex-row">
-            {/* Feature cards */}
             <div className="flex flex-1 flex-wrap gap-7">
               {FEATURES.map((f, i) => (
                 <SpringReveal key={f.title} offsetX={FEATURE_OFFSETS[i]}>
@@ -875,7 +827,6 @@ export default function Webinar() {
               ))}
             </div>
 
-            {/* Impact Card – stable wrapper observes, inner animates */}
             <SpringReveal
               offsetX={-536}
               className="relative h-[542px] w-full max-w-[514px] shrink-0"
@@ -891,14 +842,14 @@ export default function Webinar() {
                   ))}
                 </div>
                 <div className="mt-auto pt-8">
-                  <Avatars images={[avatar3, avatar4, avatar1]} extra="+1" />
+                  <Avatars images={[avatar3, avatar4, newAvatar1]} extra="+1" />
                 </div>
               </div>
             </SpringReveal>
           </div>
         </section>
 
-        {/* CTA */}
+        {/* ===== FINAL CALL-TO-ACTION ===== */}
         <section className="relative mt-24 mb-24 w-full overflow-hidden rounded-[40px] bg-[#0d5143] px-8 py-12">
           <div className="pointer-events-none absolute -bottom-20 -left-20 size-[320px] rounded-full bg-[#1eb394]/10 blur-3xl" />
           <div className="mx-auto flex max-w-[818px] flex-col items-center gap-11 text-center">
@@ -925,6 +876,7 @@ export default function Webinar() {
         </section>
       </div>
 
+      {/* Registration modal */}
       <WebinarRegistrationModal
         open={!!selectedWebinar}
         webinar={selectedWebinar}

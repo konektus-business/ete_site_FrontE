@@ -1,6 +1,8 @@
+// ========== Core Imports ==========
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-// ----- Assets -----
+
+// ========== Asset Imports ==========
 import servicesBg from "../../assets/services/services-bg.png";
 import heroImg from "../../assets/services/hero.png";
 import telVoipImg from "../../assets/services/tel-voip.png";
@@ -18,11 +20,14 @@ import iconPerf from "../../assets/icons/icon-performance.svg";
 import iconFlex from "../../assets/icons/icon-flexibilite.svg";
 import iconIntegration from "../../assets/icons/icon-integration.svg";
 
-// ----- Animation presets -----
+// ========== Animation Presets ==========
+// Spring physics for smooth, natural motion
 const SPRING = { type: "spring", mass: 1, stiffness: 100, damping: 15 };
+// Fade-up variants for reveal animations
 const fadeUp = { hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } };
 
-// ----- Reusable wrapper: reveal on scroll -----
+// ========== Reusable Wrappers ==========
+// Reveal on scroll with optional delay and viewport amount
 const Reveal = ({ children, className = "", delay = 0, amount = 0.3 }) => (
   <motion.div
     className={className}
@@ -36,7 +41,7 @@ const Reveal = ({ children, className = "", delay = 0, amount = 0.3 }) => (
   </motion.div>
 );
 
-// ----- Section header (title with decorative lines) -----
+// Section header with decorative lines on desktop
 const SectionTitle = ({ title }) => (
   <Reveal className="flex items-center gap-5">
     <span className="hidden h-px w-[165px] bg-[#0d5143]/20 md:block" />
@@ -47,13 +52,15 @@ const SectionTitle = ({ title }) => (
   </Reveal>
 );
 
-// ----- Content data -----
+// ========== Content Data ==========
+// Feature strip items (performance, flexibility, integration)
 const FEATURES = [
   { id: "perf", icon: iconPerf, title: "Performance", desc: "Latence minimale et haute disponibilité" },
   { id: "flex", icon: iconFlex, title: "Flexibilité", desc: "Évoluez sans contrainte technique" },
   { id: "int", icon: iconIntegration, title: "Intégration", desc: "Compatible avec +2000 applications" },
 ];
 
+// Services data with bullets and objective
 const SERVICES = [
   {
     id: "tel-voip",
@@ -132,22 +139,24 @@ const SERVICES = [
   },
 ];
 
+// Statistics data (trust indicators)
 const STATS = [
   { id: "partners", value: "+100", label: "Entreprises partenaires", desc: "Nous font confiance au quotidien pour leurs opérations critiques." },
   { id: "uptime", value: "99.9%", label: "Disponibilté garanti", desc: "Engagement contractuel pour une continuité sans faille." },
   { id: "support", value: "24/7", label: "Support expert", desc: "Une équipe d'ingénieurs dédiée à votre écoute en permanence." },
 ];
 
-// ----- Main component -----
+// ========== Main Component ==========
 export default function Services() {
+  // Refs and view states for hero section
   const heroRef = useRef(null);
   const isHeroInView = useInView(heroRef, { once: true, amount: 0.2 });
 
-  // Hero text & image variants
+  // Hero animation variants (text and image)
   const heroText = { hidden: { opacity: 0, x: -40 }, visible: { opacity: 1, x: 0, transition: SPRING } };
   const heroImage = { hidden: { opacity: 0, scale: 0.95 }, visible: { opacity: 1, scale: 1, transition: { ...SPRING, delay: 0.15 } } };
 
-  // Stagger presets for features & stats
+  // Stagger presets for features, services, and stats
   const staggerContainer = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1, ...SPRING } },
@@ -167,7 +176,7 @@ export default function Services() {
 
   return (
     <div className="relative w-full bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${servicesBg})` }}>
-      {/* ----- HERO ----- */}
+      {/* ===== HERO SECTION ===== */}
       <section
         ref={heroRef}
         className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-8 px-6 pt-16 md:flex-row md:gap-14 md:px-24 md:pt-24 mt-[160px]"
@@ -212,7 +221,7 @@ export default function Services() {
         </motion.div>
       </section>
 
-      {/* ----- FEATURE STRIP (desktop only) ----- */}
+      {/* ===== FEATURE STRIP (desktop only) ===== */}
       <section className="relative mx-auto -mt-8 hidden max-w-[1024px] px-6 md:mt-16 md:block md:px-24">
         <motion.div
           initial="hidden"
@@ -235,7 +244,7 @@ export default function Services() {
         </motion.div>
       </section>
 
-      {/* ----- SERVICES LIST ----- */}
+      {/* ===== SERVICES LIST ===== */}
       <section className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-16 px-6 py-24 md:px-24 md:py-32">
         <SectionTitle title="Nos services" />
 
@@ -246,7 +255,7 @@ export default function Services() {
             const imgX = isLeft ? -40 : 40;
             return (
               <div key={s.id} className={`flex flex-col md:flex-row items-center gap-12 w-full ${isLeft ? "md:flex-row" : "md:flex-row-reverse"}`}>
-                {/* Image */}
+                {/* Service image */}
                 <motion.div
                   initial={{ opacity: 0, x: imgX }}
                   whileInView={{ opacity: 1, x: 0 }}
@@ -257,7 +266,7 @@ export default function Services() {
                   <img src={s.image} alt={s.title} className="w-full max-w-[496px] object-cover" />
                 </motion.div>
 
-                {/* Text content */}
+                {/* Service text content */}
                 <motion.div
                   initial={{ opacity: 0, x: textX }}
                   whileInView={{ opacity: 1, x: 0 }}
@@ -289,7 +298,7 @@ export default function Services() {
         </div>
       </section>
 
-      {/* ----- STATISTICS (trust) ----- */}
+      {/* ===== STATISTICS (trust) ===== */}
       <section className="relative mx-auto flex max-w-[1245px] flex-col items-center gap-16 px-6 pb-24 md:px-24">
         <SectionTitle title="Ils nous font confiance" />
         <motion.div
@@ -311,11 +320,11 @@ export default function Services() {
         </motion.div>
       </section>
 
-      {/* ----- FINAL CALL-TO-ACTION ----- */}
+      {/* ===== FINAL CALL-TO-ACTION ===== */}
       <section className="relative mx-auto max-w-[1216px] px-6 pb-24 md:px-0">
         <Reveal>
           <div className="relative flex flex-col items-center gap-8 overflow-hidden rounded-[48px] bg-[#126b59] px-8 py-16 text-center md:py-24">
-            {/* decorative blobs */}
+            {/* Decorative blobs */}
             <div className="pointer-events-none absolute -right-48 -top-40 size-96 rounded-full bg-[rgba(119,249,214,0.3)] blur-[50px]" />
             <div className="pointer-events-none absolute -bottom-48 -left-48 size-96 rounded-full bg-[rgba(0,62,50,0.3)] blur-[50px]" />
 

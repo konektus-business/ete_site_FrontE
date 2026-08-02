@@ -1,7 +1,7 @@
-import React from "react";
+// ========== Core Imports ==========
 import { motion } from "framer-motion";
 
-// ----- Assets -----
+// ========== Asset Imports ==========
 import mailIcon from "../../assets/contact/mail-icon.svg";
 import arrowIcon from "../../assets/contact/arrow.svg";
 import pinIcon from "../../assets/contact/pin-icon.svg";
@@ -18,17 +18,23 @@ import user3 from "../../assets/contact/user3.png";
 import headsetBadgeIcon from "../../assets/contact/headset-badge-icon.svg";
 import bgContact from "../../assets/contact/bg-contact.png";
 
-// ----- Animation presets -----
+// ========== Animation Presets ==========
+// Spring physics for smooth, natural motion
 const SPRING = { type: "spring", mass: 1, stiffness: 100, damping: 15 };
+// Fade-up variants (from bottom)
 const fadeUp = { hidden: { opacity: 0, y: 40 }, show: { opacity: 1, y: 0, transition: SPRING } };
+// Fade-down variants (from top)
 const fadeDown = { hidden: { opacity: 0, y: -40 }, show: { opacity: 1, y: 0, transition: SPRING } };
+// Slide in from left or right
 const slideIn = (x) => ({ hidden: { opacity: 0, x }, show: { opacity: 1, x: 0, transition: SPRING } });
+// Stagger children with optional delay
 const stagger = (children = 0.15, delay = 0) => ({
   hidden: {},
   show: { transition: { staggerChildren: children, delayChildren: delay } },
 });
 
-// ----- Reusable reveal wrapper -----
+// ========== Reusable Wrappers ==========
+// Reveal on scroll with customizable variants and delay
 const Reveal = ({ children, className, delay = 0, variants = fadeUp }) => (
   <motion.div
     className={className}
@@ -42,7 +48,9 @@ const Reveal = ({ children, className, delay = 0, variants = fadeUp }) => (
   </motion.div>
 );
 
-// ----- Contact card (combines glass effect and card content) -----
+// ========== Sub‑components ==========
+
+// Contact card – glass‑morphism card with icon, text, stats and CTA
 const ContactCard = ({ icon, iconBg, title, description, stats, buttonText, buttonBg, buttonShadow, slideX }) => (
   <motion.div
     variants={slideIn(slideX)}
@@ -79,7 +87,7 @@ const ContactCard = ({ icon, iconBg, title, description, stats, buttonText, butt
   </motion.div>
 );
 
-// ----- Office card -----
+// Office card – with image, address and phone
 const OfficeCard = ({ image, alt, country, city, address, phone }) => (
   <motion.div
     variants={fadeUp}
@@ -106,7 +114,9 @@ const OfficeCard = ({ image, alt, country, city, address, phone }) => (
   </motion.div>
 );
 
-// ----- Data -----
+// ========== Content Data ==========
+
+// Contact cards (sales & support)
 const contactCards = [
   {
     icon: arrowIcon,
@@ -138,14 +148,15 @@ const contactCards = [
   },
 ];
 
+// Office locations
 const offices = [
   { image: officeTunisia, alt: "Tunis, Tunisie", country: "Tunisie", city: "Tunis", address: "Centre Urbain Nord", phone: "+216 21 000 200" },
   { image: officeAlgeria, alt: "Alger, Algérie", country: "Algérie", city: "Hydra, Alger", address: "12 Rue des Jardins", phone: "+213 21 000 000" },
   { image: officeEgypt, alt: "Le Caire, Égypte", country: "Egypte", city: "Cairo, Egypt", address: "11 Kasr Al Ainy", phone: "+20 125 478 587" },
 ];
 
-// Hero decorative orbs
-const orbs = [
+// Hero decorative orbs (animated background blobs)
+const heroOrbs = [
   { left: -156, top: 482, size: 651, blur: 50, color: "#1EB394", x: 534, y: 83 },
   { left: -145, top: 261, size: 347, blur: 75, color: "#126B59", x: 111, y: 373 },
   { left: 712, top: 291, size: 416, blur: 75, color: "#0D5143", x: 417, y: 58 },
@@ -154,15 +165,15 @@ const orbs = [
 ];
 const orbTransition = { duration: 3, ease: "linear", repeat: Infinity, repeatType: "mirror" };
 
-// ----- Main Component -----
+// ========== Main Component ==========
 export default function Contact() {
   return (
     <div className="min-h-screen w-full font-sans" style={{ backgroundImage: `url(${bgContact})`, backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundColor: "#f8fcfb" }}>
       
-      {/* ----- Hero Section with gradient and floating orbs ----- */}
+      {/* ===== HERO SECTION with floating orbs and contact cards ===== */}
       <div className="relative h-[941px] w-full overflow-hidden bg-[#0A1A17]">
         <div className="pointer-events-none absolute inset-0" style={{ background: "linear-gradient(131deg, #061C18 0%, #0B3F34 38%, #128A72 78%, #1EB394 100%)" }}>
-          {orbs.map((orb, idx) => (
+          {heroOrbs.map((orb, idx) => (
             <motion.div
               key={idx}
               className="absolute rounded-full"
@@ -207,7 +218,7 @@ export default function Contact() {
         </motion.section>
       </div>
 
-      {/* ----- Offices Section ----- */}
+      {/* ===== OFFICES SECTION ===== */}
       <motion.section
         variants={stagger(0.15)}
         initial="hidden"
@@ -226,7 +237,7 @@ export default function Contact() {
         </div>
       </motion.section>
 
-      {/* ----- Final CTA Banner ----- */}
+      {/* ===== FINAL CALL-TO-ACTION BANNER ===== */}
       <section className="relative mx-[86px] mt-40 mb-32 flex h-[280px] items-center justify-center overflow-hidden rounded-3xl shadow-[0px_40px_80px_-15px_rgba(11,63,52,0.3)]" style={{ background: "linear-gradient(145deg, #0b3f34 0%, #1eb394 100%)" }}>
         <motion.div
           variants={stagger(0.15)}

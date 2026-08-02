@@ -1,6 +1,8 @@
+// ========== Core Imports ==========
 import { useState } from "react";
 import { motion } from "framer-motion";
 
+// ========== Asset Imports ==========
 import imgBg from "../../assets/pricing/bg.png";
 import imgCheck from "../../assets/pricing/check.svg";
 import imgChevron from "../../assets/pricing/chevron.svg";
@@ -14,17 +16,22 @@ import iconT from "../../assets/pricing/twitter.svg";
 import iconI from "../../assets/pricing/instagram.svg";
 import iconF from "../../assets/pricing/facebook.svg";
 
-/* ---- motion helpers ---- */
+// ========== Animation Presets ==========
+// Spring physics for smooth motion
 const figmaSpring = { type: "spring", mass: 1, stiffness: 100, damping: 15 };
-// Generic "fall/rise into place" variant used by every Figma-exported entrance
-// animation below: starts offset by `y` (and optionally scaled down), ends at rest.
+// Generic "fall/rise into place" variant used by every Figma-exported entrance animation
+// Starts offset by `y` (and optionally scaled down), ends at rest.
 const drop = (y, scale) => ({
   hidden: { opacity: 0, y, ...(scale && { scale }) },
   visible: { opacity: 1, y: 0, ...(scale && { scale: 1 }), transition: figmaSpring },
 });
+
+// Simple fade-up variants
 const fadeUp = { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } };
+// Stagger children for lists
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.12 } } };
 
+// Pre-defined entrance animations
 const heroHeadingIn = drop(-56);
 const heroSubtitleIn = drop(-32);
 const cardPopularIn = drop(-13, 0.95); // "Professionnel" card: also grows from 0.95 -> 1
@@ -36,12 +43,15 @@ const faqListIn = drop(528);
 const tableIn = drop(-24);
 const TESTIMONIAL_CARD_MOTION = [472, 504, 416, 480, 400, -120].map((y) => drop(y));
 
+// Row entry for comparison table
 const rowIn = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 0.4, ease: "easeOut" } } };
 const rowStagger = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 
+// Map pricing tier IDs to their respective animation variants
 const CARD_MOTION = { essentiel: cardSideInLeft, professionnel: cardPopularIn, avance: cardSideInRight };
 
-/* ---- data ---- */
+// ========== Content Data ==========
+// Pricing tiers
 const PRICING_TIERS = [
   { id: "essentiel", name: "Essentiel", tagline: "L'essentiel pour démarrer.", price: "29€", popular: false,
     features: ["Enregistrement des appels", "Accès à la plateforme", "VoIP illimitée", "Chat d'équipe"] },
@@ -51,6 +61,7 @@ const PRICING_TIERS = [
     features: ["Intelligence Artificielle avancée", "API Publique & Webhooks", "Sécurité Enterprise SSO", "Intégrations sur mesure", "Chiffrement E2EE"] },
 ];
 
+// Comparison table rows
 const COMPARISON_ROWS = [
   { feature: "Appels VoIP illimités", essentiel: true, professionnel: true, avance: true },
   { feature: "Messagerie collaborative", essentiel: true, professionnel: true, avance: true },
@@ -61,6 +72,7 @@ const COMPARISON_ROWS = [
   { feature: "Support technique", essentiel: "Standard", professionnel: "24/7 Priority", avance: "Dédié" },
 ];
 
+// FAQ items
 const FAQ_ITEMS = [
   { q: "Puis-je changer de forfait à tout moment ?", a: "Oui, vous pouvez changer de forfait à tout moment depuis votre espace client, sans engagement." },
   { q: "Comment fonctionne l'essai gratuit ?", a: "Vous bénéficiez de 14 jours d'accès complet à toutes les fonctionnalités du forfait Business. Aucune carte bancaire n'est requise pour l'inscription." },
@@ -68,6 +80,7 @@ const FAQ_ITEMS = [
   { q: "Quelles sont les méthodes de paiement acceptées ?", a: "Nous acceptons les cartes bancaires, le prélèvement SEPA et le virement pour les comptes Enterprise." },
 ];
 
+// Testimonials
 const TESTIMONIALS = [
   { name: "Ahmed Landolsi", handle: "@ahmedlando", title: "Produit ultra-utile", text: "Grâce aux tableaux de bord conviviaux, la gestion de notre stratégie digitale est devenue bien plus simple.", img: avatarAhmed, socialIcon: iconT },
   { name: "Asma Tekaya", handle: "@asmatekaya", title: "Produit ultra-utile", text: "Un meilleur SEO et des données précieuses pour une croissance record.", img: avatarAsma, socialIcon: iconI },
@@ -77,7 +90,8 @@ const TESTIMONIALS = [
   { name: "Nour Cherif", handle: "@nourcherif", title: "Produit ultra-utile", text: "Un meilleur SEO et des données précieuses pour une croissance record.", img: avatarNour, socialIcon: iconI },
 ];
 
-/* ---- sub-components ---- */
+// ========== Sub‑components ==========
+// Section heading with decorative lines
 const SectionHeading = ({ children }) => (
   <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.4 }} className="flex items-center gap-[10px]">
     <div className="h-px w-[165px] bg-gradient-to-r from-transparent to-[#1eb394]/40" />
@@ -86,6 +100,7 @@ const SectionHeading = ({ children }) => (
   </motion.div>
 );
 
+// FAQ accordion item
 const FaqAccordionItem = ({ item, isOpen, onToggle }) => (
   <div className={`w-full overflow-hidden rounded-xl border-2 border-[#0d5143] bg-white shadow-[0px_12px_40px_0px_rgba(18,107,89,0.35)] transition-shadow ${isOpen ? "shadow-[0px_12px_40px_0px_rgba(18,107,89,0.55)]" : ""}`}>
     <button type="button" onClick={onToggle} className="flex w-full items-center justify-between gap-4 p-6 text-left">
@@ -98,6 +113,7 @@ const FaqAccordionItem = ({ item, isOpen, onToggle }) => (
   </div>
 );
 
+// Testimonial card
 const TestimonialCard = ({ t, variants }) => (
   <motion.div variants={variants} className="flex w-full max-w-[336px] flex-col justify-between gap-5 rounded-xl bg-white p-6 shadow-[0px_12px_40px_0px_#126b59,0px_0px_0px_4px_white]">
     <div className="flex flex-col gap-4">
@@ -119,15 +135,16 @@ const TestimonialCard = ({ t, variants }) => (
   </motion.div>
 );
 
-/* ---- main ---- */
+// ========== Main Component ==========
 export default function Pricing() {
+  // State for billing cycle and FAQ accordion
   const [billingCycle, setBillingCycle] = useState("monthly");
   const [openFaq, setOpenFaq] = useState(1);
   const isAnnual = billingCycle === "annual";
 
   return (
     <div className="relative w-full overflow-hidden bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${imgBg})` }}>
-      {/* Hero + cards */}
+      {/* ===== HERO + PRICING CARDS ===== */}
       <section className="relative mx-auto flex max-w-[1248px] flex-col items-center gap-12 px-6 pt-56 pb-16">
         <div className="relative z-10 flex flex-col items-center gap-6 text-center">
           <motion.h1 variants={heroHeadingIn} initial="hidden" animate="visible" className="text-[36px] font-extrabold leading-[1.15] tracking-[-1.2px] text-[#0b3f34] sm:text-[48px]">
@@ -139,6 +156,7 @@ export default function Pricing() {
           </motion.p>
         </div>
 
+        {/* Billing toggle */}
         <div className="relative z-10 flex items-center gap-3">
           <span className="text-lg font-medium text-black">Mensuel</span>
           <button type="button" onClick={() => setBillingCycle(isAnnual ? "monthly" : "annual")} className="flex h-6 w-[47px] items-center rounded-full bg-[#188f76] p-[2px] transition-colors" aria-label="Basculer entre mensuel et annuel">
@@ -147,6 +165,7 @@ export default function Pricing() {
           <span className="text-lg font-medium text-black">Annuel</span>
         </div>
 
+        {/* Pricing cards with staggered entrance */}
         <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} className="relative z-10 grid w-full max-w-[1280px] grid-cols-1 items-start gap-7 md:grid-cols-3">
           {PRICING_TIERS.map((tier) => (
             <motion.div key={tier.id} variants={CARD_MOTION[tier.id]} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }}
@@ -178,7 +197,7 @@ export default function Pricing() {
         </motion.div>
       </section>
 
-      {/* Comparison table */}
+      {/* ===== COMPARISON TABLE ===== */}
       <section className="mx-auto flex max-w-[1280px] flex-col items-center gap-16 px-6 py-16">
         <SectionHeading>Comparez nos fonctionnalités</SectionHeading>
         <motion.div variants={tableIn} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.1 }} className="w-full">
@@ -214,7 +233,7 @@ export default function Pricing() {
         </motion.div>
       </section>
 
-      {/* FAQ */}
+      {/* ===== FAQ ===== */}
       <section className="mx-auto flex max-w-[1242px] flex-col items-center gap-12 px-6 py-16">
         <motion.div variants={faqHeadingIn} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.4 }}>
           <SectionHeading>Questions fréquentes</SectionHeading>
@@ -226,7 +245,7 @@ export default function Pricing() {
         </motion.div>
       </section>
 
-      {/* Testimonials */}
+      {/* ===== TESTIMONIALS ===== */}
       <section className="mx-auto flex max-w-[1246px] flex-col items-center gap-12 px-6 py-16">
         <motion.div variants={testimonialsHeadingIn} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.4 }}>
           <SectionHeading>Ce que disent nos clients</SectionHeading>
@@ -236,7 +255,7 @@ export default function Pricing() {
         </motion.div>
       </section>
 
-      {/* CTA */}
+      {/* ===== FINAL CALL-TO-ACTION ===== */}
       <section className="mx-auto max-w-[1216px] px-6 py-8">
         <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.4 }} className="relative flex flex-col items-center justify-center gap-8 overflow-hidden rounded-[48px] bg-[#126b59] py-24">
           <div className="pointer-events-none absolute -right-48 -top-40 size-96 rounded-full bg-[#77f9d6]/30 blur-[50px]" />

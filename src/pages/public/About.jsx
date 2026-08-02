@@ -1,7 +1,8 @@
+// ========== Core Imports ==========
 import { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 
-// ===== Assets =====
+// ========== Asset Imports ==========
 import bgImage from "../../assets/about/about.png";
 import imgHeroCircle from "../../assets/about/hero-circle.png";
 import imgIconExperience from "../../assets/about/icon-experience.svg";
@@ -21,15 +22,20 @@ import imgStatsNumbersGlow from "../../assets/about/stats-numbers-glow.png";
 import imgArrowLeft from "../../assets/about/arrow-left.svg";
 import imgArrowRight from "../../assets/about/arrow-right.svg";
 
+// ========== Font Constant ==========
 const F = "font-['Archivo']";
 
-// ===== Motion presets =====
+// ========== Animation Presets ==========
+// Spring physics for smooth motion
 const SPRING = { type: "spring", stiffness: 100, damping: 16, mass: 1 };
+// Section-level fade-up variants
 const sectionVars = { hidden: { opacity: 0, y: 36 }, visible: { opacity: 1, y: 0, transition: SPRING } };
+// Stagger children with slight delay
 const staggerParent = { hidden: {}, visible: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } } };
 const staggerChild = { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: SPRING } };
 
-// Per‑digit odometer timing (from Figma's "After delay" reactions)
+// ========== Per‑digit Odometer Timing ==========
+// From Figma's "After delay" reactions
 const DIGIT_PROFILES = [
   { delay: 0.15, duration: 1.6, ease: "easeOut" },
   { delay: 0.3, duration: 1.4, ease: "easeOut" },
@@ -38,13 +44,15 @@ const DIGIT_PROFILES = [
   { delay: 0.2, duration: 1.15, ease: "easeIn" },
 ];
 
-// ===== Static data =====
+// ========== Static Data ==========
+// Missions for the slider
 const MISSIONS = [
   { image: imgMission1, title: "Transformation Digitale", description: "Modernisation complète des infrastructures et processus métier." },
   { image: imgMission2, title: "Techniques de communication", description: "Optimisation des flux d'information internes et externes." },
   { image: imgMission3, title: "Relations professionnelles", description: "Développement d'écosystèmes collaboratifs durables." },
 ];
 
+// Company values
 const VALUES = [
   { icon: imgIconTransparency, title: "Transparence Totale", description: "Une communication honnête et des processus ouverts à chaque étape du cycle de développement." },
   { icon: imgIconInnovation, title: "Innovation Continue", description: "Veille technologique permanente pour intégrer les dernières avancées Open Source." },
@@ -53,6 +61,7 @@ const VALUES = [
   { icon: imgIconEcosystem, title: "Écosystème Évolutif", description: "Architectures modulaires conçues pour grandir avec les ambitions de votre entreprise." },
 ];
 
+// Team members (duplicated for demo)
 const TEAM = [
   { name: "Ahmed Youssef", role: "Direction", title: "Directeur Général", bio: "Pilote la stratégie et l'entreprise.", image: imgTeamDirecteur, linkedin: "#", website: "#" },
   { name: "Salma Bouzid", role: "Marketing", title: "Responsable Marketing", bio: "Construit la marque et la croissance.", image: imgTeamMarketing, linkedin: "#", website: "#" },
@@ -60,11 +69,13 @@ const TEAM = [
   { name: "Salma Bouzid", role: "Marketing", title: "Responsable Marketing", bio: "Construit la marque et la croissance.", image: imgTeamMarketing, linkedin: "#", website: "#" },
 ];
 
+// Hero badges (experience & international presence)
 const HERO_BADGES = [
   { icon: imgIconExperience, text: "+20 ans Expérience", iconClass: "h-[21px] w-[22px]" },
   { icon: imgIconGlobal, text: "Présence internationale", iconClass: "size-5" },
 ];
 
+// Statistics displayed in the wave section
 const STATS = [
   { value: 1, suffix: "", label: "Écosystème", fontSize: "text-[64px]", digitHeight: 64, digitWidth: 38 },
   { value: 40, suffix: "+", label: "Années", fontSize: "text-[64px]", digitHeight: 64, digitWidth: 38 },
@@ -72,14 +83,14 @@ const STATS = [
   { value: null, suffix: "", label: "Evolutivité garantie", fontSize: "" },
 ];
 
-// ===== Mission slider constants =====
+// ========== Mission Slider Constants ==========
 const CARD_STEP = 448;
 const MISSION_EASE = [0.782000720500946, 0.012000122107565403, 0.17400024831295013, 0.996000349521637];
 const LOOP_COPIES = 9;
 const MISSION_START_INDEX = MISSIONS.length * Math.floor(LOOP_COPIES / 2);
 const LOOPED_MISSIONS = Array.from({ length: MISSIONS.length * LOOP_COPIES }, (_, i) => MISSIONS[i % MISSIONS.length]);
 
-// ===== Wave lines SVG paths =====
+// ========== Wave Lines SVG Paths ==========
 const WAVE_PATHS = [
   "M0.359375 1.75655C134.329 140.171 282.518 201.571 474.117 201.571C665.716 201.571 730.081 201.571 967.332 201.571C1204.58 201.571 1347.92 101.486 1440.34 0.336914",
   "M0.359375 139.571C138.733 199.8 251.607 226.371 472.854 226.371C694.102 226.371 734.602 226.371 967.849 226.371C1201.1 226.371 1309.47 195.548 1440.34 139.571",
@@ -93,13 +104,16 @@ const SPARK_ANIMS = [
   { attr: "y", values: "-9;-1;-1;-9" },
 ];
 
-// ===== Reusable Icons =====
+// ========== Reusable Icons ==========
+// Chevron icon for team card expand/collapse
 const ChevronIcon = ({ expanded }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"
     className={`h-4 w-4 transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}>
     <path d="M6 9l6 6 6-6" />
   </svg>
 );
+
+// LinkedIn icon
 const LinkedinIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-[18px] w-[18px]" aria-hidden="true">
     <rect x="3" y="3" width="18" height="18" rx="3" />
@@ -108,6 +122,8 @@ const LinkedinIcon = () => (
     <path d="M11 16.5v-4c0-1.4 1-2.5 2.3-2.5s2.2 1 2.2 2.5v4" />
   </svg>
 );
+
+// Globe icon for website link
 const GlobeIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-[18px] w-[18px]" aria-hidden="true">
     <circle cx="12" cy="12" r="9" />
@@ -116,9 +132,9 @@ const GlobeIcon = () => (
   </svg>
 );
 
-// ===== Sub‑components =====
+// ========== Sub‑components ==========
 
-// Mission card (image with overlay)
+// Mission card – image with overlay and hover reveal
 const MissionCard = ({ mission }) => (
   <div className="relative h-[380px] w-full shrink-0 overflow-hidden rounded-[30px] sm:h-[412px] sm:w-[447px] sm:flex-none sm:min-w-[447px] group">
     <img src={mission.image} alt={mission.title} className="absolute inset-0 h-full w-full object-cover transition-all duration-700 ease-in-out group-hover:blur-sm group-hover:scale-105" />
@@ -132,7 +148,7 @@ const MissionCard = ({ mission }) => (
   </div>
 );
 
-// Value card (with hover lift)
+// Value card – with hover lift and rotation on icon
 const ValueCard = ({ value }) => (
   <motion.div
     variants={staggerChild}
@@ -151,7 +167,7 @@ const ValueCard = ({ value }) => (
   </motion.div>
 );
 
-// Team card with expandable bio
+// Team card – with expandable bio on hover/click
 const TeamCard = ({ member }) => {
   const isMarketing = member.role === "Marketing";
   const [expanded, setExpanded] = useState(false);
@@ -191,7 +207,8 @@ const TeamCard = ({ member }) => {
   );
 };
 
-// ===== Odometer digit =====
+// ========== Odometer Digit ==========
+// Single rolling digit with animated sequence and blur
 const RollingDigit = ({ digit, start, height, width, extraDelay = 0, profile }) => {
   const totalSteps = 2 * 10 + digit;
   const sequence = Array.from({ length: totalSteps + 1 }, (_, i) => i % 10);
@@ -208,7 +225,8 @@ const RollingDigit = ({ digit, start, height, width, extraDelay = 0, profile }) 
   );
 };
 
-// Rolling number (digit group) or infinity icon
+// ========== Stat Display ==========
+// Renders either a rolling number or an infinity symbol (with animated stroke)
 const StatDisplay = ({ stat, start, index }) => {
   const { value, suffix, fontSize, digitHeight, digitWidth, label } = stat;
   return (
@@ -248,7 +266,7 @@ const StatDisplay = ({ stat, start, index }) => {
   );
 };
 
-// ===== Wave lines with animated sparks =====
+// ========== Wave Lines with Animated Sparks ==========
 const WaveLines = ({ start }) => (
   <svg viewBox="0 0 1440 501" preserveAspectRatio="none" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full">
     <defs>
@@ -266,17 +284,21 @@ const WaveLines = ({ start }) => (
   </svg>
 );
 
-// ===== Main About Component =====
+// ========== Main About Component ==========
 export default function About() {
+  // Mission slider state
   const [missionIndex, setMissionIndex] = useState(MISSION_START_INDEX);
   const [missionInstant, setMissionInstant] = useState(false);
+
+  // Stats ref and in‑view detection
   const statsRef = useRef(null);
   const isStatsInView = useInView(statsRef, { once: true, amount: 0.4 });
 
+  // Mission navigation
   const prevMission = () => { setMissionInstant(false); setMissionIndex(i => i - 1); };
   const nextMission = () => { setMissionInstant(false); setMissionIndex(i => i + 1); };
 
-  // Re-center slider when reaching buffer boundaries
+  // Re‑center slider when reaching buffer boundaries
   const handleMissionAnimComplete = () => {
     const drift = missionIndex - MISSION_START_INDEX;
     const maxDrift = MISSIONS.length * (Math.floor(LOOP_COPIES / 2) - 1);
@@ -289,7 +311,7 @@ export default function About() {
 
   return (
     <div className="relative w-full overflow-hidden bg-[#ebf8f5] bg-cover bg-top bg-no-repeat" style={{ backgroundImage: `url(${bgImage})` }}>
-      {/* ===== HERO ===== */}
+      {/* ===== HERO SECTION ===== */}
       <div className="mx-auto flex max-w-[1440px] flex-col px-6 pt-[180px] sm:px-12 sm:pt-[200px] lg:px-24">
         <motion.section initial="hidden" animate="visible" variants={staggerParent}
           className="flex flex-col items-center gap-12 lg:flex-row lg:justify-between lg:gap-16"
@@ -321,7 +343,7 @@ export default function About() {
         </motion.section>
       </div>
 
-      {/* ===== STATS with wave lines and rolling numbers ===== */}
+      {/* ===== STATISTICS SECTION with wave lines and rolling numbers ===== */}
       <section ref={statsRef} className="relative mt-16 flex w-full min-h-[480px] items-center justify-center overflow-hidden py-24 sm:py-32">
         <img src={imgStatsBg} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center" />
         <WaveLines start={isStatsInView} />
@@ -402,7 +424,7 @@ export default function About() {
           </div>
         </motion.section>
 
-        {/* CTA banner */}
+        {/* ===== FINAL CTA ===== */}
         <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={sectionVars}
           className="flex flex-col items-center gap-7 rounded-[64px] bg-gradient-to-br from-[#006b57] to-[#1eb394] px-8 py-16 text-center shadow-[0px_25px_50px_-12px_#0d5143] sm:px-24"
         >

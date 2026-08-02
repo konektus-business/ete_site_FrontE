@@ -1,7 +1,8 @@
+// ========== Core Imports ==========
 import React from "react";
 import { motion, useInView } from "framer-motion";
 
-// ===== Assets =====
+// ========== Asset Imports ==========
 import heroImage from "../../assets/guide/guides-hero.png";
 import iconChevronRight from "../../assets/guide/chevron-right.svg";
 import iconChevronRightSm from "../../assets/guide/chevron-right-sm.svg";
@@ -17,28 +18,29 @@ import guideAi3 from "../../assets/guide/guide-ai-3.png";
 import guideMigration1 from "../../assets/guide/guide-migration-1.png";
 import guideMigration2 from "../../assets/guide/guide-migration-2.png";
 import guideMigration3 from "../../assets/guide/guide-migration-3.png";
-
-// Wave assets (from About)
+// Wave assets (shared with About page)
 import imgStatsBg from "../../assets/about/wave-main.svg";
 import imgStatsNumbersGlow from "../../assets/about/stats-numbers-glow.png";
 
-// ===== Font constant (matching About) =====
+// ========== Font Constant ==========
 const F = "font-['Archivo']";
 
-/* =========================================================================
-   Animation constants (matches About)
-   ========================================================================= */
+// ========== Animation Presets ==========
+// Spring physics for smooth motion
 const SPRING = { type: "spring", stiffness: 100, damping: 16, mass: 1 };
+// Fade-up variants for reveal animations
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0, transition: SPRING },
 };
+// Stagger children for lists
 const staggerContainer = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
 };
 
-// Per‑digit timing profiles (same as About)
+// ========== Per‑digit Odometer Timing ==========
+// From About page (same profiles)
 const DIGIT_PROFILES = [
   { delay: 0.15, duration: 1.6, ease: "easeOut" },
   { delay: 0.3, duration: 1.4, ease: "easeOut" },
@@ -47,7 +49,8 @@ const DIGIT_PROFILES = [
   { delay: 0.2, duration: 1.15, ease: "easeIn" },
 ];
 
-// ===== Wave lines constants (copied from About) =====
+// ========== Wave Lines Constants ==========
+// SVG paths and spark animations (same as About)
 const WAVE_PATHS = [
   "M0.359375 1.75655C134.329 140.171 282.518 201.571 474.117 201.571C665.716 201.571 730.081 201.571 967.332 201.571C1204.58 201.571 1347.92 101.486 1440.34 0.336914",
   "M0.359375 139.571C138.733 199.8 251.607 226.371 472.854 226.371C694.102 226.371 734.602 226.371 967.849 226.371C1201.1 226.371 1309.47 195.548 1440.34 139.571",
@@ -61,121 +64,15 @@ const SPARK_ANIMS = [
   { attr: "y", values: "-9;-1;-1;-9" },
 ];
 
-/* =========================================================================
-   WaveLines component (exactly as in About)
-   ========================================================================= */
-const WaveLines = ({ start }) => (
-  <svg
-    viewBox="0 0 1440 501"
-    preserveAspectRatio="none"
-    aria-hidden="true"
-    className="pointer-events-none absolute inset-0 h-full w-full"
-  >
-    <defs>
-      <linearGradient id="spark-fade" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stopColor="#0B3F34" stopOpacity="0" />
-        <stop offset="100%" stopColor="#0B3F34" stopOpacity="1" />
-      </linearGradient>
-    </defs>
-    {start &&
-      WAVE_PATHS.filter((_, i) => i !== 2).map((d, i) => (
-        <rect key={i} y="-1.9" height="2.6" rx="1.3" fill="url(#spark-fade)">
-          <animateMotion dur="4s" begin={`${i * 0.35}s`} repeatCount="indefinite" rotate="auto" path={d} />
-          {SPARK_ANIMS.map((a) => (
-            <animate
-              key={a.attr}
-              attributeName={a.attr}
-              keyTimes="0; 0.33; 0.67; 1"
-              values={a.values}
-              dur="4s"
-              begin={`${i * 0.35}s`}
-              repeatCount="indefinite"
-            />
-          ))}
-        </rect>
-      ))}
-  </svg>
-);
-
-/* =========================================================================
-   RollingDigit & StatDisplay (same as About – with Archivo font)
-   ========================================================================= */
-const RollingDigit = ({ digit, start, height, width, extraDelay = 0, profile }) => {
-  const totalSteps = 2 * 10 + digit;
-  const sequence = Array.from({ length: totalSteps + 1 }, (_, i) => i % 10);
-  return (
-    <span className="relative inline-block overflow-hidden" style={{ height, width }}>
-      <motion.span
-        className="absolute left-0 top-0 flex flex-col items-center"
-        initial={{ y: 0, filter: "blur(0px)" }}
-        animate={
-          start
-            ? { y: -totalSteps * height, filter: ["blur(0px)", "blur(6px)", "blur(0px)"] }
-            : { y: 0, filter: "blur(0px)" }
-        }
-        transition={{
-          y: { duration: profile.duration, delay: profile.delay + extraDelay, ease: profile.ease },
-          filter: { duration: profile.duration, delay: profile.delay + extraDelay, times: [0, 0.4, 1] },
-        }}
-      >
-        {sequence.map((d, i) => (
-          <span key={i} className="flex items-center justify-center" style={{ height, width }}>
-            {d}
-          </span>
-        ))}
-      </motion.span>
-    </span>
-  );
-};
-
-const StatDisplay = ({ stat, start, index }) => {
-  const { value, label } = stat;
-  const chars = value.split("");
-  const digitHeight = 48;
-  const digitWidth = 28;
-
-  return (
-    <motion.div variants={fadeUp} className="flex flex-col items-center gap-2 text-center">
-      <div className="flex h-12 items-end justify-center">
-        <span
-          className={`inline-flex items-end font-medium leading-none tracking-[-0.5px] text-[#0b3f34] tabular-nums text-[48px] ${F}`}
-        >
-          {chars.map((ch, i) => {
-            if (ch === "+") {
-              return <span key={i} className="ml-1">+</span>;
-            }
-            const digit = Number(ch);
-            if (!isNaN(digit)) {
-              return (
-                <RollingDigit
-                  key={i}
-                  digit={digit}
-                  start={start}
-                  height={digitHeight}
-                  width={digitWidth}
-                  extraDelay={index * 0.15 + i * 0.1 + 0.2}
-                  profile={DIGIT_PROFILES[i % DIGIT_PROFILES.length]}
-                />
-              );
-            }
-            return <span key={i}>{ch}</span>;
-          })}
-        </span>
-      </div>
-      <span className={`${F} text-base font-normal tracking-[-0.24px] text-[#0b3f34]`}>{label}</span>
-    </motion.div>
-  );
-};
-
-/* =========================================================================
-   Data
-   ========================================================================= */
+// ========== Content Data ==========
+// Statistics for the wave section
 const STATS = [
   { value: "18", label: "Guides disponibles" },
   { value: "+3200", label: "Téléchargements" },
   { value: "2025", label: "Mis à jour" },
 ];
 
+// Guide categories and their guides
 const GUIDE_CATEGORIES = [
   {
     id: "voip",
@@ -287,10 +184,113 @@ const GUIDE_CATEGORIES = [
   },
 ];
 
-/* =========================================================================
-   Sub‑components
-   ========================================================================= */
-const GuideCard = ({ guide }) => (
+// ========== Sub‑components ==========
+
+// ----- WaveLines (animated sparks on wave paths) -----
+const WaveLines = React.memo(({ start }) => (
+  <svg
+    viewBox="0 0 1440 501"
+    preserveAspectRatio="none"
+    aria-hidden="true"
+    className="pointer-events-none absolute inset-0 h-full w-full"
+  >
+    <defs>
+      <linearGradient id="spark-fade" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stopColor="#0B3F34" stopOpacity="0" />
+        <stop offset="100%" stopColor="#0B3F34" stopOpacity="1" />
+      </linearGradient>
+    </defs>
+    {start &&
+      WAVE_PATHS.filter((_, i) => i !== 2).map((d, i) => (
+        <rect key={i} y="-1.9" height="2.6" rx="1.3" fill="url(#spark-fade)">
+          <animateMotion dur="4s" begin={`${i * 0.35}s`} repeatCount="indefinite" rotate="auto" path={d} />
+          {SPARK_ANIMS.map((a) => (
+            <animate
+              key={a.attr}
+              attributeName={a.attr}
+              keyTimes="0; 0.33; 0.67; 1"
+              values={a.values}
+              dur="4s"
+              begin={`${i * 0.35}s`}
+              repeatCount="indefinite"
+            />
+          ))}
+        </rect>
+      ))}
+  </svg>
+));
+
+// ----- RollingDigit (odometer digit) -----
+const RollingDigit = React.memo(({ digit, start, height, width, extraDelay = 0, profile }) => {
+  const totalSteps = 2 * 10 + digit;
+  const sequence = Array.from({ length: totalSteps + 1 }, (_, i) => i % 10);
+  return (
+    <span className="relative inline-block overflow-hidden" style={{ height, width }}>
+      <motion.span
+        className="absolute left-0 top-0 flex flex-col items-center"
+        initial={{ y: 0, filter: "blur(0px)" }}
+        animate={
+          start
+            ? { y: -totalSteps * height, filter: ["blur(0px)", "blur(6px)", "blur(0px)"] }
+            : { y: 0, filter: "blur(0px)" }
+        }
+        transition={{
+          y: { duration: profile.duration, delay: profile.delay + extraDelay, ease: profile.ease },
+          filter: { duration: profile.duration, delay: profile.delay + extraDelay, times: [0, 0.4, 1] },
+        }}
+      >
+        {sequence.map((d, i) => (
+          <span key={i} className="flex items-center justify-center" style={{ height, width }}>
+            {d}
+          </span>
+        ))}
+      </motion.span>
+    </span>
+  );
+});
+
+// ----- StatDisplay (one statistic block with rolling numbers) -----
+const StatDisplay = React.memo(({ stat, start, index }) => {
+  const { value, label } = stat;
+  const chars = value.split("");
+  const digitHeight = 48;
+  const digitWidth = 28;
+
+  return (
+    <motion.div variants={fadeUp} className="flex flex-col items-center gap-2 text-center">
+      <div className="flex h-12 items-end justify-center">
+        <span
+          className={`inline-flex items-end font-medium leading-none tracking-[-0.5px] text-[#0b3f34] tabular-nums text-[48px] ${F}`}
+        >
+          {chars.map((ch, i) => {
+            if (ch === "+") {
+              return <span key={i} className="ml-1">+</span>;
+            }
+            const digit = Number(ch);
+            if (!isNaN(digit)) {
+              return (
+                <RollingDigit
+                  key={i}
+                  digit={digit}
+                  start={start}
+                  height={digitHeight}
+                  width={digitWidth}
+                  extraDelay={index * 0.15 + i * 0.1 + 0.2}
+                  profile={DIGIT_PROFILES[i % DIGIT_PROFILES.length]}
+                />
+              );
+            }
+            return <span key={i}>{ch}</span>;
+          })}
+        </span>
+      </div>
+      <span className={`${F} text-base font-normal tracking-[-0.24px] text-[#0b3f34]`}>{label}</span>
+    </motion.div>
+  );
+});
+
+// ----- GuideCard (single guide preview) -----
+const GuideCard = React.memo(({ guide }) => (
   <motion.article
     variants={fadeUp}
     className="flex h-full flex-col overflow-hidden rounded-2xl border border-[#006b57]/70 bg-white shadow-[0px_4px_50px_5px_rgba(13,81,67,0.15)]"
@@ -322,9 +322,10 @@ const GuideCard = ({ guide }) => (
       </button>
     </div>
   </motion.article>
-);
+));
 
-const CategorySection = ({ category }) => (
+// ----- CategorySection (one category with its guides) -----
+const CategorySection = React.memo(({ category }) => (
   <motion.div
     variants={fadeUp}
     initial="hidden"
@@ -353,20 +354,18 @@ const CategorySection = ({ category }) => (
       ))}
     </motion.div>
   </motion.div>
-);
+));
 
-/* =========================================================================
-   Main Guide component – stats dimensions exactly like About
-   ========================================================================= */
+// ========== Main Component ==========
 export default function Guide() {
   const statsRef = React.useRef(null);
   const isStatsInView = useInView(statsRef, { once: true, amount: 0.4 });
 
   return (
     <div className="relative w-full overflow-hidden bg-gradient-to-b from-[#f8fcfb] to-[#e9f7f4]">
-      {/* ===== Centered content container (Hero, Guides, CTA) ===== */}
+      {/* ===== CENTERED CONTENT CONTAINER (Hero, Guides, CTA) ===== */}
       <div className="mx-auto flex w-full max-w-[1440px] flex-col items-center px-6 pt-[260px]">
-        {/* ----- HERO ----- */}
+        {/* ----- HERO SECTION ----- */}
         <section className="flex w-full items-center justify-center gap-20 pb-24">
           <motion.div
             initial="hidden"
@@ -414,29 +413,25 @@ export default function Guide() {
         </section>
       </div>
 
-      {/* ===== STATS – FULL WIDTH, DIMENSIONS MATCH ABOUT ===== */}
+      {/* ===== STATISTICS SECTION – FULL WIDTH (matches About) ===== */}
       <section
         ref={statsRef}
         className="relative mt-16 flex w-full min-h-[480px] items-center justify-center overflow-hidden py-24 sm:py-32"
       >
-        {/* Background wave image */}
         <img
           src={imgStatsBg}
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center"
         />
-        {/* Glow overlay */}
         <img
           src={imgStatsNumbersGlow}
           alt=""
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-[5] h-full w-full object-contain object-center opacity-70"
         />
-        {/* Animated wave lines with sparks */}
         <WaveLines start={isStatsInView} />
 
-        {/* Stats numbers – exactly like About's container */}
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -450,9 +445,8 @@ export default function Guide() {
         </motion.div>
       </section>
 
-      {/* ===== Rest of content – back inside max‑width container ===== */}
+      {/* ===== GUIDES BY CATEGORY ===== */}
       <div className="mx-auto flex w-full max-w-[1440px] flex-col items-center px-6">
-        {/* ----- GUIDES BY CATEGORY ----- */}
         <section className="flex w-full flex-col items-center gap-16 py-24">
           <motion.div
             initial="hidden"
@@ -480,7 +474,7 @@ export default function Guide() {
           </button>
         </section>
 
-        {/* ----- FINAL CTA ----- */}
+        {/* ===== FINAL CALL-TO-ACTION ===== */}
         <motion.section
           initial="hidden"
           whileInView="visible"
