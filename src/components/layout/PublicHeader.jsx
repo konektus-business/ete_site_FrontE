@@ -105,14 +105,14 @@ function RessourcesDropdown() {
 export function PublicHeader() {
   const location = useLocation();
   const NAV_LINKS = [
-    { label: "Solutions", href: "#solutions" },
+    { label: "Solutions", href: "/solutions" },
     { label: "Services", href: "/services" },
     { label: "Cas d’usage", href: "#cas-dusage" },
     { label: "Entreprise", href: "/about" },
     { label: "Prix", href: "/pricing" },
     { label: "Contact", href: "/contact" },
   ];
-  const specialPaths = new Set(["/services", "/about", "/pricing", "/ressources/blog", "/ressources/webinar", "/ressources/guide"]);
+  const specialPaths = new Set(["/services", "/about", "/pricing", "/ressources/blog", "/ressources/webinar", "/ressources/guide", "/solutions"]);
   const headerBg = specialPaths.has(location.pathname) ? "bg-[#0d5143]/80" : "bg-[#0d5143]/40";
 
   return (

@@ -39,6 +39,7 @@ import Pricing from "./pages/public/Pricing";
 import Blog from "./pages/public/Blog";
 import Webinar from "./pages/public/Webinar";
 import Guide from "./pages/public/Guide";
+import Solutions from "./pages/public/Solutions";
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -46,6 +47,7 @@ function App() {
         {/* Public routes – layout with header/footer */}
         <Route path="/" element={<PublicLayout />}>
           <Route index element={<Home />} />
+          <Route path="solutions" element={<Solutions />} />
           <Route path="services" element={<Services />} />
           <Route path="about" element={<About />} />
           <Route path="pricing" element={<Pricing />} />
