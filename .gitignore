@@ -29,3 +29,6 @@ dist-ssr
 
 # Si tu ne veux PAS non plus mettre le fichier de configuration sur Git :
 sonar-project.properties
+
+.env
+.env.local
