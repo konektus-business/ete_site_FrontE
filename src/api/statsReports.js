@@ -40,10 +40,10 @@ export const getCampaignsList = async () => {
   });
 };
 
-export const getInboundStats = async (filters) => {
+// filters accepté pour compatibilité future avec le vrai backend
+export const getInboundStats = async (_filters) => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      // TODO: brancher sur de vraies données une fois Chart.js installé
       resolve({
         labels: ['08h', '09h', '10h', '11h', '12h', '13h', '14h'],
         totalFiches: [12, 19, 15, 22, 18, 9, 14],
@@ -68,10 +68,10 @@ export const getListsData = async () => {
   });
 };
 
-export const getOutboundStats = async (filters) => {
+// filters accepté pour compatibilité future avec le vrai backend
+export const getOutboundStats = async (_filters) => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      // TODO: brancher sur de vraies données une fois Chart.js installé
       resolve({
         labels: ['08h', '09h', '10h', '11h', '12h', '13h', '14h'],
         totalFiches: [8, 14, 11, 17, 13, 6, 10],
@@ -84,7 +84,7 @@ export const getOutboundStats = async (filters) => {
   });
 };
 
-export const getRHStats = async (filters) => {
+export const getRHStats = async (_filters) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -104,7 +104,7 @@ export const getRHStats = async (filters) => {
   });
 };
 
-export const getGlobalStatusStats = async (filters) => {
+export const getGlobalStatusStats = async (_filters) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -124,7 +124,7 @@ export const getGlobalStatusStats = async (filters) => {
   });
 };
 
-export const getAgentStatusSummary = async (filters) => {
+export const getAgentStatusSummary = async (_filters) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve([
@@ -136,7 +136,8 @@ export const getAgentStatusSummary = async (filters) => {
   });
 };
 
-export const getAgentStatusDetail = async (agentId) => {
+// _agentId accepté pour compatibilité future (le vrai backend filtrera par agent)
+export const getAgentStatusDetail = async (_agentId) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve([

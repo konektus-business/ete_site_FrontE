@@ -1,8 +1,8 @@
 import StatusBadge from '../components/common/StatusBadge';
 import { protocolColors } from '../utils/protocolConstants';
 import { getInitials, getAvatarColor } from '../utils/avatar';
-import { getCarrierLogo } from '../utils/carrierLogos';
 import { Wifi, WifiOff, Pencil, Trash2, Copy } from 'lucide-react';
+import { getCarrierLogo, getCarrierNameColor } from '../utils/carrierLogos';
 
 export const carrierColumns = (onEdit, onDelete, onClone) => [
   {
@@ -10,22 +10,32 @@ export const carrierColumns = (onEdit, onDelete, onClone) => [
     label: 'ID',
     render: (row) => <span className="text-xs font-mono text-gray-700">{row.carrier_id}</span>,
   },
+
+
 {
   key: 'carrier_name',
   label: 'Nom',
   render: (row) => {
-    const logo = getCarrierLogo(row.carrier_name);
-    return logo ? (
-      <div className="w-20 flex items-center justify-start">
+    const logo = getCarrierLogo(row);
+    if (logo) {
+      return (
         <img
           src={logo}
           alt={row.carrier_name}
           title={row.carrier_name}
-          className="h-6 w-auto object-contain object-left"
+          className="h-6 w-auto object-contain"
         />
-      </div>
-    ) : (
-      <span className="text-xs font-medium text-gray-900">{row.carrier_name}</span>
+      );
+    }
+
+    const { text } = getCarrierNameColor(row.carrier_name);
+    return (
+      <span
+        className="inline-flex  rounded-md text-xs font-semibold"
+        style={{ color: text }}
+      >
+        {row.carrier_name}
+      </span>
     );
   },
 },

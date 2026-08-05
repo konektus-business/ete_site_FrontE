@@ -52,7 +52,6 @@ export default function LeadsImport() {
     setError(null);
     setImported(null);
 
-    // Validation explicite avec retour visuel
     if (!campaignId) {
       setError('Veuillez sélectionner une campagne.');
       return;
@@ -69,12 +68,10 @@ export default function LeadsImport() {
     setLoading(true);
 
     try {
-      // Simulation d'import (à remplacer par l'appel API réel d'importation)
       await new Promise((resolve) => setTimeout(resolve, 800));
       const mockCount = Math.floor(Math.random() * 50) + 10;
       setImported(mockCount);
 
-      // Réinitialiser uniquement le fichier après succès
       setFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
@@ -106,7 +103,7 @@ export default function LeadsImport() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
           <div>
             <label className={labelClass}>Campagne *</label>
             <Select
@@ -132,28 +129,34 @@ export default function LeadsImport() {
             />
           </div>
 
-        <div>
-          <label className={labelClass}>Fichier CSV *</label>
-          <div className="relative">
+          <div>
+            <label className={labelClass}>Fichier CSV *</label>
             <input
               ref={fileInputRef}
               id="csv-upload"
               type="file"
               accept=".csv"
-              onChange={(e) => setFile(e.target.files[0] || null)}
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
               className="hidden"
             />
-            <label
-              htmlFor="csv-upload"
-              className="flex items-center justify-between w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer text-sm transition-colors"
-            >
-              <span className="truncate text-gray-600 font-normal">
-                {file ? file.name : 'Choisir un fichier CSV...'}
-              </span>
+            <div className="flex items-center gap-2 mt-1 min-w-0">
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => fileInputRef.current?.click()}
+                className="px-3 py-2 rounded-lg border border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer whitespace-nowrap shrink-0"
+              >
+                Choisir un fichier
+              </button>
 
-            </label>
+              <span 
+                className="text-xs text-gray-500 truncate min-w-0 flex-1"
+                title={file ? file.name : ''}
+              >
+                {file ? file.name : 'Aucun fichier'}
+              </span>
+            </div>
           </div>
-        </div>
         </div>
 
         <div className="flex items-center gap-3 pt-3 border-t border-gray-100">

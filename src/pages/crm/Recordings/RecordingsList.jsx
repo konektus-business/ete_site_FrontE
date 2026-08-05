@@ -1,3 +1,4 @@
+// src/pages/crm/Recordings/RecordingsList.jsx
 import { useState, useEffect, useCallback } from 'react';
 import { getRecordings } from '../../../api/recordings';
 import { recordingColumns } from '../../../config/recordingColumns';
@@ -29,11 +30,10 @@ export default function RecordingsList() {
     setLoading(true);
     getRecordings({ period, ...dates, search }).then((result) => {
       setRecordings(result.recordings);
-      setSelectedIds([]); // on vide la sélection à chaque nouveau filtre
+      setSelectedIds([]);
       setLoading(false);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [period, dates, search]);
 
   useEffect(() => {
     fetchRecordings();
@@ -50,7 +50,18 @@ export default function RecordingsList() {
 
   const handleDownloadSelected = () => {
     if (!selectedIds.length) return;
-    alert(`Téléchargement groupé (mock) de ${selectedIds.length} enregistrement(s)`);
+    selectedIds.forEach((id, index) => {
+      setTimeout(() => {
+        const item = recordings.find((r) => r.id === id);
+        const url = item?.url || `/mock/recordings/${id}.mp3`;
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `enregistrement-${id}.mp3`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }, index * 200); // Léger délai entre chaque téléchargement
+    });
   };
 
   return (
@@ -75,10 +86,14 @@ export default function RecordingsList() {
             />
           </div>
 
-          <Button type="submit" variant="primary" onClick={fetchRecordings}>Appliquer</Button>
+          <Button type="button" variant="primary" onClick={fetchRecordings}>
+            Appliquer
+          </Button>
 
           <div className="flex gap-2 ml-auto">
-            <Button variant="warning" onClick={handleExportExcel} disabled={!recordings.length}>Excel</Button>
+            <Button variant="warning" onClick={handleExportExcel} disabled={!recordings.length}>
+              Excel
+            </Button>
             <Button variant="secondary" onClick={handleDownloadSelected} disabled={!selectedIds.length}>
               Télécharger la sélection ({selectedIds.length})
             </Button>

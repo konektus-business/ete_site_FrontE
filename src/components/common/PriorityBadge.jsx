@@ -1,4 +1,3 @@
-import React from 'react';
 import { priorityLabels as defaultPriorityLabels, priorityColors as defaultPriorityColors } from '../../utils/statusConstants';
 
 const PriorityBadge = ({ 

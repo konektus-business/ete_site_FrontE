@@ -1,4 +1,6 @@
-export const getDashboardStats = async (startDate, endDate) => {
+// Les paramètres de période sont acceptés pour compatibilité avec le vrai backend,
+// mais ignorés dans le mock (données statiques).
+export const getDashboardStats = async () => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({

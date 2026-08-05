@@ -1,8 +1,11 @@
-import { useState } from 'react';
+// src/pages/crm/Carriers/CarrierForm.jsx
+import { useState, useRef } from 'react';
 import { createCarrier, updateCarrier } from '../../../api/carriers';
 import Select from '../../../components/common/Select';
 import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
 import Button from '../../../components/common/ButtonCRM';
+import { checkboxClass } from '../../../styles/checkboxClass';
+import { processLogoFile } from '../../../utils/logoProcessing';
 
 const protocolOptions = [
   { value: 'SIP', label: 'SIP' },
@@ -22,6 +25,7 @@ const emptyForm = {
   globals_string: '',
   dialplan_entry: '',
   active: 'Y',
+  logo: '',
 };
 
 // mode: 'add' | 'edit' | 'clone'
@@ -38,6 +42,13 @@ export default function CarrierForm({ mode = 'add', initialData = null, onSucces
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Référence pour l'input file masqué
+  const fileInputRef = useRef(null);
+
+  const [removeBackground, setRemoveBackground] = useState(true);
+  const [logoError, setLogoError] = useState(null);
+  const [processing, setProcessing] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -51,6 +62,38 @@ export default function CarrierForm({ mode = 'add', initialData = null, onSucces
     setForm((prev) => ({ ...prev, active: prev.active === 'Y' ? 'N' : 'Y' }));
   };
 
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setLogoError('Le fichier doit être une image (PNG, JPG, SVG...)');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setLogoError('Image trop lourde (max 2 Mo)');
+      return;
+    }
+
+    setLogoError(null);
+    setProcessing(true);
+    try {
+      const dataUrl = await processLogoFile(file, { removeBackground });
+      setForm((prev) => ({ ...prev, logo: dataUrl }));
+    } catch {
+      setLogoError('Impossible de traiter cette image');
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setForm((prev) => ({ ...prev, logo: '' }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -59,11 +102,10 @@ export default function CarrierForm({ mode = 'add', initialData = null, onSucces
       if (mode === 'edit') {
         await updateCarrier(originalCarrierId, form);
       } else {
-        // 'add' et 'clone' créent tous les deux un nouveau carrier
         await createCarrier(form);
       }
       onSuccess?.(form);
-    } catch (err) {
+    } catch {
       setError(
         mode === 'edit'
           ? 'Erreur lors de la mise à jour du carrier'
@@ -79,8 +121,8 @@ export default function CarrierForm({ mode = 'add', initialData = null, onSucces
     edit: { title: 'Modifier le carrier', subtitle: 'Mettre à jour les informations du trunk' },
     clone: { title: 'Cloner le carrier', subtitle: 'Créer un nouveau trunk à partir de valeurs existantes' },
   };
-  const submitLabels = { add: 'Créer', edit: 'Mettre à jour', clone: 'Cloner' };
 
+  const submitLabels = { add: 'Créer', edit: 'Mettre à jour', clone: 'Cloner' };
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
@@ -90,6 +132,74 @@ export default function CarrierForm({ mode = 'add', initialData = null, onSucces
       </div>
 
       <form onSubmit={handleSubmit} className="p-6">
+        {/* Section Logo */}
+        <div className="mb-6 pb-6 border-b border-gray-100">
+          <label className={labelClass}>Logo du carrier (optionnel)</label>
+          <p className="text-xs text-gray-400 mb-3">
+            PNG recommandé, idéalement déjà à fond transparent. Sans logo, le nom du carrier
+            s'affichera en texte dans les tableaux.
+          </p>
+
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-12 rounded-lg border border-gray-200 bg-[repeating-conic-gradient(#f3f4f6_0%_25%,white_0%_50%)] bg-[length:10px_10px] flex items-center justify-center overflow-hidden shrink-0">
+              {form.logo ? (
+                <img src={form.logo} alt="Aperçu logo" className="max-h-full max-w-full object-contain" />
+              ) : (
+                <span className="text-[10px] text-gray-400">Aucun</span>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleLogoUpload}
+                disabled={processing}
+                className="hidden"
+              />
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  disabled={processing}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {processing ? 'Traitement...' : 'Choisir un fichier'}
+                </button>
+
+                <span className="text-xs text-gray-400">
+                  {form.logo ? 'Logo chargé ✓' : 'Aucun fichier choisi'}
+                </span>
+              </div>
+
+              <label className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className={checkboxClass}
+                  checked={removeBackground}
+                  onChange={(e) => setRemoveBackground(e.target.checked)}
+                />
+                Tenter de retirer le fond automatiquement (fond uni uniquement)
+              </label>
+
+              {form.logo && (
+                <button
+                  type="button"
+                  onClick={handleRemoveLogo}
+                  className="text-xs text-red-600 text-left hover:underline cursor-pointer"
+                >
+                  Retirer le logo
+                </button>
+              )}
+            </div>
+          </div>
+
+          {logoError && <p className="text-xs text-red-600 mt-2">{logoError}</p>}
+        </div>
+
+        {/* autres Champs du formulaire */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <label htmlFor="carrier_id" className={labelClass}>ID carrier *</label>
@@ -190,13 +300,14 @@ export default function CarrierForm({ mode = 'add', initialData = null, onSucces
           </div>
         </div>
 
+        {/* Toggle Actif */}
         <div className="flex items-center gap-3 mt-5">
           <button
             type="button"
             role="switch"
             aria-checked={form.active === 'Y'}
             onClick={handleToggleActive}
-            className={`relative w-10 h-5 rounded-full transition-colors ${
+            className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${
               form.active === 'Y' ? 'bg-[#1EB394]' : 'bg-gray-300'
             }`}
           >
@@ -211,9 +322,14 @@ export default function CarrierForm({ mode = 'add', initialData = null, onSucces
 
         {error && <p className="text-xs text-red-600 mt-4">{error}</p>}
 
+        {/* Boutons d'action */}
         <div className="flex items-center gap-3 mt-6 pt-5 border-t border-gray-100">
-          <Button type="submit" variant="primary" disabled={loading}>{loading ? '...' : submitLabels[mode]}</Button> 
-          <Button type="button" variant="secondary" onClick={onCancel}>Annuler</Button>
+          <Button type="submit" variant="primary" disabled={loading}>
+            {loading ? 'Enregistrement...' : submitLabels[mode]}
+          </Button>
+          <Button type="button" variant="secondary" onClick={onCancel}>
+            Annuler
+          </Button>
         </div>
       </form>
     </div>
