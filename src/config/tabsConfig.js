@@ -15,7 +15,7 @@ export const tabsConfig = {
   ],
 
   operateur: [
-  { key: 'liste', label: 'Liste carriers' },
+  { key: 'liste', label: 'Liste des carriers' },
   { key: 'ajouter', label: 'Ajouter un carrier' },
   { key: 'sip', label: 'État SIP' },
   { key: 'horaires', label: 'Horaires' },
@@ -57,5 +57,15 @@ compagnes: [
   { key: 'liste', label: 'Campagnes' },
   { key: 'add', label: 'Créer une campagne' },
   { key: 'statuts', label: 'Statuts par campagne' },
-],  // Ajout au fur et à mesure : leads, etc.
+],
+
+leads: [
+  { key: 'listes', label: 'Liste des leads' },
+  { key: 'addList', label: 'Ajouter ListLeads' },
+  { key: 'recherche', label: 'Recherche avancée' },
+  { key: 'import', label: 'Import CSV' },
+  { key: 'dnc', label: 'DNC' },
+  { key: 'modeles', label: "Modèles d'export" },
+  { key: 'matching', label: 'Bases & Matching' },
+],
 };

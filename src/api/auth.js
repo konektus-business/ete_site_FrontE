@@ -1,7 +1,8 @@
+import avatar from '../assets/public/avatar.jpg';
 export const mockCurrentUser = {
   name: 'Karim Ben Ali',
   role: 'Super Admin',
-  avatarUrl: '/avatar.jpg',
+  avatarUrl: avatar,
 };
 
 export const getCurrentUser = async () => {

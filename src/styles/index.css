@@ -1,21 +1,26 @@
 /* stylelint-disable at-rule-no-unknown */
-
-/* 1. TOUS les imports en premier */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 @import 'flag-icons/css/flag-icons.min.css';
 
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
-
 /* stylelint-enable at-rule-no-unknown */
-/* Scrollbar horizontale invisible pour les tableaux larges (Table.jsx),
-   le scroll reste fonctionnel (trackpad, molette + shift, glisser-déposer) */
-.table-scroll::-webkit-scrollbar {
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Scrollbar invisible partout, scroll toujours fonctionnel (molette, trackpad, shift+molette, glisser) */
+* {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Edge / IE legacy */
+}
+
+*::-webkit-scrollbar {
+  width: 0px;
   height: 0px;
   background: transparent;
-}
-.table-scroll {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Edge / IE */
 }

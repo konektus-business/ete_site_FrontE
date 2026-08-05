@@ -42,7 +42,7 @@ export default function CampaignsList({ onEdit, onLists }) {
         />
       )}
 
-      {/* Détails (view.php) */}
+      {/* Détails  */}
       <Modal isOpen={!!viewedCampaign} onClose={() => setViewedCampaign(null)}>
         {viewedCampaign && (
           <div className="w-96">

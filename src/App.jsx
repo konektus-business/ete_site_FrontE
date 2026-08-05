@@ -14,7 +14,7 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import Register from './pages/auth/Register';
 
 // CRM layout & pages
-import CrmLayout from './pages/crm/CrmLayout';
+import CrmLayout from './components/layout/CrmLayout';
 import Dashboard from './pages/crm/Dashboard';
 import CDR from './pages/crm/CDR';
 import Compagnes from './pages/crm/Compagnes';

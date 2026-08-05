@@ -103,3 +103,33 @@ export async function getGlobalStatusStats() {
     callback: allStatuses.filter((s) => s.scheduled_callback === 'Y').length,
   };
 }
+
+export async function getAllLeadLists() {
+  await new Promise((r) => setTimeout(r, 300));
+  const rows = [];
+  Object.entries(mockLists).forEach(([campaignId, lists]) => {
+    const campaign = mockCampaigns.find((c) => c.campaign_id === campaignId);
+    lists.forEach((l) => rows.push({ ...l, campaign_id: campaignId, campaign_name: campaign?.campaign_name || campaignId, leads_count: l.leads_count ?? 0 }));
+  });
+  return rows;
+}
+
+export async function createLeadList(data) {
+  await new Promise((r) => setTimeout(r, 300));
+  if (!mockLists[data.campaign_id]) mockLists[data.campaign_id] = [];
+  if (mockLists[data.campaign_id].some((l) => l.list_id === data.list_id)) throw new Error('exists');
+  mockLists[data.campaign_id].push({ list_id: data.list_id, list_name: data.list_name, list_description: data.list_description, active: data.active, leads_count: 0 });
+  return { success: true };
+}
+
+export async function updateLeadList(campaignId, listId, data) {
+  await new Promise((r) => setTimeout(r, 300));
+  mockLists[campaignId] = (mockLists[campaignId] || []).map((l) => (l.list_id === listId ? { ...l, ...data } : l));
+  return { success: true };
+}
+
+export async function deleteLeadList(campaignId, listId) {
+  await new Promise((r) => setTimeout(r, 300));
+  mockLists[campaignId] = (mockLists[campaignId] || []).filter((l) => l.list_id !== listId);
+  return { success: true };
+}
