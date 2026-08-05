@@ -19,10 +19,10 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 import Register from "./pages/auth/Register";
 
 // CRM layout & pages
-import CrmLayout from "./pages/crm/CrmLayout";
+import CrmLayout from "./components/layout/CrmLayout";
 import Dashboard from "./pages/crm/Dashboard";
 import CDR from "./pages/crm/CDR";
-import Compagne from "./pages/crm/Compagne";
+import Compagnes from "./pages/crm/Compagnes";
 import Enregistrement from "./pages/crm/Enregistrement";
 import Integration from "./pages/crm/Integration";
 import Stats from "./pages/crm/Stats";
@@ -69,7 +69,7 @@ function App() {
           <Route path="stats" element={<Stats />} />
           <Route path="enregistrement" element={<Enregistrement />} />
           <Route path="operateur" element={<Operateur />} />
-          <Route path="compagnes" element={<Compagne />} />
+          <Route path="compagnes" element={<Compagnes />} />
           <Route path="leads" element={<Leads />} />
           <Route path="CDR" element={<CDR />} />
           <Route path="VTM" element={<VTM />} />

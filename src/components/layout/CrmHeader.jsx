@@ -50,7 +50,7 @@ export default function CrmHeader({
   );
 
   return (
-    <div className="bg-white border-b border-slate-200">
+    <div className="bg-white rounded-[30px]  border border-slate-200/80 shadow-sm">
       <div className="flex items-center justify-between px-4 sm:px-[55px] pt-[20px] pb-[20px] gap-3 sm:gap-6">
         <div className="flex flex-col gap-[16px] shrink-0 min-w-0">
           <div className="flex items-center gap-4">
@@ -90,7 +90,7 @@ export default function CrmHeader({
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Chercher un client, une vente..."
+              placeholder="Chercher un agent, une campagne..."
               className="w-full h-9 rounded-lg py-[9px] pr-4 pl-10 bg-slate-100 font-jakarta text-sm leading-none focus:outline-none focus:ring-2 focus:ring-crmPrimary placeholder:font-normal placeholder:text-sm placeholder:leading-none placeholder:text-gray-500"
             />
             <kbd className="hidden lg:inline-flex absolute right-3 top-1/2 -translate-y-1/2 font-mono text-[10px] leading-[15px] text-slate-400 border border-slate-300 rounded px-1 h-[17px] items-center">

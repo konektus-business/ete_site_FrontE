@@ -39,7 +39,7 @@ export const priorityColors = {
   haute: "bg-[#FFF7ED] text-[#EA580C] border border-[#FFEDD5]",
   critique: "bg-red-50 text-red-800 border border-red-100"
 };
-{"-----------------------------------------------"}
+
 export const userStatusLabels = {
   actif: "Actif",
   inactif: "Inactif",
@@ -62,6 +62,9 @@ export const knownGroupColors = {
 export const genericGroupColors = [
   "bg-[#FFFBEB] text-[#D97706] border border-[#FEF3C7]", // Ambre / Orange
   "bg-[#FAFAF9] text-[#57534E] border border-[#E7E5E4]", // Gris chaud
+  "bg-[#F5F3FF] text-[#7C3AED] border border-[#EDE9FE]", // Violet
+  "bg-[#FDF2F8] text-[#DB2777] border border-[#FCE7F3]", // Rose
+  "bg-[#ECFEFF] text-[#0891B2] border border-[#CFFAFE]", // Cyan
 ];
 
 function hashString(str) {
@@ -91,6 +94,22 @@ export function getGroupColor(group) {
   const index = Math.abs(hashString(normalized)) % genericGroupColors.length;
   return genericGroupColors[index];
 }
+
+export const knownListColors = {
+  "Liste VIP 2026": "bg-[#F0FDF4] text-[#16A34A] border border-[#DCFCE7]",   // Vert
+  "Liste SAV France": "bg-[#FDF2F8] text-[#DB2777] border border-[#FCE7F3]", // Rose
+  "Liste Relance Q3": "bg-[#FFFBEB] text-[#D97706] border border-[#FEF3C7]", // Orange
+  "Liste Standard": "bg-[#EFF6FF] text-[#2563EB] border border-[#DBEAFE]",   // Bleu
+};
+
+export function getListColor(listName) {
+  if (!listName || listName === '-') return "bg-gray-100 text-gray-700 border border-gray-200";
+  if (knownListColors[listName]) return knownListColors[listName];
+  // Liste pas encore listée -> couleur générée automatiquement
+  const index = hashString(listName) % genericGroupColors.length;
+  return genericGroupColors[index];
+}
+
 // --- État SIP peers (Opérateurs) ---
 export const getStatusColorClass = (row) => {
   if (row.status !== 'OK') return 'text-red-600';
@@ -99,3 +118,57 @@ export const getStatusColorClass = (row) => {
   if (row.latency < 100) return 'text-amber-600';
   return 'text-red-600';
 };
+
+// --- Statut PanneauLive ---
+export const liveAgentStatusLabels = {
+  READY: 'READY',
+  INCALL: 'INCALL',
+  PAUSED: 'PAUSED',
+  DEAD: 'DEAD',
+};
+
+export const liveAgentStatusColors = {
+  READY: 'bg-[#ECFDF5] text-[#059669] border border-[#D1FAE5]',
+  INCALL: 'bg-[#EFF6FF] text-[#2563EB] border border-[#DBEAFE]',
+  PAUSED: 'bg-[#FFFBEB] text-[#D97706] border border-[#FEF3C7]',
+  DEAD: 'bg-red-50 text-red-800 border border-red-100',
+};
+
+export const knownCampaignColors = {
+  "Campagne VIP": "bg-[#F0FDF4] text-[#16A34A] border border-[#DCFCE7]",       // Vert
+  "Campagne Standard": "bg-[#EFF6FF] text-[#2563EB] border border-[#DBEAFE]",  // Bleu
+  "Campagne Relance": "bg-[#FFFBEB] text-[#D97706] border border-[#FEF3C7]",   // Orange
+  "Campagne SAV": "bg-[#FDF2F8] text-[#DB2777] border border-[#FCE7F3]",       // Rose
+};
+
+export function getCampaignColor(campaignName) {
+  if (!campaignName) return "bg-gray-100 text-gray-700 border border-gray-200";
+  if (knownCampaignColors[campaignName]) return knownCampaignColors[campaignName];
+  // Campagne pas encore listée -> couleur générée automatiquement (même hash que getGroupColor)
+  const index = hashString(campaignName) % genericGroupColors.length;
+  return genericGroupColors[index];
+}
+// enregistrement
+export const recordingStatusLabels = {
+  SALE: 'SALE',
+  NI: 'NI',
+  DNC: 'DNC',
+  CALLBK: 'CALLBK',
+  XFER: 'XFER',
+};
+
+export const recordingStatusColors = {
+  SALE: 'bg-[#ECFDF5] text-[#059669] border border-[#D1FAE5]',
+  NI: 'bg-gray-100 text-gray-700 border border-gray-200',
+  DNC: 'bg-red-50 text-red-800 border border-red-100',
+  CALLBK: 'bg-[#FFFBEB] text-[#D97706] border border-[#FEF3C7]',
+  XFER: 'bg-[#EFF6FF] text-[#2563EB] border border-[#DBEAFE]',
+};
+
+export const booleanLabels = { Y: 'Oui', N: 'Non' };
+
+export const booleanColors = {
+  Y: 'bg-[#ECFDF5] text-[#059669] border border-[#D1FAE5]',
+  N: 'bg-red-50 text-red-800 border border-red-100',
+};
+

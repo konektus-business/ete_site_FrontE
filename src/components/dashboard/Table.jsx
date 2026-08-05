@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 
-const Table = ({ data, columns, onRowClick, itemsPerPage: initialItemsPerPage = 12, itemLabel = 'résultats' }) => {
+const Table = ({ data, columns, onRowClick, itemsPerPage: initialItemsPerPage = 12, itemLabel = 'résultats', minWidth, pageSizeOptions = [10, 12, 20, 50], sortKey, sortOrder, onSort }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(initialItemsPerPage);
 
@@ -18,13 +18,24 @@ const Table = ({ data, columns, onRowClick, itemsPerPage: initialItemsPerPage = 
   };
 
   return (
-    <div className="overflow-x-auto w-full rounded-xl shadow-md overflow-hidden bg-white border border-emerald-100">
-      <table className="w-full">
+    <div className="w-full rounded-xl shadow-md overflow-hidden bg-white border border-emerald-100">
+      <div className="overflow-x-auto table-scroll">
+      <table className="w-full" style={minWidth ? { minWidth } : undefined}>
         <thead className="bg-[#DDF4EF] text-[#6C798B] font-bold text-[10px] uppercase text-left tracking-[0.5px] leading-none">
           <tr>
             {columns.map((column) => (
               <th className="px-4 py-3" key={column.key}>
-                {column.label}
+                {column.sortable && onSort ? (
+                  <button
+                    onClick={() => onSort(column.key)}
+                    className="flex items-center gap-1 uppercase hover:text-gray-800 transition-colors"
+                  >
+                    {column.label}
+                    {sortKey === column.key && (sortOrder === 'ASC' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
+                  </button>
+                ) : (
+                  column.label
+                )}
               </th>
             ))}
           </tr>
@@ -45,6 +56,8 @@ const Table = ({ data, columns, onRowClick, itemsPerPage: initialItemsPerPage = 
           ))}
         </tbody>
       </table>
+      </div>
+
 
       {data.length > 0 && (
         <div className="flex items-center justify-between px-5 py-3.5 border-t border-emerald-100">
@@ -92,7 +105,7 @@ const Table = ({ data, columns, onRowClick, itemsPerPage: initialItemsPerPage = 
                 onChange={(e) => setItemsPerPage(Number(e.target.value))}
                 className="appearance-none pl-3 pr-7 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
               >
-                {[10, 12, 20, 50].map((n) => (
+                {pageSizeOptions.map((n) => (
                   <option key={n} value={n}>{n}</option>
                 ))}
               </select>
