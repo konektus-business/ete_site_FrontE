@@ -4,12 +4,45 @@ import { useRef } from "react";
 import logo from "../../assets/company_logo.png";
 
 // ----- Footer content data -----
+// NOTE: Solutions & Services items currently all point to /services.
+// If the Services page ends up with per-feature anchors (e.g. #voip, #cloud),
+// switch these to `to: "/services#voip"` etc. instead of a flat string list.
 const LINK_SECTIONS = {
-  Solutions: ["Plateforme VTM", "Communication Unifiée", "Solution Multicanale", "Centre de Contact", "Data & Pilotage", "Collaboration & Mobilité"],
-  Services: ["Téléphonie & VoIP", "Cloud & Hébergement", "Intégration & Conseil", "Data & Analyse", "Support & Infogérance"],
-  "Entreprise & contact": ["À propos", "Notre équipe", "Contact", "Prix"],
-  Ressources: ["Blog", "Webinaires", "Nos Guides", "Support Technique"],
+  Solutions: [
+    { label: "Plateforme VTM", to: "/services" },
+    { label: "Communication Unifiée", to: "/services" },
+    { label: "Solution Multicanale", to: "/services" },
+    { label: "Centre de Contact", to: "/services" },
+    { label: "Data & Pilotage", to: "/services" },
+    { label: "Collaboration & Mobilité", to: "/services" },
+  ],
+  Services: [
+    { label: "Téléphonie & VoIP", to: "/services" },
+    { label: "Cloud & Hébergement", to: "/services" },
+    { label: "Intégration & Conseil", to: "/services" },
+    { label: "Data & Analyse", to: "/services" },
+    { label: "Support & Infogérance", to: "/services" },
+  ],
+  "Entreprise & contact": [
+    { label: "À propos", to: "/about" },
+    // TODO: confirm if "Notre équipe" is its own route or a section on About.
+    // If it's a section, change to "/about#team" once the section has an id.
+    { label: "Notre équipe", to: "/about" },
+    { label: "Contact", to: "/contact" },
+    { label: "Prix", to: "/pricing" },
+  ],
+  Ressources: [
+    // TODO: Blog page not built yet — leave as "#" until it exists.
+    { label: "Blog", to: "ressources/blog" },
+    { label: "Webinaires", to: "/ressources/webinar" },
+    { label: "Nos Guides", to: "/ressources/guide" },
+    // TODO: Support Technique page not built yet.
+    { label: "Support Technique", to: "#" },
+  ],
 };
+
+// TODO: legal pages (Mentions légales, Confidentialité, Cookies) don't exist yet.
+// Confirm with Hassene whether they're in scope for this internship's deliverable.
 const LEGAL_LINKS = ["Mentions légales", "Confidentialité", "Cookies"];
 
 // Offsets per section (from Figma) – each child slides up from this distance
@@ -20,9 +53,14 @@ const SPRING = { type: "spring", mass: 1, stiffness: 100, damping: 15 };
 const container = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.1 } } };
 const item = (offset) => ({ hidden: { opacity: 0, y: offset }, visible: { opacity: 1, y: 0, transition: SPRING } });
 
+// Scrolls the window to the top. Called on click for every footer link,
+// since route changes don't reset scroll position by default in React Router.
+const scrollToTop = () => window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+
 // ----- Reusable icon component (share, globe) -----
-const Icon = ({ children, label }) => (
-  <NavLink to="#" aria-label={label} className="text-[#cbd5e1] hover:text-[#1EB394] transition-colors">
+// TODO: wire real URLs once social/company links are confirmed.
+const Icon = ({ children, label, href = "#" }) => (
+  <NavLink to={href} onClick={scrollToTop} aria-label={label} className="text-[#cbd5e1] hover:text-[#1EB394] transition-colors">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       {children}
     </svg>
@@ -71,10 +109,10 @@ export default function Footer() {
                 <motion.div key={heading} variants={item(offset)}>
                   <h4 className="text-[12px] font-bold uppercase tracking-[1.2px] text-white mb-6">{heading}</h4>
                   <ul className="flex flex-col gap-4">
-                    {items.map((link) => (
-                      <li key={link}>
-                        <NavLink to="#" className="text-[14px] leading-[20px] text-[#cbd5e1] hover:text-[#1EB394] transition-colors">
-                          {link}
+                    {items.map(({ label, to }) => (
+                      <li key={label}>
+                        <NavLink to={to} onClick={scrollToTop} className="text-[14px] leading-[20px] text-[#cbd5e1] hover:text-[#1EB394] transition-colors">
+                          {label}
                         </NavLink>
                       </li>
                     ))}
@@ -102,7 +140,7 @@ export default function Footer() {
           <p className="text-[12px] leading-[16px] text-[#cbd5e1]">© 2026 Konektus. Tous droits réservés.</p>
           <div className="flex items-center gap-8">
             {LEGAL_LINKS.map((link) => (
-              <NavLink key={link} to="#" className="text-[12px] leading-[16px] text-[#cbd5e1] hover:text-[#1EB394] transition-colors">
+              <NavLink key={link} to="#" onClick={scrollToTop} className="text-[12px] leading-[16px] text-[#cbd5e1] hover:text-[#1EB394] transition-colors">
                 {link}
               </NavLink>
             ))}

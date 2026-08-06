@@ -64,6 +64,23 @@ const SPARK_ANIMS = [
   { attr: "y", values: "-9;-1;-1;-9" },
 ];
 
+// ========== Responsive helper ==========
+// The odometer digits below are sized with raw pixel `height`/`width` props
+// (not Tailwind classes), so a breakpoint check in JS is needed to scale
+// them down on small screens alongside the responsive font-size classes.
+function useIsMobile(breakpoint = 640) {
+  const [isMobile, setIsMobile] = React.useState(
+    typeof window !== "undefined" ? window.innerWidth < breakpoint : false
+  );
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < breakpoint);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 // ========== Content Data ==========
 // Statistics for the wave section
 const STATS = [
@@ -250,17 +267,20 @@ const RollingDigit = React.memo(({ digit, start, height, width, extraDelay = 0, 
 });
 
 // ----- StatDisplay (one statistic block with rolling numbers) -----
-const StatDisplay = React.memo(({ stat, start, index }) => {
+// digitHeight/digitWidth are the desktop pixel sizes; `isMobile` scales them
+// down (~0.7x) to match the responsive font-size classes below.
+const StatDisplay = React.memo(({ stat, start, index, isMobile }) => {
   const { value, label } = stat;
   const chars = value.split("");
-  const digitHeight = 48;
-  const digitWidth = 28;
+  const scale = isMobile ? 0.68 : 1;
+  const digitHeight = Math.round(48 * scale);
+  const digitWidth = Math.round(28 * scale);
 
   return (
     <motion.div variants={fadeUp} className="flex flex-col items-center gap-2 text-center">
-      <div className="flex h-12 items-end justify-center">
+      <div className="flex h-9 items-end justify-center sm:h-12">
         <span
-          className={`inline-flex items-end font-medium leading-none tracking-[-0.5px] text-[#0b3f34] tabular-nums text-[48px] ${F}`}
+          className={`inline-flex items-end font-medium leading-none tracking-[-0.5px] text-[#0b3f34] tabular-nums text-[32px] sm:text-[48px] ${F}`}
         >
           {chars.map((ch, i) => {
             if (ch === "+") {
@@ -284,7 +304,7 @@ const StatDisplay = React.memo(({ stat, start, index }) => {
           })}
         </span>
       </div>
-      <span className={`${F} text-base font-normal tracking-[-0.24px] text-[#0b3f34]`}>{label}</span>
+      <span className={`${F} text-sm font-normal tracking-[-0.24px] text-[#0b3f34] sm:text-base`}>{label}</span>
     </motion.div>
   );
 });
@@ -295,14 +315,14 @@ const GuideCard = React.memo(({ guide }) => (
     variants={fadeUp}
     className="flex h-full flex-col overflow-hidden rounded-2xl border border-[#006b57]/70 bg-white shadow-[0px_4px_50px_5px_rgba(13,81,67,0.15)]"
   >
-    <div className="relative h-48 w-full shrink-0 overflow-hidden">
+    <div className="relative h-44 w-full shrink-0 overflow-hidden sm:h-48">
       <img src={guide.image} alt={guide.title} className="size-full object-cover" />
       <span className="absolute left-4 top-4 rounded bg-white/90 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-[#006b57] backdrop-blur-sm">
         {guide.badge}
       </span>
     </div>
-    <div className="flex flex-1 flex-col gap-4 p-6">
-      <div className="flex items-center gap-2 text-xs font-semibold text-[#6c7a75]">
+    <div className="flex flex-1 flex-col gap-4 p-5 sm:p-6">
+      <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#6c7a75]">
         <img src={iconCalendar} alt="" className="size-2.5" />
         <span>{guide.date}</span>
         <span>•</span>
@@ -310,12 +330,12 @@ const GuideCard = React.memo(({ guide }) => (
         <span>{guide.pages}</span>
       </div>
       <div className="flex flex-1 flex-col gap-2">
-        <h4 className="text-xl text-[#171d1b]">{guide.title}</h4>
+        <h4 className="text-lg text-[#171d1b] sm:text-xl">{guide.title}</h4>
         <p className="text-sm text-[#3c4a45]">{guide.description}</p>
       </div>
       <button
         type="button"
-        className="mt-auto flex items-center justify-center gap-2 rounded-lg border border-[#006b57] px-8 py-4 text-base font-bold text-[#006b57] transition-colors hover:bg-[#006b57] hover:text-white"
+        className="mt-auto flex items-center justify-center gap-2 rounded-lg border border-[#006b57] px-6 py-3 text-sm font-bold text-[#006b57] transition-colors hover:bg-[#006b57] hover:text-white sm:px-8 sm:py-4 sm:text-base"
       >
         <img src={iconDownload} alt="" className="size-5" />
         Télécharger PDF
@@ -333,11 +353,11 @@ const CategorySection = React.memo(({ category }) => (
     viewport={{ once: true, amount: 0.15 }}
     className="flex w-full flex-col gap-8"
   >
-    <div className="flex items-end justify-between border-b border-[#1eb394]/20 pb-1">
-      <h3 className="list-disc text-2xl font-semibold text-[#171d1b] before:mr-3 before:inline-block before:size-2 before:rounded-full before:bg-[#171d1b] before:align-middle">
+    <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#1eb394]/20 pb-2">
+      <h3 className="list-disc text-xl font-semibold text-[#171d1b] before:mr-3 before:inline-block before:size-2 before:rounded-full before:bg-[#171d1b] before:align-middle sm:text-2xl">
         {category.title}
       </h3>
-      <a href="#" className="flex items-center gap-2 text-base font-bold text-[#006b57]">
+      <a href="#" className="flex items-center gap-2 text-sm font-bold text-[#006b57] sm:text-base">
         Voir tout
         <img src={iconChevronRightSm} alt="" className="size-2" />
       </a>
@@ -347,7 +367,7 @@ const CategorySection = React.memo(({ category }) => (
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, amount: 0.15 }}
-      className="grid w-full grid-cols-1 gap-8 md:grid-cols-3"
+      className="grid w-full grid-cols-1 gap-6 sm:gap-8 md:grid-cols-3"
     >
       {category.guides.map((guide) => (
         <GuideCard key={guide.id} guide={guide} />
@@ -360,34 +380,35 @@ const CategorySection = React.memo(({ category }) => (
 export default function Guide() {
   const statsRef = React.useRef(null);
   const isStatsInView = useInView(statsRef, { once: true, amount: 0.4 });
+  const isMobile = useIsMobile();
 
   return (
     <div className="relative w-full overflow-hidden bg-gradient-to-b from-[#f8fcfb] to-[#e9f7f4]">
       {/* ===== CENTERED CONTENT CONTAINER (Hero, Guides, CTA) ===== */}
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col items-center px-6 pt-[260px]">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col items-center px-5 pt-28 sm:px-6 sm:pt-40 lg:pt-[260px]">
         {/* ----- HERO SECTION ----- */}
-        <section className="flex w-full items-center justify-center gap-20 pb-24">
+        <section className="flex w-full items-center justify-center gap-10 pb-12 sm:pb-16 lg:gap-20 lg:pb-24">
           <motion.div
             initial="hidden"
             animate="visible"
             variants={staggerContainer}
-            className="flex max-w-[563px] flex-col gap-7"
+            className="flex max-w-[563px] flex-col gap-5 text-center sm:gap-7 lg:text-left"
           >
-            <motion.h1 variants={fadeUp} className="text-[44px] font-extrabold leading-[60px] tracking-[-0.96px]">
+            <motion.h1 variants={fadeUp} className="text-[28px] font-extrabold leading-[1.3] tracking-[-0.5px] sm:text-[36px] sm:leading-[1.25] sm:tracking-[-0.8px] lg:text-[44px] lg:leading-[60px] lg:tracking-[-0.96px]">
               <span className="text-[#0f172a]">Guides pour </span>
               <span className="bg-gradient-to-r from-[#0d5143] to-[#1eb394] bg-clip-text text-transparent">
                 transformer votre communication
               </span>
               <span className="text-[#0f172a]"> d'entreprise</span>
             </motion.h1>
-            <motion.p variants={fadeUp} className="text-xl leading-[35px] text-black">
+            <motion.p variants={fadeUp} className="text-base leading-7 text-black sm:text-lg sm:leading-8 lg:text-xl lg:leading-[35px]">
               Des ressources concrètes rédigées par les experts Konektus, téléchargeables gratuitement. De la
               migration VoIP à la transformation digitale au Maghreb et en Afrique.
             </motion.p>
-            <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-4">
+            <motion.div variants={fadeUp} className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 lg:justify-start">
               <button
                 type="button"
-                className="flex items-center gap-4 rounded-3xl px-8 py-4 text-base font-bold text-white"
+                className="flex items-center gap-3 rounded-3xl px-6 py-3 text-sm font-bold text-white sm:gap-4 sm:px-8 sm:py-4 sm:text-base"
                 style={{ backgroundImage: "linear-gradient(154deg, #1eb394 15%, #006b57 84%)" }}
               >
                 Explorer les guides
@@ -395,7 +416,7 @@ export default function Guide() {
               </button>
               <button
                 type="button"
-                className="flex items-center gap-4 rounded-3xl border-2 border-[#006b57] px-8 py-4 text-base font-bold text-[#0d5143]"
+                className="flex items-center gap-3 rounded-3xl border-2 border-[#006b57] px-6 py-3 text-sm font-bold text-[#0d5143] sm:gap-4 sm:px-8 sm:py-4 sm:text-base"
               >
                 Découvrir KonektUs
                 <img src={iconChevronRight} alt="" className="size-3" />
@@ -416,7 +437,7 @@ export default function Guide() {
       {/* ===== STATISTICS SECTION – FULL WIDTH (matches About) ===== */}
       <section
         ref={statsRef}
-        className="relative mt-16 flex w-full min-h-[480px] items-center justify-center overflow-hidden py-24 sm:py-32"
+        className="relative mt-10 flex w-full min-h-[320px] items-center justify-center overflow-hidden py-16 sm:mt-16 sm:min-h-[480px] sm:py-24 lg:py-32"
       >
         <img
           src={imgStatsBg}
@@ -437,30 +458,30 @@ export default function Guide() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.3 }}
           variants={staggerContainer}
-          className="relative z-10 mx-auto flex w-full max-w-[900px] flex-wrap items-start justify-center gap-x-8 gap-y-10 px-6"
+          className="relative z-10 mx-auto flex w-full max-w-[900px] flex-wrap items-start justify-center gap-x-6 gap-y-8 px-5 sm:gap-x-8 sm:gap-y-10 sm:px-6"
         >
           {STATS.map((stat, i) => (
-            <StatDisplay key={stat.label} stat={stat} start={isStatsInView} index={i} />
+            <StatDisplay key={stat.label} stat={stat} start={isStatsInView} index={i} isMobile={isMobile} />
           ))}
         </motion.div>
       </section>
 
       {/* ===== GUIDES BY CATEGORY ===== */}
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col items-center px-6">
-        <section className="flex w-full flex-col items-center gap-16 py-24">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col items-center px-5 sm:px-6">
+        <section className="flex w-full flex-col items-center gap-12 py-16 sm:gap-16 sm:py-24">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeUp}
-            className="flex items-center gap-6"
+            className="flex items-center gap-4 sm:gap-6"
           >
-            <span className="hidden h-px w-[100px] bg-[#0d5143]/20 sm:block" />
-            <h2 className="text-center text-4xl font-black text-[#0d5143]">Nos guides par catégorie</h2>
-            <span className="hidden h-px w-[100px] bg-[#0d5143]/20 sm:block" />
+            <span className="hidden h-px w-[60px] bg-[#0d5143]/20 sm:block sm:w-[100px]" />
+            <h2 className="text-center text-2xl font-black text-[#0d5143] sm:text-3xl lg:text-4xl">Nos guides par catégorie</h2>
+            <span className="hidden h-px w-[60px] bg-[#0d5143]/20 sm:block sm:w-[100px]" />
           </motion.div>
 
-          <div className="flex w-full flex-col gap-14">
+          <div className="flex w-full flex-col gap-10 sm:gap-14">
             {GUIDE_CATEGORIES.map((category) => (
               <CategorySection key={category.id} category={category} />
             ))}
@@ -468,7 +489,7 @@ export default function Guide() {
 
           <button
             type="button"
-            className="rounded-3xl border border-[#1eb394] bg-[#126b59] px-6 py-3 text-base font-medium text-white transition-colors hover:bg-[#0d5143]"
+            className="rounded-3xl border border-[#1eb394] bg-[#126b59] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#0d5143] sm:text-base"
           >
             Voir plus
           </button>
@@ -480,23 +501,23 @@ export default function Guide() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.3 }}
           variants={fadeUp}
-          className="relative mb-24 flex w-full flex-col items-center gap-8 overflow-hidden rounded-[48px] bg-[#126b59] px-8 py-24 text-center"
+          className="relative mb-16 flex w-full flex-col items-center gap-6 overflow-hidden rounded-[24px] bg-[#126b59] px-6 py-12 text-center sm:mb-24 sm:gap-8 sm:rounded-[48px] sm:px-8 sm:py-24"
         >
           <div className="pointer-events-none absolute -right-48 -top-40 size-[384px] rounded-full bg-[#77f9d6]/30 blur-[50px]" />
           <div className="pointer-events-none absolute -bottom-48 -left-48 size-[384px] rounded-full bg-[#003e32]/30 blur-[50px]" />
-          <h2 className="relative max-w-[944px] text-[44px] font-extrabold leading-[60px] tracking-[-1.5px] text-white">
+          <h2 className="relative max-w-[944px] text-2xl font-extrabold leading-tight tracking-[-0.5px] text-white sm:text-3xl lg:text-[44px] lg:leading-[60px] lg:tracking-[-1.5px]">
             Transformez votre communication dès aujourd'hui
           </h2>
-          <div className="relative flex flex-wrap items-center justify-center gap-6">
+          <div className="relative flex w-full flex-col items-center justify-center gap-4 sm:w-auto sm:flex-row sm:flex-wrap sm:gap-6">
             <button
               type="button"
-              className="w-[279px] rounded-full bg-white px-8 py-4 text-lg font-semibold text-[#2b6859] shadow-[0px_8px_10px_rgba(0,0,0,0.25)]"
+              className="w-full max-w-[279px] rounded-full bg-white px-8 py-4 text-base font-semibold text-[#2b6859] shadow-[0px_8px_10px_rgba(0,0,0,0.25)] sm:w-[279px] sm:text-lg"
             >
               Contactez-Nous
             </button>
             <button
               type="button"
-              className="w-[279px] rounded-full bg-white px-8 py-4 text-lg font-bold text-[#2b6859] shadow-[0px_8px_10px_rgba(0,0,0,0.25)]"
+              className="w-full max-w-[279px] rounded-full bg-white px-8 py-4 text-base font-bold text-[#2b6859] shadow-[0px_8px_10px_rgba(0,0,0,0.25)] sm:w-[279px] sm:text-lg"
             >
               Commencer maintenant
             </button>

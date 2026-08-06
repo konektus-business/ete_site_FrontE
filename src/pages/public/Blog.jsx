@@ -82,45 +82,45 @@ const EXTRA_POSTS = {
 
 // Hero section – featured article with title, description, and image
 const Hero = React.memo(() => (
-  <section className="mx-auto flex w-full max-w-[1187px] flex-col items-center gap-16 px-6 sm:px-8 lg:gap-[120px] lg:px-0">
+  <section className="mx-auto flex w-full max-w-[1187px] flex-col items-center gap-12 px-5 sm:gap-16 sm:px-8 lg:gap-[120px] lg:px-0">
     <div className="flex flex-col items-center gap-4 text-center">
-      <h1 className="text-[32px] font-extrabold leading-[1.5] text-[#0B3F34] sm:text-[38px] lg:text-[44px]" style={{ fontFamily: "Archivo, sans-serif" }}>
+      <h1 className="text-[26px] font-extrabold leading-[1.4] text-[#0B3F34] sm:text-[32px] sm:leading-[1.5] lg:text-[44px]" style={{ fontFamily: "Archivo, sans-serif" }}>
         Le futur de la communication{" "}
         <span className="bg-gradient-to-r from-[#0B3F34] to-[#1DA588] bg-clip-text text-transparent">
           d’entreprise commence ici
         </span>
       </h1>
-      <p className="max-w-[745px] text-lg leading-[35px] text-black sm:text-xl">
+      <p className="max-w-[745px] text-base leading-7 text-black sm:text-lg sm:leading-[35px] lg:text-xl">
         Découvrez les dernières innovations en matière de téléphonie cloud, d'intelligence artificielle et de
         stratégies omnicanales pour propulser votre entreprise.
       </p>
     </div>
 
-    <div className="flex w-full flex-col items-center gap-11 lg:flex-row">
-      <div className="relative h-[280px] w-full shrink-0 overflow-hidden rounded-[15px] lg:h-[343px] lg:w-[642px]">
+    <div className="flex w-full flex-col items-center gap-8 sm:gap-11 lg:flex-row">
+      <div className="relative h-[220px] w-full shrink-0 overflow-hidden rounded-[15px] sm:h-[280px] lg:h-[343px] lg:w-[642px]">
         <img src={IMAGES.hero} alt="Article à la une" className="h-full w-full object-cover" />
-        <span className="absolute left-5 top-6 rounded-full bg-[#006B57]/90 px-4 py-1.5 text-xs font-bold uppercase tracking-[1.2px] text-white backdrop-blur-[2px]">
+        <span className="absolute left-4 top-4 rounded-full bg-[#006B57]/90 px-4 py-1.5 text-xs font-bold uppercase tracking-[1.2px] text-white backdrop-blur-[2px] sm:left-5 sm:top-6">
           Tendance
         </span>
       </div>
 
       <div className="flex w-full flex-col items-start gap-3 lg:w-[502px]">
-        <div className="flex items-center gap-4">
-          <span className="rounded bg-[#DDF4EF] px-3 py-0.5 text-base font-medium leading-6 text-[#126B59]">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+          <span className="rounded bg-[#DDF4EF] px-3 py-0.5 text-sm font-medium leading-6 text-[#126B59] sm:text-base">
             Nouveau Post
           </span>
-          <span className="text-base leading-6 text-[#126B59]">Conseil</span>
+          <span className="text-sm leading-6 text-[#126B59] sm:text-base">Conseil</span>
         </div>
-        <div className="flex flex-col items-start gap-5">
-          <h2 className="text-2xl font-medium leading-[1.3] tracking-[-0.72px] text-[#151515] sm:text-3xl lg:text-4xl">
+        <div className="flex flex-col items-start gap-4 sm:gap-5">
+          <h2 className="text-xl font-medium leading-[1.3] tracking-[-0.5px] text-[#151515] sm:text-2xl sm:tracking-[-0.72px] lg:text-4xl">
             Comment l’IA transforme le support client en 2025
           </h2>
-          <p className="text-lg leading-[1.6] text-[#3C4A45]">
+          <p className="text-base leading-7 text-[#3C4A45] sm:text-lg sm:leading-[1.6]">
             Explorez comment les nouveaux modèles de langage permettent une personnalisation sans précédent et une
             efficacité accrue pour vos centres d'appels.
           </p>
         </div>
-        <span className="text-base leading-6 text-[#808080]">Apr 24, 2026</span>
+        <span className="text-sm leading-6 text-[#808080] sm:text-base">Apr 24, 2026</span>
       </div>
     </div>
   </section>
@@ -128,19 +128,19 @@ const Hero = React.memo(() => (
 
 // Post card – displays a single blog post preview
 const PostCard = React.memo(({ post }) => (
-  <article className="flex w-full max-w-[390px] flex-col items-start gap-8">
+  <article className="flex w-full max-w-[390px] flex-col items-start gap-5 sm:gap-8">
     <div className="aspect-[3/2] w-full overflow-hidden rounded-[15px]">
       <img src={post.image} alt={post.title} className="h-full w-full object-cover" />
     </div>
-    <div className="flex w-full flex-col items-start gap-4">
-      <div className="flex items-center gap-6">
-        <span className="flex items-center gap-2.5 text-base font-semibold text-[#126B59]">
+    <div className="flex w-full flex-col items-start gap-3 sm:gap-4">
+      <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+        <span className="flex items-center gap-2.5 text-sm font-semibold text-[#126B59] sm:text-base">
           {post.tag}
           <span className="h-1.5 w-1.5 rounded-full bg-[#126B59]" />
         </span>
-        <span className="whitespace-nowrap text-base text-[#808080]">{post.date}</span>
+        <span className="whitespace-nowrap text-sm text-[#808080] sm:text-base">{post.date}</span>
       </div>
-      <p className="text-xl leading-6 text-[#333333]">{post.title}</p>
+      <p className="text-lg leading-6 text-[#333333] sm:text-xl">{post.title}</p>
     </div>
   </article>
 ));
@@ -158,14 +158,14 @@ const BlogGrid = React.memo(() => {
   }, [activeCategory]);
 
   return (
-    <section className="mx-auto mt-40 w-full max-w-[1244px] px-6 sm:px-8 lg:px-0">
+    <section className="mx-auto mt-20 w-full max-w-[1244px] px-5 sm:mt-28 sm:px-8 lg:mt-40 lg:px-0">
       {/* Category tabs */}
-      <div className="flex flex-wrap items-center gap-6 border-b border-[#e5e5e5] pb-1">
+      <div className="flex flex-wrap items-center gap-3 border-b border-[#e5e5e5] pb-1 sm:gap-6">
         {CATEGORIES.map(category => (
           <button
             key={category}
             onClick={() => setActiveCategory(category)}
-            className={`relative px-6 py-3 text-base whitespace-nowrap transition-colors ${
+            className={`relative px-3 py-2.5 text-sm whitespace-nowrap transition-colors sm:px-6 sm:py-3 sm:text-base ${
               activeCategory === category
                 ? "font-semibold text-[#126B59]"
                 : "font-medium text-[#808080] hover:text-[#126B59]"
@@ -175,22 +175,22 @@ const BlogGrid = React.memo(() => {
             {activeCategory === category && <span className="absolute -bottom-1 left-0 h-0.5 w-full bg-[#126B59]" />}
           </button>
         ))}
-        <a href="#" className="flex items-center gap-3 text-base font-bold text-[#006B57]">
+        <a href="#" className="flex items-center gap-2 text-sm font-bold text-[#006B57] sm:gap-3 sm:text-base">
           Voir tout
           <img src={IMAGES.chevron} alt="" className="h-2 w-[17px]" />
         </a>
       </div>
 
       {/* Posts grid */}
-      <div className="mt-14 grid grid-cols-1 gap-x-9 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-10 grid grid-cols-1 gap-x-9 gap-y-10 sm:mt-14 sm:grid-cols-2 sm:gap-y-16 lg:grid-cols-3">
         {filteredPosts.map(post => (
           <PostCard key={post.title} post={post} />
         ))}
       </div>
 
       {/* Load more button */}
-      <div className="mt-20 flex justify-center">
-        <button className="rounded-3xl border border-[#1EB394] bg-[#126B59] px-6 py-3 text-base font-medium text-white">
+      <div className="mt-14 flex justify-center sm:mt-20">
+        <button className="rounded-3xl border border-[#1EB394] bg-[#126B59] px-6 py-3 text-sm font-medium text-white sm:text-base">
           Voir plus
         </button>
       </div>
@@ -200,16 +200,16 @@ const BlogGrid = React.memo(() => {
 
 // Newsletter – call‑to‑action subscription form
 const Newsletter = React.memo(() => (
-  <section className="mx-auto mt-40 w-full max-w-[1244px] px-6 sm:px-8 lg:px-0">
-    <div className="relative flex flex-col items-center overflow-hidden rounded-[40px] bg-[#006B57] px-6 py-20 text-center">
+  <section className="mx-auto mt-20 w-full max-w-[1244px] px-5 sm:mt-28 sm:px-8 lg:mt-40 lg:px-0">
+    <div className="relative flex flex-col items-center overflow-hidden rounded-[24px] bg-[#006B57] px-6 py-12 text-center sm:rounded-[40px] sm:py-16 lg:py-20">
       <div className="pointer-events-none absolute -right-32 -top-32 h-64 w-64 rounded-full bg-[#1EB394] opacity-40 blur-[50px]" />
       <div className="pointer-events-none absolute -bottom-48 -left-48 h-96 w-96 rounded-full bg-[#0D5143] opacity-60 blur-[60px]" />
 
-      <div className="relative flex w-full max-w-[672px] flex-col items-center gap-6">
-        <h2 className="text-3xl font-bold leading-[1.2] tracking-[-0.72px] text-white sm:text-4xl">
+      <div className="relative flex w-full max-w-[672px] flex-col items-center gap-5 sm:gap-6">
+        <h2 className="text-2xl font-bold leading-[1.3] tracking-[-0.5px] text-white sm:text-3xl sm:tracking-[-0.72px] lg:text-4xl">
           Recevez les dernières tendances <br /> technologiques.
         </h2>
-        <p className="text-lg leading-[1.6] text-white/90">
+        <p className="text-base leading-7 text-white/90 sm:text-lg sm:leading-[1.6]">
           Rejoignez 5 000+ décideurs IT et recevez chaque mardi notre curation <br className="hidden sm:block" /> d'experts directement dans votre boîte mail.
         </p>
 
@@ -238,7 +238,7 @@ const Newsletter = React.memo(() => (
 // ========== Main Component ==========
 export default function Blog() {
   return (
-    <div className="relative w-full overflow-hidden pt-[220px] pb-20">
+    <div className="relative w-full overflow-hidden pt-28 pb-12 sm:pt-40 sm:pb-16 lg:pt-[220px] lg:pb-20">
       {/* Background image */}
       <img src={IMAGES.bg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-60" />
       <div className="relative z-10">

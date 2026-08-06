@@ -43,12 +43,12 @@ const Reveal = ({ children, className = "", delay = 0, amount = 0.3 }) => (
 
 // Section header with decorative lines on desktop
 const SectionTitle = ({ title }) => (
-  <Reveal className="flex items-center gap-5">
-    <span className="hidden h-px w-[165px] bg-[#0d5143]/20 md:block" />
-    <h2 className="text-center text-[36px] font-black uppercase text-[#0d5143]">
+  <Reveal className="flex items-center gap-3 sm:gap-5">
+    <span className="hidden h-px w-[80px] bg-[#0d5143]/20 md:block md:w-[165px]" />
+    <h2 className="text-center text-[24px] font-black uppercase text-[#0d5143] sm:text-[28px] md:text-[36px]">
       {title}
     </h2>
-    <span className="hidden h-px w-[165px] bg-[#0d5143]/20 md:block" />
+    <span className="hidden h-px w-[80px] bg-[#0d5143]/20 md:block md:w-[165px]" />
   </Reveal>
 );
 
@@ -175,33 +175,41 @@ export default function Services() {
   };
 
   return (
-    <div className="relative w-full bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${servicesBg})` }}>
+    // Fix: Add overflow-x-hidden to clip horizontal animations and prevent scrollbars
+    <div
+      className="relative w-full bg-repeat-y overflow-x-hidden"
+      style={{
+        backgroundImage: `url(${servicesBg})`,
+        backgroundSize: "100% auto",
+        backgroundPosition: "top center",
+      }}
+    >
       {/* ===== HERO SECTION ===== */}
       <section
         ref={heroRef}
-        className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-8 px-6 pt-16 md:flex-row md:gap-14 md:px-24 md:pt-24 mt-[160px]"
+        className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-8 px-4 pt-14 sm:px-6 sm:pt-16 md:mt-[160px] md:flex-row md:gap-14 md:px-24 md:pt-24 mt-20 sm:mt-28"
       >
         <motion.div
           initial="hidden"
           animate={isHeroInView ? "visible" : "hidden"}
           variants={heroText}
-          className="flex flex-1 flex-col items-start gap-8"
+          className="flex flex-1 flex-col items-center gap-6 text-center sm:gap-8 md:items-start md:text-left"
         >
-          <div className="flex flex-col gap-4">
-            <h1 className="text-[#0b3f34] text-[44px] font-extrabold leading-[1.5]">
+          <div className="flex flex-col gap-3 sm:gap-4">
+            <h1 className="text-[#0b3f34] text-[28px] font-extrabold leading-[1.3] sm:text-[36px] md:text-[44px] md:leading-[1.5]">
               Transformez votre{" "}
               <span className="bg-gradient-to-b from-[#0b3f34] to-[#1da588] bg-clip-text text-transparent">
                 communication en levier de performance
               </span>
             </h1>
-            <p className="text-black text-xl leading-[1.75]">
+            <p className="text-black text-base leading-6 sm:text-lg sm:leading-7 md:text-xl md:leading-[1.75]">
               Optimisez vos flux opérationnels avec une infrastructure de pointe. Performance inégalée,
               flexibilité totale et intégration native pour propulser votre entreprise vers de nouveaux sommets.
             </p>
           </div>
           <button
             type="button"
-            className="flex items-center gap-4 rounded-3xl px-8 py-4 text-base font-medium text-white transition-transform hover:scale-[1.02]"
+            className="flex items-center gap-3 rounded-3xl px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-[1.02] sm:gap-4 sm:px-8 sm:py-4 sm:text-base"
             style={{ backgroundImage: "linear-gradient(155deg, #1eb394 15%, #006b57 84%)" }}
           >
             Découvrir nos services
@@ -211,11 +219,12 @@ export default function Services() {
           </button>
         </motion.div>
 
+        {/* Fix: Add overflow-hidden to the motion wrapper to clip the image scale overshoot */}
         <motion.div
           initial="hidden"
           animate={isHeroInView ? "visible" : "hidden"}
           variants={heroImage}
-          className="flex-1"
+          className="w-full flex-1 overflow-hidden"
         >
           <img src={heroImg} alt="Illustration KoneKtUS" className="w-full max-w-[612px] object-cover" />
         </motion.div>
@@ -244,26 +253,53 @@ export default function Services() {
         </motion.div>
       </section>
 
+      {/* ===== FEATURE STRIP (mobile / tablet) =====
+          The desktop strip above is intentionally hidden below md: (per the
+          original design) since it's a dense 3-column bar that doesn't fit a
+          narrow viewport well. Rather than dropping this content on mobile
+          entirely, show a stacked equivalent instead. */}
+      <section className="relative mx-auto mt-6 px-4 sm:px-6 md:hidden">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={staggerContainer}
+          className="flex flex-col gap-5 rounded-2xl border border-[rgba(45,212,191,0.1)] bg-[rgba(13,81,67,0.8)] p-5 shadow-[0px_8px_32px_0px_rgba(0,0,0,0.37)] backdrop-blur-md sm:p-6"
+        >
+          {FEATURES.map((f) => (
+            <motion.div key={f.id} variants={staggerItem} className="flex items-center gap-4">
+              <div className="shrink-0 rounded-lg bg-[rgba(45,212,191,0.1)] p-3">
+                <img src={f.icon} alt="" className="size-7" />
+              </div>
+              <div className="flex flex-col text-white">
+                <p className="font-bold text-sm leading-5">{f.title}</p>
+                <p className="text-xs leading-4">{f.desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </section>
+
       {/* ===== SERVICES LIST ===== */}
-      <section className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-16 px-6 py-24 md:px-24 md:py-32">
+      <section className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 md:gap-16 md:px-24 md:py-32">
         <SectionTitle title="Nos services" />
 
-        <div className="flex w-full flex-col gap-24 md:gap-32">
+        <div className="flex w-full flex-col gap-16 sm:gap-20 md:gap-32">
           {SERVICES.map((s, idx) => {
             const isLeft = s.imageSide === "left";
             const textX = isLeft ? 40 : -40;
             const imgX = isLeft ? -40 : 40;
             return (
-              <div key={s.id} className={`flex flex-col md:flex-row items-center gap-12 w-full ${isLeft ? "md:flex-row" : "md:flex-row-reverse"}`}>
+              <div key={s.id} className={`flex flex-col md:flex-row items-center gap-8 sm:gap-10 md:gap-12 w-full ${isLeft ? "md:flex-row" : "md:flex-row-reverse"}`}>
                 {/* Service image */}
                 <motion.div
                   initial={{ opacity: 0, x: imgX }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, amount: 0.3 }}
                   transition={{ ...SPRING, delay: idx * 0.08 + 0.05 }}
-                  className="flex-1 flex justify-center"
+                  className="flex w-full flex-1 justify-center"
                 >
-                  <img src={s.image} alt={s.title} className="w-full max-w-[496px] object-cover" />
+                  <img src={s.image} alt={s.title} className="w-full max-w-[340px] object-cover sm:max-w-[420px] md:max-w-[496px]" />
                 </motion.div>
 
                 {/* Service text content */}
@@ -272,25 +308,29 @@ export default function Services() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true, amount: 0.3 }}
                   transition={{ ...SPRING, delay: idx * 0.08 + 0.1 }}
-                  className="flex flex-col items-start gap-4 flex-1"
+                  className="flex flex-1 flex-col items-center gap-4 text-center md:items-start md:text-left"
                 >
                   <div
-                    className="flex size-16 items-center justify-center rounded-2xl shadow-[0px_10px_15px_-3px_rgba(0,107,87,0.2),0px_4px_6px_-4px_rgba(0,107,87,0.2)]"
+                    className="flex size-12 items-center justify-center rounded-2xl shadow-[0px_10px_15px_-3px_rgba(0,107,87,0.2),0px_4px_6px_-4px_rgba(0,107,87,0.2)] sm:size-14 md:size-16"
                     style={{ backgroundImage: "linear-gradient(135deg, #1eb394 0%, #006b57 100%)" }}
                   >
-                    <img src={s.icon} alt="" className="size-6" />
+                    <img src={s.icon} alt="" className="size-5 sm:size-6" />
                   </div>
-                  <h3 className="text-black text-[36px] font-bold leading-[1.2] tracking-[-0.72px]">{s.title}</h3>
-                  <p className="text-black text-lg leading-[1.6]">{s.desc}</p>
-                  <ul className="flex flex-col gap-4 pt-2 w-full">
+                  <h3 className="text-black text-2xl font-bold leading-[1.2] tracking-[-0.5px] sm:text-3xl md:text-[36px] md:tracking-[-0.72px]">
+                    {s.title}
+                  </h3>
+                  <p className="text-black text-sm leading-6 sm:text-base sm:leading-[1.5] md:text-lg md:leading-[1.6]">
+                    {s.desc}
+                  </p>
+                  <ul className="flex w-full flex-col gap-3 pt-2 sm:gap-4">
                     {s.bullets.map((bullet, i) => (
-                      <li key={i} className="flex items-center gap-3">
+                      <li key={i} className="flex items-center gap-3 text-left">
                         <img src={iconCheck} alt="" className="size-5 shrink-0" />
-                        <span className="flex-1 text-black text-base leading-6">{bullet}</span>
+                        <span className="flex-1 text-black text-sm leading-6 sm:text-base">{bullet}</span>
                       </li>
                     ))}
                   </ul>
-                  <p className="pt-4 text-[#006b57] text-base font-bold leading-6">{s.objective}</p>
+                  <p className="pt-3 text-[#006b57] text-sm font-bold leading-6 sm:pt-4 sm:text-base">{s.objective}</p>
                 </motion.div>
               </div>
             );
@@ -299,20 +339,22 @@ export default function Services() {
       </section>
 
       {/* ===== STATISTICS (trust) ===== */}
-      <section className="relative mx-auto flex max-w-[1245px] flex-col items-center gap-16 px-6 pb-24 md:px-24">
+      <section className="relative mx-auto flex max-w-[1245px] flex-col items-center gap-10 px-4 pb-16 sm:gap-12 sm:px-6 sm:pb-20 md:gap-16 md:px-24 md:pb-24">
         <SectionTitle title="Ils nous font confiance" />
         <motion.div
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
           variants={statsContainer}
-          className="grid w-full grid-cols-1 gap-16 md:grid-cols-3"
+          className="grid w-full grid-cols-1 gap-10 sm:grid-cols-3 sm:gap-8 md:gap-16"
         >
           {STATS.map((stat) => (
             <motion.div key={stat.id} variants={statsItem}>
               <div className="flex flex-col items-center gap-2 text-center">
-                <p className="text-[48px] font-black tracking-[-2.4px] text-[#006b57]">{stat.value}</p>
-                <p className="pt-2 text-lg font-bold text-[#1a1c1c]">{stat.label}</p>
+                <p className="text-[36px] font-black tracking-[-1.5px] text-[#006b57] sm:text-[40px] md:text-[48px] md:tracking-[-2.4px]">
+                  {stat.value}
+                </p>
+                <p className="pt-2 text-base font-bold text-[#1a1c1c] sm:text-lg">{stat.label}</p>
                 <p className="max-w-[330px] text-sm text-[#3c4a45]">{stat.desc}</p>
               </div>
             </motion.div>
@@ -321,23 +363,23 @@ export default function Services() {
       </section>
 
       {/* ===== FINAL CALL-TO-ACTION ===== */}
-      <section className="relative mx-auto max-w-[1216px] px-6 pb-24 md:px-0">
+      <section className="relative mx-auto max-w-[1216px] px-4 pb-16 sm:px-6 sm:pb-20 md:px-0 md:pb-24">
         <Reveal>
-          <div className="relative flex flex-col items-center gap-8 overflow-hidden rounded-[48px] bg-[#126b59] px-8 py-16 text-center md:py-24">
+          <div className="relative flex flex-col items-center gap-6 overflow-hidden rounded-[28px] bg-[#126b59] px-6 py-12 text-center sm:gap-8 sm:rounded-[36px] sm:px-8 sm:py-16 md:rounded-[48px] md:py-24">
             {/* Decorative blobs */}
-            <div className="pointer-events-none absolute -right-48 -top-40 size-96 rounded-full bg-[rgba(119,249,214,0.3)] blur-[50px]" />
-            <div className="pointer-events-none absolute -bottom-48 -left-48 size-96 rounded-full bg-[rgba(0,62,50,0.3)] blur-[50px]" />
+            <div className="pointer-events-none absolute -right-24 -top-20 size-52 rounded-full bg-[rgba(119,249,214,0.3)] blur-[40px] sm:-right-36 sm:-top-28 sm:size-72 sm:blur-[50px] md:-right-48 md:-top-40 md:size-96" />
+            <div className="pointer-events-none absolute -bottom-24 -left-24 size-52 rounded-full bg-[rgba(0,62,50,0.3)] blur-[40px] sm:-bottom-36 sm:-left-36 sm:size-72 sm:blur-[50px] md:-bottom-48 md:-left-48 md:size-96" />
 
-            <h2 className="max-w-[944px] text-[44px] font-extrabold leading-[1.36] tracking-[-1.5px] text-white">
+            <h2 className="max-w-[944px] text-[24px] font-extrabold leading-[1.3] tracking-[-0.5px] text-white sm:text-[32px] md:text-[44px] md:leading-[1.36] md:tracking-[-1.5px]">
               Transformez votre communication dès aujourd'hui
             </h2>
 
-            <div className="flex flex-col gap-6 sm:flex-row">
+            <div className="flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row sm:gap-6">
               {["Contactez-Nous", "Démarrer l'essai gratuit"].map((label) => (
                 <button
                   key={label}
                   type="button"
-                  className="rounded-full bg-white px-8 py-4 text-lg font-bold text-[#2b6859] drop-shadow-[0px_8px_10px_rgba(0,0,0,0.25)] transition-transform hover:scale-[1.02] w-[279px]"
+                  className="w-full max-w-[320px] rounded-full bg-white px-6 py-3 text-base font-bold text-[#2b6859] drop-shadow-[0px_8px_10px_rgba(0,0,0,0.25)] transition-transform hover:scale-[1.02] sm:w-[279px] sm:px-8 sm:py-4 sm:text-lg"
                 >
                   {label}
                 </button>

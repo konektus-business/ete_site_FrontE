@@ -40,6 +40,7 @@ import Blog from "./pages/public/Blog";
 import Webinar from "./pages/public/Webinar";
 import Guide from "./pages/public/Guide";
 import Solutions from "./pages/public/Solutions";
+
 function App() {
   const router = createBrowserRouter(
     createRoutesFromElements(
@@ -61,6 +62,12 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/register" element={<Register />} />
+
+        <Route
+          path="/onboarding"
+          element={<Navigate to="/onboarding/success" replace />}
+        />
+        
 
         {/* CRM routes – nested under /crm with CrmLayout */}
         <Route path="/crm" element={<CrmLayout />}>

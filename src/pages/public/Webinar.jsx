@@ -62,6 +62,9 @@ const FEATURE_OFFSETS = [424, -432, 424, -432];
 
 // ========== Reusable Wrapper: SpringReveal ==========
 // Scroll-triggered reveal with custom spring curve (translates from offsetX)
+// Note: the large pixel offsets below can only cause horizontal scroll
+// *during* the entrance animation, and the page root already has
+// `overflow-hidden`, so they clip safely on mobile without extra changes.
 const SpringReveal = ({ offsetX, children, className = "" }) => {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.3 });
@@ -113,7 +116,7 @@ const Avatars = ({ images, extra }) => (
 
 // ----- ChipRow: renders a list of tags with "+" separators -----
 const ChipRow = ({ items }) => (
-  <div className="flex items-center gap-2 pt-2">
+  <div className="flex flex-wrap items-center gap-2 pt-2">
     {items.map((label, i) => (
       <React.Fragment key={label}>
         {i > 0 && <span className="text-xs font-bold text-[#1eb394]">+</span>}
@@ -138,8 +141,10 @@ const PrimaryButton = ({ children, className = "", ...rest }) => (
 );
 
 // ----- WebinarThumbnail: card thumbnail with index and play button -----
+// Fixed 297x223 → fluid width (full width until the card switches to a row
+// layout at `lg`, where it locks back to the original 297px column).
 const WebinarThumbnail = ({ index, title, thumbnail }) => (
-  <div className="relative h-[223px] w-[297px] shrink-0 overflow-hidden rounded-2xl bg-[#0d5143]">
+  <div className="relative h-[180px] w-full shrink-0 overflow-hidden rounded-2xl bg-[#0d5143] sm:h-[223px] lg:h-[223px] lg:w-[297px]">
     <img
       src={thumbnail}
       alt={title}
@@ -156,6 +161,10 @@ const WebinarThumbnail = ({ index, title, thumbnail }) => (
 );
 
 // ----- WebinarCard: main webinar listing card -----
+// Was a rigid 3-column flex row (fixed 297px thumbnail + flexible middle +
+// fixed 295px sidebar) that could never fit a phone screen. Now stacks
+// vertically (thumbnail → content → sidebar) below `lg`, and only becomes
+// the original side-by-side row at `lg` and up.
 const WebinarCard = ({
   index,
   live,
@@ -173,15 +182,15 @@ const WebinarCard = ({
   onReserve,
 }) => (
   <article
-    className={`relative flex w-full items-start gap-8 rounded-[32px] p-8 shadow-[0px_10px_40px_-10px_rgba(13,81,67,0.1)] ${
+    className={`relative flex w-full flex-col items-stretch gap-6 rounded-[24px] p-5 shadow-[0px_10px_40px_-10px_rgba(13,81,67,0.1)] sm:p-6 lg:flex-row lg:items-start lg:gap-8 lg:rounded-[32px] lg:p-8 ${
       highlighted
         ? "border border-[#006b57] bg-white/80"
         : "border border-[#006b57] bg-white"
     }`}
   >
     <WebinarThumbnail index={index} title={title} thumbnail={thumbnail} />
-    <div className="flex min-w-0 flex-1 flex-col gap-4">
-      <div className="flex items-center gap-3">
+    <div className="flex min-w-0 flex-1 flex-col gap-3 sm:gap-4">
+      <div className="flex flex-wrap items-center gap-3">
         {live && (
           <span className="rounded-sm bg-[#ef4444] px-2 py-0.5 text-[10px] font-bold uppercase text-white">
             ● Live
@@ -191,10 +200,10 @@ const WebinarCard = ({
           {category}
         </span>
       </div>
-      <h3 className="text-2xl font-extrabold leading-tight text-[#0d5143]">
+      <h3 className="text-xl font-extrabold leading-tight text-[#0d5143] sm:text-2xl">
         {title}
       </h3>
-      <div className="flex flex-wrap items-center gap-6">
+      <div className="flex flex-wrap items-center gap-4 sm:gap-6">
         <div className="flex items-center gap-3">
           <img src={iconCalendarCard} alt="" className="h-4 w-[15px]" />
           <span className="text-sm font-semibold text-[#0d5143]">{date}</span>
@@ -212,8 +221,8 @@ const WebinarCard = ({
       </div>
       <ChipRow items={tags} />
     </div>
-    <div className="flex h-full w-[295px] shrink-0 flex-col justify-between border-l border-[#f3f4f6] pl-8">
-      <div className="flex flex-col gap-3 pb-4">
+    <div className="flex w-full shrink-0 flex-col justify-between gap-6 border-t border-[#f3f4f6] pt-6 lg:h-full lg:w-[295px] lg:gap-0 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
+      <div className="flex flex-col gap-3 lg:pb-4">
         <span className="text-[10px] font-bold uppercase text-[#9ca3af]">
           Intervenants
         </span>
@@ -271,20 +280,22 @@ const ReplayCard = ({ thumbnail, duration, category, title, date, dimmed }) => (
 
 // ----- FeatureCard: for the "Events & Community" section -----
 const FeatureCard = ({ icon, title, description }) => (
-  <div className="flex h-[254px] w-full max-w-[327px] flex-col gap-3 rounded-[32px] border border-[#1eb394] bg-white p-8 shadow-[0px_10px_40px_-10px_rgba(13,81,67,0.5)]">
+  <div className="flex w-full max-w-[327px] flex-col gap-3 rounded-[24px] border border-[#1eb394] bg-white p-6 shadow-[0px_10px_40px_-10px_rgba(13,81,67,0.5)] sm:rounded-[32px] sm:p-8 lg:h-[254px]">
     <div className="flex size-14 items-center justify-center rounded-2xl bg-[#f4fbf9]">
       <img src={icon} alt="" className="size-8" />
     </div>
-    <h4 className="pt-3 text-xl font-extrabold text-[#0d5143]">{title}</h4>
+    <h4 className="pt-3 text-lg font-extrabold text-[#0d5143] sm:text-xl">{title}</h4>
     <p className="text-sm leading-relaxed text-[#343434]">{description}</p>
   </div>
 );
 
 // ----- StatCard: used in the impact stats panel -----
+// Fixed 184x107 → fluid width so two cards always fit the grid column,
+// no matter how narrow the parent panel gets.
 const StatCard = ({ value, label }) => (
-  <div className="flex h-[107px] w-[184px] flex-col justify-center gap-2.5 rounded-2xl border border-[#02473e] bg-[#003730] p-3">
-    <span className="text-4xl font-extrabold text-white">{value}</span>
-    <span className="text-xs font-bold uppercase tracking-[0.6px] text-white/60">
+  <div className="flex h-full min-h-[90px] w-full flex-col justify-center gap-2 rounded-2xl border border-[#02473e] bg-[#003730] p-3 sm:min-h-[107px] sm:gap-2.5">
+    <span className="text-2xl font-extrabold text-white sm:text-4xl">{value}</span>
+    <span className="text-[10px] font-bold uppercase tracking-[0.6px] text-white/60 sm:text-xs">
       {label}
     </span>
   </div>
@@ -378,9 +389,10 @@ const WebinarRegistrationModal = ({ open, onClose, webinar, onSubmit }) => {
         >
           <img src={customCloseIcon} alt="Fermer" className="size-[16px]" />
         </button>
-        {/* Left panel – webinar info */}
+        {/* Left panel – webinar info. Only shown from `lg` up: at `sm` a
+            45%/55% split leaves both halves too cramped to read. */}
         <div
-          className="relative hidden w-[45%] shrink-0 flex-col justify-between overflow-hidden p-7 sm:flex"
+          className="relative hidden w-[45%] shrink-0 flex-col justify-between overflow-hidden p-7 lg:flex"
           style={{
             backgroundImage: "linear-gradient(90deg, #0d5143 0%, #0d5143 100%)",
           }}
@@ -449,10 +461,10 @@ const WebinarRegistrationModal = ({ open, onClose, webinar, onSubmit }) => {
           </div>
         </div>
         {/* Right panel – registration form */}
-        <div className="flex w-full flex-col overflow-y-auto px-6 py-6 sm:px-10 sm:py-8">
+        <div className="flex w-full flex-col overflow-y-auto px-5 py-6 sm:px-10 sm:py-8">
           <div className="flex w-full flex-col gap-5">
-            <div className="flex flex-col gap-1.5">
-              <h3 className="text-xl font-semibold leading-tight text-[#171d1b]">
+            <div className="flex flex-col gap-1.5 pr-8">
+              <h3 className="text-lg font-semibold leading-tight text-[#171d1b] sm:text-xl">
                 Réservez votre place gratuitement
               </h3>
               <p className="text-sm leading-snug text-[#3c4a45]">
@@ -690,14 +702,14 @@ export default function Webinar() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 h-full w-full object-cover object-top"
       />
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col items-center px-6 pt-[220px]">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col items-center px-5 pt-28 sm:px-6 sm:pt-40 lg:pt-[220px]">
         {/* ===== HERO SECTION ===== */}
-        <section className="flex w-full flex-col items-center gap-6 text-center">
+        <section className="flex w-full flex-col items-center gap-5 text-center sm:gap-6">
           <motion.h1
             initial={{ opacity: 0, y: -168 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-            className="max-w-[746px] text-[44px] font-extrabold leading-[60px] tracking-[-0.96px] text-[#0b3f34]"
+            className="max-w-[746px] text-[28px] font-extrabold leading-[1.3] tracking-[-0.5px] text-[#0b3f34] sm:text-[36px] sm:leading-[1.25] sm:tracking-[-0.8px] lg:text-[44px] lg:leading-[60px] lg:tracking-[-0.96px]"
           >
             Apprenez des meilleurs experts{" "}
             <span className="bg-gradient-to-r from-[#0b3f34] to-[#1da588] bg-clip-text text-transparent">
@@ -708,7 +720,7 @@ export default function Webinar() {
             initial={{ opacity: 0, y: 192 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-            className="max-w-[746px] text-base leading-[35px] text-black"
+            className="max-w-[746px] text-sm leading-6 text-black sm:text-base sm:leading-[35px]"
           >
             Webinars en direct, replays disponibles et événements exclusifs,
             rejoignez une communauté de décideurs qui façonnent le futur de la
@@ -718,11 +730,11 @@ export default function Webinar() {
             initial={{ opacity: 0, y: 192 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-            className="flex items-center gap-4 pt-2"
+            className="flex flex-wrap items-center justify-center gap-3 pt-2 sm:gap-4"
           >
             <button
               type="button"
-              className="flex items-center gap-3 rounded-2xl px-6 py-3 text-base font-semibold text-white"
+              className="flex items-center gap-3 rounded-2xl px-5 py-2.5 text-sm font-semibold text-white sm:px-6 sm:py-3 sm:text-base"
               style={{
                 backgroundImage:
                   "linear-gradient(153deg, #1eb394 16%, #006b57 82%)",
@@ -733,7 +745,7 @@ export default function Webinar() {
             </button>
             <button
               type="button"
-              className="flex items-center gap-3 rounded-2xl border-2 border-[#006b57] px-6 py-3 text-base font-semibold text-[#006b57]"
+              className="flex items-center gap-3 rounded-2xl border-2 border-[#006b57] px-5 py-2.5 text-sm font-semibold text-[#006b57] sm:px-6 sm:py-3 sm:text-base"
             >
               Voir les replays
               <img src={iconChevronDownGreen} alt="" className="size-3" />
@@ -751,17 +763,17 @@ export default function Webinar() {
         </section>
 
         {/* ===== PROCHAINS WEBINAIRES ===== */}
-        <section className="mt-24 flex w-full flex-col gap-12">
+        <section className="mt-16 flex w-full flex-col gap-8 sm:mt-20 sm:gap-10 lg:mt-24 lg:gap-12">
           <motion.h2
             initial={{ opacity: 0, x: -60 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="text-4xl font-black text-[#0b3f34]"
+            className="text-2xl font-black text-[#0b3f34] sm:text-3xl lg:text-4xl"
           >
             Les prochaines webinars
           </motion.h2>
-          <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-6 sm:gap-8">
             {WEBINARS.map((w, i) => (
               <motion.div
                 key={w.id}
@@ -781,13 +793,13 @@ export default function Webinar() {
         </section>
 
         {/* ===== REPLAYS & RESSOURCES ===== */}
-        <section className="mt-24 flex w-full flex-col gap-12">
+        <section className="mt-16 flex w-full flex-col gap-8 sm:mt-20 sm:gap-10 lg:mt-24 lg:gap-12">
           <motion.h2
             initial={{ opacity: 0, x: -60 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.4 }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="text-4xl font-black text-[#0b3f34]"
+            className="text-2xl font-black text-[#0b3f34] sm:text-3xl lg:text-4xl"
           >
             Les replays & Ressources
           </motion.h2>
@@ -811,15 +823,15 @@ export default function Webinar() {
         </section>
 
         {/* ===== ÉVÉNEMENTS & COMMUNAUTÉ ===== */}
-        <section className="mt-24 flex w-full flex-col gap-16">
+        <section className="mt-16 flex w-full flex-col gap-10 sm:mt-20 sm:gap-12 lg:mt-24 lg:gap-16">
           <SpringReveal offsetX={728}>
-            <h2 className="text-4xl font-extrabold text-[#0b3f34]">
+            <h2 className="text-2xl font-extrabold text-[#0b3f34] sm:text-3xl lg:text-4xl">
               Événements & Communauté KonektUs
             </h2>
           </SpringReveal>
 
-          <div className="flex flex-col items-end gap-10 lg:flex-row">
-            <div className="flex flex-1 flex-wrap gap-7">
+          <div className="flex flex-col items-stretch gap-8 lg:flex-row lg:items-end lg:gap-10">
+            <div className="flex flex-1 flex-wrap justify-center gap-6 sm:gap-7 lg:justify-start">
               {FEATURES.map((f, i) => (
                 <SpringReveal key={f.title} offsetX={FEATURE_OFFSETS[i]}>
                   <FeatureCard {...f} />
@@ -829,19 +841,19 @@ export default function Webinar() {
 
             <SpringReveal
               offsetX={-536}
-              className="relative h-[542px] w-full max-w-[514px] shrink-0"
+              className="relative w-full max-w-[514px] shrink-0 self-center lg:h-[542px] lg:self-auto"
             >
-              <div className="flex h-full w-full flex-col overflow-hidden rounded-[40px] bg-[#0d5143] p-9">
+              <div className="flex h-full w-full flex-col overflow-hidden rounded-[24px] bg-[#0d5143] p-6 sm:rounded-[40px] sm:p-9">
                 <div className="pointer-events-none absolute right-0 top-0 size-32 rounded-full bg-[#1eb394]/20 blur-3xl" />
-                <h3 className="text-xl font-bold text-white">
+                <h3 className="text-lg font-bold text-white sm:text-xl">
                   Notre impact en 2026
                 </h3>
-                <div className="mt-8 grid grid-cols-2 gap-4">
+                <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:gap-4">
                   {STATS.map(([val, lbl]) => (
                     <StatCard key={lbl} value={val} label={lbl} />
                   ))}
                 </div>
-                <div className="mt-auto pt-8">
+                <div className="mt-auto pt-6 sm:pt-8">
                   <Avatars images={[avatar3, avatar4, newAvatar1]} extra="+1" />
                 </div>
               </div>
@@ -850,14 +862,14 @@ export default function Webinar() {
         </section>
 
         {/* ===== FINAL CALL-TO-ACTION ===== */}
-        <section className="relative mt-24 mb-24 w-full overflow-hidden rounded-[40px] bg-[#0d5143] px-8 py-12">
+        <section className="relative mt-16 mb-16 w-full overflow-hidden rounded-[24px] bg-[#0d5143] px-6 py-10 sm:mt-20 sm:mb-20 sm:rounded-[32px] sm:px-8 sm:py-12 lg:mt-24 lg:mb-24 lg:rounded-[40px]">
           <div className="pointer-events-none absolute -bottom-20 -left-20 size-[320px] rounded-full bg-[#1eb394]/10 blur-3xl" />
-          <div className="mx-auto flex max-w-[818px] flex-col items-center gap-11 text-center">
-            <div className="flex flex-col gap-4">
-              <h2 className="text-4xl font-extrabold text-white">
+          <div className="mx-auto flex max-w-[818px] flex-col items-center gap-8 text-center sm:gap-11">
+            <div className="flex flex-col gap-3 sm:gap-4">
+              <h2 className="text-2xl font-extrabold text-white sm:text-3xl lg:text-4xl">
                 Recevez les prochains webinars avant tout le monde
               </h2>
-              <p className="text-lg text-white/80">
+              <p className="text-base text-white/80 sm:text-lg">
                 Inscrivez-vous et ne manquez aucun événement exclusif,
                 invitation privée ou ressource premium.
               </p>

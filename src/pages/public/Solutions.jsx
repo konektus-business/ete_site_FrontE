@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import { CheckCircle2, ChevronDown } from "lucide-react";
 
@@ -48,11 +48,11 @@ const HERO_SPRING = {
 function PrimaryButton({ children, className = "" }) {
   return (
     <button
-      className={`inline-flex items-center gap-3 rounded-full px-6 py-3 text-white font-semibold text-base whitespace-nowrap ${className}`}
+      className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-white font-semibold text-sm whitespace-normal sm:gap-3 sm:px-6 sm:py-3 sm:text-base sm:whitespace-nowrap ${className}`}
       style={{ backgroundImage: PRIMARY_GRADIENT }}
     >
       {children}
-      <ChevronDown className="size-3 -rotate-90" strokeWidth={3} />
+      <ChevronDown className="size-3 -rotate-90 shrink-0" strokeWidth={3} />
     </button>
   );
 }
@@ -60,22 +60,22 @@ function PrimaryButton({ children, className = "" }) {
 function SecondaryButton({ children, className = "" }) {
   return (
     <button
-      className={`inline-flex items-center gap-3 rounded-full border-2 border-[#006b57] px-6 py-3 text-[#006b57] font-semibold text-base whitespace-nowrap ${className}`}
+      className={`inline-flex items-center gap-2 rounded-full border-2 border-[#006b57] px-4 py-2.5 text-[#006b57] font-semibold text-sm whitespace-normal sm:gap-3 sm:px-6 sm:py-3 sm:text-base sm:whitespace-nowrap ${className}`}
     >
       {children}
-      <ChevronDown className="size-3 -rotate-90" strokeWidth={3} />
+      <ChevronDown className="size-3 -rotate-90 shrink-0" strokeWidth={3} />
     </button>
   );
 }
 
 function FeatureList({ items }) {
   return (
-    <ul className="flex flex-col gap-4 w-full">
+    <ul className="flex flex-col gap-3 w-full sm:gap-4">
       {items.map((item) => (
         <li key={item} className="flex items-start gap-3">
           {/* Replace CheckCircle2 with your custom icon */}
           <img src={customIcon} alt="" className="size-5 shrink-0 mt-0.5" />
-          <span className="text-base text-black">{item}</span>
+          <span className="text-sm text-black sm:text-base">{item}</span>
         </li>
       ))}
     </ul>
@@ -346,14 +346,14 @@ function WaveLines({ start }) {
 // ---------- Sections ----------
 function Hero() {
   return (
-    <section className="w-full flex flex-col items-center gap-8 px-6 pt-16 pb-8 max-w-6xl mx-auto mt-[150px]">
-      <div className="flex flex-col gap-6 text-center max-w-3xl">
+    <section className="w-full flex flex-col items-center gap-6 px-4 pt-28 pb-6 max-w-6xl mx-auto sm:gap-8 sm:px-6 sm:pt-36 sm:pb-8 md:mt-[150px] md:pt-16">
+      <div className="flex flex-col gap-4 text-center max-w-3xl sm:gap-6">
         {/* Headline: fades in while sliding DOWN into place (was offset -208px up) */}
         <motion.h1
-          initial={{ opacity: 0, y: -208 }}
+          initial={{ opacity: 0, y: -120 }}
           animate={{ opacity: 1, y: 0 }}
           transition={HERO_SPRING}
-          className="font-extrabold text-[32px] md:text-[44px] leading-[1.2] text-[#0b3f34]"
+          className="font-extrabold text-[26px] leading-[1.25] text-[#0b3f34] sm:text-[32px] sm:leading-[1.2] md:text-[44px]"
         >
           Simplifiez votre communication et{" "}
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#0b3f34] to-[#1da588]">
@@ -363,10 +363,10 @@ function Hero() {
 
         {/* Paragraph: fades in while sliding UP into place (was offset +256px down) */}
         <motion.p
-          initial={{ opacity: 0, y: 256 }}
+          initial={{ opacity: 0, y: 120 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...HERO_SPRING, delay: 0.15 }}
-          className="text-base text-black leading-[1.9] max-w-2xl mx-auto"
+          className="text-sm text-black leading-7 max-w-2xl mx-auto sm:text-base sm:leading-[1.9]"
         >
           KoneKtUS VTM réunit communication, collaboration, gestion de projets
           et intelligence artificielle dans un seul écosystème fluide. Sept
@@ -375,30 +375,41 @@ function Hero() {
 
         {/* Buttons (Frame 2147223461 equivalent): fades in while sliding UP into place */}
         <motion.div
-          initial={{ opacity: 0, y: 256 }}
+          initial={{ opacity: 0, y: 120 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...HERO_SPRING, delay: 0.3 }}
-          className="flex flex-wrap justify-center gap-4"
+          className="flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4"
         >
           <PrimaryButton>Découvrir VTM</PrimaryButton>
           <SecondaryButton>Découvrir les solutions</SecondaryButton>
         </motion.div>
       </div>
 
-      <motion.div
-        className="w-full max-w-[1143px] mx-auto"
-        initial={{ opacity: 0, scale: 650 / 1143 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ ...HERO_SPRING, delay: 0.15 }}
-        style={{ transformOrigin: "center" }}
-      >
-        <img
-          src={heroImg}
-          alt="KoneKtUS VTM platform illustration"
-          className="w-full h-auto"
-          style={{ aspectRatio: "1143 / 762" }}
-        />
-      </motion.div>
+      {/*
+        FIX: wrapped the scaling image in its own overflow-hidden container.
+        HERO_SPRING has bounce: 0.18, which makes the animation briefly
+        OVERSHOOT scale: 1 before settling. Since the image has no clipping
+        boundary of its own, that overshoot was pushing past the container
+        edge and widening the page's scrollable area — causing the tiny
+        horizontal scroll. overflow-hidden here clips the overshoot visually
+        without changing the animation itself.
+      */}
+      <div className="w-full max-w-[1143px] mx-auto overflow-hidden">
+        <motion.div
+          className="w-full"
+          initial={{ opacity: 0, scale: 650 / 1143 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ ...HERO_SPRING, delay: 0.15 }}
+          style={{ transformOrigin: "center" }}
+        >
+          <img
+            src={heroImg}
+            alt="KoneKtUS VTM platform illustration"
+            className="w-full h-auto"
+            style={{ aspectRatio: "1143 / 762" }}
+          />
+        </motion.div>
+      </div>
     </section>
   );
 }
@@ -411,7 +422,7 @@ function Stats() {
   return (
     <section
       ref={ref}
-      className="relative mt-16 flex w-full min-h-[480px] items-center justify-center overflow-hidden py-24 sm:py-32"
+      className="relative mt-10 flex w-full min-h-[280px] items-center justify-center overflow-hidden py-14 sm:mt-16 sm:min-h-[400px] sm:py-24 md:min-h-[480px] md:py-32"
     >
       <img
         src={statsWaveBg}
@@ -427,7 +438,7 @@ function Stats() {
       />
       <WaveLines start={isInView} />
 
-      <div className="relative z-10 mx-auto grid w-full max-w-5xl grid-cols-1 sm:grid-cols-3 gap-10 text-center">
+      <div className="relative z-10 mx-auto grid w-full max-w-5xl grid-cols-1 sm:grid-cols-3 gap-6 px-4 text-center sm:gap-10 sm:px-6">
         {stats.map((s) => (
           <motion.div
             key={s.label}
@@ -436,10 +447,10 @@ function Stats() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="flex flex-col gap-2"
           >
-            <span className="font-black text-5xl text-[#006b57] tracking-tight">
+            <span className="font-black text-4xl text-[#006b57] tracking-tight sm:text-5xl">
               {s.value}
             </span>
-            <span className="font-bold text-lg text-black">{s.label}</span>
+            <span className="font-bold text-base text-black sm:text-lg">{s.label}</span>
           </motion.div>
         ))}
       </div>
@@ -449,14 +460,14 @@ function Stats() {
 
 function SectionIntro() {
   return (
-    <section className="w-full max-w-3xl mx-auto px-6 py-12 text-center flex flex-col gap-6">
-      <span className="uppercase tracking-wide text-sm font-semibold text-[#006b57]">
+    <section className="w-full max-w-3xl mx-auto px-4 py-10 text-center flex flex-col gap-4 sm:px-6 sm:py-12 sm:gap-6">
+      <span className="uppercase tracking-wide text-xs font-semibold text-[#006b57] sm:text-sm">
         La plateforme VTM
       </span>
-      <h2 className="font-bold text-3xl md:text-[40px] leading-tight text-black">
+      <h2 className="font-bold text-2xl leading-tight text-black sm:text-3xl md:text-[40px]">
         Tout ce dont votre entreprise a besoin !
       </h2>
-      <p className="text-base text-[#3c4a45] leading-relaxed">
+      <p className="text-sm text-[#3c4a45] leading-relaxed sm:text-base">
         La plateforme qui rassemble tous vos outils essentiels dans un seul
         écosystème fluide et intelligent conçu pour simplifier votre
         communication et maximiser votre efficacité opérationnelle.
@@ -467,27 +478,27 @@ function SectionIntro() {
 
 function ModuleCards() {
   return (
-    <section className="w-full px-6 py-8 flex flex-col gap-8">
+    <section className="w-full px-4 py-6 flex flex-col gap-6 sm:px-6 sm:py-8 sm:gap-8">
       {modules.map((m) => (
         <div
           key={m.title}
-          className="rounded-3xl border border-[#006b57] overflow-hidden mx-auto w-full max-w-6xl"
+          className="rounded-2xl border border-[#006b57] overflow-hidden mx-auto w-full max-w-6xl sm:rounded-3xl"
           style={{
             backgroundImage:
               "linear-gradient(113deg, rgb(236,253,250) 17%, rgb(123,204,188) 103%)",
           }}
         >
-          <div className="flex flex-col lg:flex-row items-center gap-10 p-8 lg:p-14">
-            <div className="flex flex-col gap-4 w-full lg:w-1/2">
-              <h3 className="font-bold text-3xl md:text-[36px] tracking-tight text-black">
+          <div className="flex flex-col lg:flex-row items-center gap-6 p-5 sm:gap-10 sm:p-8 lg:p-14">
+            <div className="flex flex-col gap-3 w-full lg:w-1/2 sm:gap-4">
+              <h3 className="font-bold text-2xl tracking-tight text-black sm:text-3xl md:text-[36px]">
                 {m.title}
               </h3>
-              <p className="text-lg text-black leading-[1.6]">
+              <p className="text-base text-black leading-[1.6] sm:text-lg">
                 {m.description}
               </p>
               <FeatureList items={m.items} />
             </div>
-            <div className="w-full lg:w-1/2 aspect-[621/426] rounded-3xl overflow-hidden">
+            <div className="w-full lg:w-1/2 aspect-[621/426] rounded-2xl overflow-hidden sm:rounded-3xl">
               <img
                 src={m.image}
                 alt={m.title}
@@ -501,56 +512,66 @@ function ModuleCards() {
   );
 }
 
-// ---------- UPDATED SolutionsSection with animated lines ----------
+// ---------- SolutionsSection with animated lines ----------
 function SolutionsSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
 
+  const headingRef = useRef(null);
+  const [lineOffset, setLineOffset] = useState(280);
+  useEffect(() => {
+    const updateOffset = () => {
+      if (headingRef.current) {
+        setLineOffset(headingRef.current.offsetWidth / 2 - 40);
+      }
+    };
+    updateOffset();
+    window.addEventListener("resize", updateOffset);
+    return () => window.removeEventListener("resize", updateOffset);
+  }, []);
+
   return (
     <motion.section
       ref={ref}
-      className="w-full px-6 py-12 relative z-10"
+      className="w-full px-4 py-10 relative z-10 sm:px-6 sm:py-12"
       initial={{ opacity: 0 }}
       animate={isInView ? { opacity: 1 } : {}}
       transition={{ duration: 0.5 }}
     >
-      <div className="flex flex-col gap-16 max-w-6xl mx-auto">
-        {/* ---- HEADING with horizontal slide + fade (matching your CSS) ---- */}
-        <div className="flex items-center justify-center gap-5 overflow-hidden">
-          {/* Left line: slides left from center */}
+      <div className="flex flex-col gap-12 max-w-6xl mx-auto sm:gap-16">
+        {/* ---- HEADING with horizontal slide + fade ---- */}
+        <div ref={headingRef} className="flex items-center justify-center gap-3 overflow-hidden sm:gap-5">
           <motion.span
-            className="h-px w-24 md:w-40 bg-black/20 shrink-0"
+            className="h-px w-16 sm:w-24 md:w-40 bg-black/20 shrink-0"
             initial={{ x: 0, opacity: 0 }}
-            animate={isInView ? { x: -616, opacity: 1 } : {}}
+            animate={isInView ? { x: -lineOffset, opacity: 1 } : {}}
             transition={{ ...HERO_SPRING, delay: 0.1 }}
           />
-          {/* Heading text: fades in */}
           <motion.h2
-            className="font-black text-2xl md:text-4xl text-center whitespace-nowrap"
+            className="font-black text-xl text-center whitespace-nowrap sm:text-2xl md:text-4xl"
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ ...HERO_SPRING, delay: 0.1 }}
           >
             NOS SOLUTIONS
           </motion.h2>
-          {/* Right line: slides right from center */}
           <motion.span
-            className="h-px w-24 md:w-40 bg-black/20 shrink-0"
+            className="h-px w-16 sm:w-24 md:w-40 bg-black/20 shrink-0"
             initial={{ x: 0, opacity: 0 }}
-            animate={isInView ? { x: 584, opacity: 1 } : {}}
+            animate={isInView ? { x: lineOffset, opacity: 1 } : {}}
             transition={{ ...HERO_SPRING, delay: 0.1 }}
           />
         </div>
 
-        {/* ---- SOLUTION CARDS (unchanged, but now also staggered) ---- */}
-        <div className="flex flex-col gap-20">
+        {/* ---- SOLUTION CARDS ---- */}
+        <div className="flex flex-col gap-14 sm:gap-20">
           {solutions.map((s, index) => (
             <motion.div
               key={s.title}
               className={`flex flex-col ${
                 s.imageFirst ? "lg:flex-row-reverse" : "lg:flex-row"
-              } items-center gap-10`}
-              initial={{ opacity: 0, y: 256 }}
+              } items-center gap-6 sm:gap-10`}
+              initial={{ opacity: 0, y: 120 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{
                 type: "spring",
@@ -559,16 +580,16 @@ function SolutionsSection() {
                 delay: 0.15 + index * 0.1,
               }}
             >
-              <div className="w-full lg:w-1/2 flex flex-col gap-4">
-                <h3 className="font-bold text-3xl tracking-tight text-black">
+              <div className="w-full lg:w-1/2 flex flex-col gap-3 sm:gap-4">
+                <h3 className="font-bold text-2xl tracking-tight text-black sm:text-3xl">
                   {s.title}
                 </h3>
-                <p className="text-lg text-black leading-[1.6]">
+                <p className="text-base text-black leading-[1.6] sm:text-lg">
                   {s.description}
                 </p>
                 <FeatureList items={s.items} />
               </div>
-              <div className="w-full lg:w-1/2 aspect-[16/10] rounded-3xl overflow-hidden">
+              <div className="w-full lg:w-1/2 aspect-[16/10] rounded-2xl overflow-hidden sm:rounded-3xl">
                 <img
                   src={s.image}
                   alt={s.title}
@@ -585,24 +606,24 @@ function SolutionsSection() {
 
 function Testimonials() {
   return (
-    <section className="w-full px-6 py-16 flex flex-col items-center gap-16 max-w-6xl mx-auto">
-      <div className="flex items-center gap-5">
-        <span className="h-px w-24 md:w-40 bg-black/20" />
-        <h2 className="font-black text-2xl md:text-4xl text-[#0d5143] text-center">
+    <section className="w-full px-4 py-10 flex flex-col items-center gap-10 max-w-6xl mx-auto sm:px-6 sm:py-16 sm:gap-16">
+      <div className="flex items-center gap-3 sm:gap-5">
+        <span className="h-px w-16 sm:w-24 md:w-40 bg-black/20" />
+        <h2 className="font-black text-xl text-[#0d5143] text-center whitespace-nowrap sm:text-2xl md:text-4xl">
           Approuvé par les leaders
         </h2>
-        <span className="h-px w-24 md:w-40 bg-black/20" />
+        <span className="h-px w-16 sm:w-24 md:w-40 bg-black/20" />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full sm:gap-8">
         {testimonials.map((t) => (
           <div
             key={t.name}
-            className="bg-white rounded-3xl p-10 flex flex-col gap-8 shadow-[0_20px_25px_-5px_rgba(226,232,240,0.5),0_8px_10px_-6px_rgba(226,232,240,0.5)]"
+            className="bg-white rounded-2xl p-6 flex flex-col gap-6 shadow-[0_20px_25px_-5px_rgba(226,232,240,0.5),0_8px_10px_-6px_rgba(226,232,240,0.5)] sm:rounded-3xl sm:p-10 sm:gap-8"
           >
-            <p className="text-[#475569] text-base leading-relaxed">
-              “{t.quote}”
+            <p className="text-[#475569] text-sm leading-relaxed sm:text-base">
+              "{t.quote}"
             </p>
-            <div className="flex items-center gap-4 border-t border-[#f1f5f9] pt-6">
+            <div className="flex items-center gap-4 border-t border-[#f1f5f9] pt-5 sm:pt-6">
               <img
                 src={t.avatar}
                 alt={t.name}
@@ -624,24 +645,24 @@ function Testimonials() {
 
 function FinalCta() {
   return (
-    <section className="w-full px-6 py-12 relative z-10">
-      <div className="relative max-w-6xl mx-auto rounded-[48px] bg-[#126B59] overflow-hidden px-8 py-16 flex flex-col items-center gap-9 text-center">
-        <div className="absolute -top-40 -right-40 size-96 rounded-full bg-[rgba(119,249,214,0.2)] blur-[60px]" />
-        <div className="absolute -bottom-24 -left-24 size-96 rounded-full bg-[rgba(0,62,50,0.2)] blur-[60px]" />
-        <div className="relative flex flex-col gap-4 max-w-3xl">
-          <h2 className="font-extrabold text-3xl md:text-[44px] leading-tight text-white tracking-tight">
+    <section className="w-full px-4 py-10 relative z-10 sm:px-6 sm:py-12">
+      <div className="relative max-w-6xl mx-auto rounded-[28px] bg-[#126B59] overflow-hidden px-6 py-10 flex flex-col items-center gap-6 text-center sm:rounded-[36px] sm:px-8 sm:py-16 sm:gap-9 md:rounded-[48px]">
+        <div className="absolute -top-20 -right-20 size-52 rounded-full bg-[rgba(119,249,214,0.2)] blur-[40px] sm:-top-32 sm:-right-32 sm:size-72 sm:blur-[50px] md:-top-40 md:-right-40 md:size-96 md:blur-[60px]" />
+        <div className="absolute -bottom-16 -left-16 size-52 rounded-full bg-[rgba(0,62,50,0.2)] blur-[40px] sm:-bottom-20 sm:-left-20 sm:size-72 sm:blur-[50px] md:-bottom-24 md:-left-24 md:size-96 md:blur-[60px]" />
+        <div className="relative flex flex-col gap-3 max-w-3xl sm:gap-4">
+          <h2 className="font-extrabold text-2xl leading-tight text-white tracking-tight sm:text-3xl md:text-[44px]">
             Prêt à unifier votre communication d'entreprise ?
           </h2>
-          <p className="text-lg md:text-xl text-white">
+          <p className="text-base text-white sm:text-lg md:text-xl">
             Nos experts Konektus analysent vos besoins et configurent VTM en
             48h.
           </p>
         </div>
-        <div className="relative flex flex-wrap justify-center gap-7">
-          <button className="rounded-full bg-white px-8 py-4 text-[#2b6859] font-bold text-lg shadow-[0_8px_10px_rgba(0,0,0,0.25)]">
+        <div className="relative flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-center sm:gap-7">
+          <button className="w-full max-w-[320px] rounded-full bg-white px-6 py-3 text-[#2b6859] font-bold text-base shadow-[0_8px_10px_rgba(0,0,0,0.25)] sm:w-auto sm:px-8 sm:py-4 sm:text-lg">
             Démarrer l'essai gratuit
           </button>
-          <button className="rounded-full bg-white px-8 py-4 text-[#2b6859] font-bold text-lg shadow-[0_8px_10px_rgba(0,0,0,0.25)]">
+          <button className="w-full max-w-[320px] rounded-full bg-white px-6 py-3 text-[#2b6859] font-bold text-base shadow-[0_8px_10px_rgba(0,0,0,0.25)] sm:w-auto sm:px-8 sm:py-4 sm:text-lg">
             Télécharger nos guides
           </button>
         </div>
@@ -654,7 +675,7 @@ function FinalCta() {
 export default function Solutions() {
   return (
     <div
-      className="w-full min-h-screen relative"
+      className="w-full min-h-screen relative overflow-x-hidden"
       style={{
         backgroundImage: `url(${globalBgImg})`,
         backgroundSize: "cover",
