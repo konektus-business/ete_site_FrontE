@@ -1,7 +1,8 @@
-import { useState, useRef } from "react";
+// ========== Core Imports ==========
+import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 
-// ===== Assets =====
+// ========== Asset Imports ==========
 import bgImage from "../../assets/about/about.png";
 import imgHeroCircle from "../../assets/about/hero-circle.png";
 import imgIconExperience from "../../assets/about/icon-experience.svg";
@@ -21,15 +22,20 @@ import imgStatsNumbersGlow from "../../assets/about/stats-numbers-glow.png";
 import imgArrowLeft from "../../assets/about/arrow-left.svg";
 import imgArrowRight from "../../assets/about/arrow-right.svg";
 
+// ========== Font Constant ==========
 const F = "font-['Archivo']";
 
-// ===== Motion presets =====
+// ========== Animation Presets ==========
+// Spring physics for smooth motion
 const SPRING = { type: "spring", stiffness: 100, damping: 16, mass: 1 };
+// Section-level fade-up variants
 const sectionVars = { hidden: { opacity: 0, y: 36 }, visible: { opacity: 1, y: 0, transition: SPRING } };
+// Stagger children with slight delay
 const staggerParent = { hidden: {}, visible: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } } };
 const staggerChild = { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: SPRING } };
 
-// Per‑digit odometer timing (from Figma's "After delay" reactions)
+// ========== Per‑digit Odometer Timing ==========
+// From Figma's "After delay" reactions
 const DIGIT_PROFILES = [
   { delay: 0.15, duration: 1.6, ease: "easeOut" },
   { delay: 0.3, duration: 1.4, ease: "easeOut" },
@@ -38,13 +44,15 @@ const DIGIT_PROFILES = [
   { delay: 0.2, duration: 1.15, ease: "easeIn" },
 ];
 
-// ===== Static data =====
+// ========== Static Data ==========
+// Missions for the slider
 const MISSIONS = [
   { image: imgMission1, title: "Transformation Digitale", description: "Modernisation complète des infrastructures et processus métier." },
   { image: imgMission2, title: "Techniques de communication", description: "Optimisation des flux d'information internes et externes." },
   { image: imgMission3, title: "Relations professionnelles", description: "Développement d'écosystèmes collaboratifs durables." },
 ];
 
+// Company values
 const VALUES = [
   { icon: imgIconTransparency, title: "Transparence Totale", description: "Une communication honnête et des processus ouverts à chaque étape du cycle de développement." },
   { icon: imgIconInnovation, title: "Innovation Continue", description: "Veille technologique permanente pour intégrer les dernières avancées Open Source." },
@@ -53,6 +61,7 @@ const VALUES = [
   { icon: imgIconEcosystem, title: "Écosystème Évolutif", description: "Architectures modulaires conçues pour grandir avec les ambitions de votre entreprise." },
 ];
 
+// Team members (duplicated for demo)
 const TEAM = [
   { name: "Ahmed Youssef", role: "Direction", title: "Directeur Général", bio: "Pilote la stratégie et l'entreprise.", image: imgTeamDirecteur, linkedin: "#", website: "#" },
   { name: "Salma Bouzid", role: "Marketing", title: "Responsable Marketing", bio: "Construit la marque et la croissance.", image: imgTeamMarketing, linkedin: "#", website: "#" },
@@ -60,26 +69,29 @@ const TEAM = [
   { name: "Salma Bouzid", role: "Marketing", title: "Responsable Marketing", bio: "Construit la marque et la croissance.", image: imgTeamMarketing, linkedin: "#", website: "#" },
 ];
 
+// Hero badges (experience & international presence)
 const HERO_BADGES = [
   { icon: imgIconExperience, text: "+20 ans Expérience", iconClass: "h-[21px] w-[22px]" },
   { icon: imgIconGlobal, text: "Présence internationale", iconClass: "size-5" },
 ];
 
+// Statistics displayed in the wave section
+// digitHeight / digitWidth are the DESKTOP (sm+) pixel sizes; they are scaled
+// down responsively at render time via the useIsMobile hook below.
 const STATS = [
-  { value: 1, suffix: "", label: "Écosystème", fontSize: "text-[64px]", digitHeight: 64, digitWidth: 38 },
-  { value: 40, suffix: "+", label: "Années", fontSize: "text-[64px]", digitHeight: 64, digitWidth: 38 },
-  { value: 900, suffix: "k+", label: "Utilisateurs potentiels", fontSize: "text-[60px]", digitHeight: 60, digitWidth: 36 },
+  { value: 1, suffix: "", label: "Écosystème", fontSize: "text-[38px] sm:text-[64px]", digitHeight: 64, digitWidth: 38 },
+  { value: 40, suffix: "+", label: "Années", fontSize: "text-[38px] sm:text-[64px]", digitHeight: 64, digitWidth: 38 },
+  { value: 900, suffix: "k+", label: "Utilisateurs potentiels", fontSize: "text-[36px] sm:text-[60px]", digitHeight: 60, digitWidth: 36 },
   { value: null, suffix: "", label: "Evolutivité garantie", fontSize: "" },
 ];
 
-// ===== Mission slider constants =====
-const CARD_STEP = 448;
+// ========== Mission Slider Constants ==========
 const MISSION_EASE = [0.782000720500946, 0.012000122107565403, 0.17400024831295013, 0.996000349521637];
 const LOOP_COPIES = 9;
 const MISSION_START_INDEX = MISSIONS.length * Math.floor(LOOP_COPIES / 2);
 const LOOPED_MISSIONS = Array.from({ length: MISSIONS.length * LOOP_COPIES }, (_, i) => MISSIONS[i % MISSIONS.length]);
 
-// ===== Wave lines SVG paths =====
+// ========== Wave Lines SVG Paths ==========
 const WAVE_PATHS = [
   "M0.359375 1.75655C134.329 140.171 282.518 201.571 474.117 201.571C665.716 201.571 730.081 201.571 967.332 201.571C1204.58 201.571 1347.92 101.486 1440.34 0.336914",
   "M0.359375 139.571C138.733 199.8 251.607 226.371 472.854 226.371C694.102 226.371 734.602 226.371 967.849 226.371C1201.1 226.371 1309.47 195.548 1440.34 139.571",
@@ -93,13 +105,34 @@ const SPARK_ANIMS = [
   { attr: "y", values: "-9;-1;-1;-9" },
 ];
 
-// ===== Reusable Icons =====
+// ========== Responsive helper ==========
+// Tracks whether the viewport is below Tailwind's `sm` breakpoint (640px).
+// Used anywhere a component needs a *pixel* value (not just a class) to
+// change between mobile and desktop, e.g. the mission slider step width and
+// the odometer digit sizing.
+function useIsMobile(breakpoint = 640) {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth < breakpoint : false
+  );
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < breakpoint);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [breakpoint]);
+  return isMobile;
+}
+
+// ========== Reusable Icons ==========
+// Chevron icon for team card expand/collapse
 const ChevronIcon = ({ expanded }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"
     className={`h-4 w-4 transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}>
     <path d="M6 9l6 6 6-6" />
   </svg>
 );
+
+// LinkedIn icon
 const LinkedinIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-[18px] w-[18px]" aria-hidden="true">
     <rect x="3" y="3" width="18" height="18" rx="3" />
@@ -108,6 +141,8 @@ const LinkedinIcon = () => (
     <path d="M11 16.5v-4c0-1.4 1-2.5 2.3-2.5s2.2 1 2.2 2.5v4" />
   </svg>
 );
+
+// Globe icon for website link
 const GlobeIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-[18px] w-[18px]" aria-hidden="true">
     <circle cx="12" cy="12" r="9" />
@@ -116,42 +151,44 @@ const GlobeIcon = () => (
   </svg>
 );
 
-// ===== Sub‑components =====
+// ========== Sub‑components ==========
 
-// Mission card (image with overlay)
+// Mission card – image with overlay and hover reveal
+// Sizing is now fully controlled by its parent slide wrapper (see mission
+// slider below), so the card itself just fills 100% of that wrapper.
 const MissionCard = ({ mission }) => (
-  <div className="relative h-[380px] w-full shrink-0 overflow-hidden rounded-[30px] sm:h-[412px] sm:w-[447px] sm:flex-none sm:min-w-[447px] group">
+  <div className="relative h-full w-full shrink-0 overflow-hidden rounded-[20px] sm:rounded-[30px] group">
     <img src={mission.image} alt={mission.title} className="absolute inset-0 h-full w-full object-cover transition-all duration-700 ease-in-out group-hover:blur-sm group-hover:scale-105" />
     <div className="absolute inset-0 bg-gradient-to-b from-black/0 from-[35%] to-black to-[100%]" />
-    <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 p-8 text-white">
-      <h3 className={`${F} text-xl font-extrabold`}>{mission.title}</h3>
-      <p className={`${F} text-base leading-5 text-white/90 opacity-0 translate-y-2 transition-all duration-500 ease-out group-hover:opacity-100 group-hover:translate-y-0`}>
+    <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 p-5 sm:p-8 text-white">
+      <h3 className={`${F} text-lg sm:text-xl font-extrabold`}>{mission.title}</h3>
+      <p className={`${F} text-sm sm:text-base leading-5 text-white/90 opacity-0 translate-y-2 transition-all duration-500 ease-out group-hover:opacity-100 group-hover:translate-y-0`}>
         {mission.description}
       </p>
     </div>
   </div>
 );
 
-// Value card (with hover lift)
+// Value card – with hover lift and rotation on icon
 const ValueCard = ({ value }) => (
   <motion.div
     variants={staggerChild}
     whileHover={{ y: -8, boxShadow: "0px 20px 50px 0px #126b59, 0px 0px 0px 4px #ffffff" }}
     transition={{ duration: 0.4, ease: "easeOut" }}
-    className="relative flex w-full max-w-[336px] flex-col gap-8 overflow-hidden rounded-xl bg-white px-6 py-8 shadow-[0px_12px_40px_0px_#126b59,0px_0px_0px_4px_white]"
+    className="relative flex w-full max-w-[336px] flex-col gap-6 sm:gap-8 overflow-hidden rounded-xl bg-white px-6 py-7 sm:py-8 shadow-[0px_12px_40px_0px_#126b59,0px_0px_0px_4px_white]"
   >
     <motion.div whileHover={{ scale: 1.08, rotate: 4 }} transition={{ duration: 0.4, ease: "easeOut" }}
       className="flex size-14 items-center justify-center rounded-xl bg-[#006b57]/10">
       <img src={value.icon} alt="" className="size-6" />
     </motion.div>
-    <div className="flex flex-col gap-4">
-      <h3 className={`${F} text-xl font-bold uppercase tracking-[-0.5px] text-[#1a1c1c]`}>{value.title}</h3>
-      <p className={`${F} text-base leading-6 text-[#3c4a45]`}>{value.description}</p>
+    <div className="flex flex-col gap-3 sm:gap-4">
+      <h3 className={`${F} text-lg sm:text-xl font-bold uppercase tracking-[-0.5px] text-[#1a1c1c]`}>{value.title}</h3>
+      <p className={`${F} text-sm sm:text-base leading-6 text-[#3c4a45]`}>{value.description}</p>
     </div>
   </motion.div>
 );
 
-// Team card with expandable bio
+// Team card – with expandable bio on hover/click
 const TeamCard = ({ member }) => {
   const isMarketing = member.role === "Marketing";
   const [expanded, setExpanded] = useState(false);
@@ -159,24 +196,24 @@ const TeamCard = ({ member }) => {
   return (
     <motion.div
       variants={staggerChild}
-      className={`group relative h-[326px] w-[271px] shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br from-[#1eb395] via-[#16826c] to-[#0d5143] ${isMarketing ? "flex items-center justify-center" : ""}`}
+      className={`group relative aspect-[271/326] w-full max-w-[271px] mx-auto shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br from-[#1eb395] via-[#16826c] to-[#0d5143] ${isMarketing ? "flex items-center justify-center" : ""}`}
       onMouseLeave={() => setExpanded(false)}
     >
       <img src={member.image} alt={member.name}
-        className={`transition-transform duration-500 ease-out group-hover:scale-105 ${isMarketing ? "w-[226px] h-[321px] aspect-[69/98] object-cover" : "absolute inset-0 h-full w-full object-cover"}`}
+        className={`transition-transform duration-500 ease-out group-hover:scale-105 ${isMarketing ? "h-[92%] w-auto aspect-[69/98] object-cover" : "absolute inset-0 h-full w-full object-cover"}`}
       />
       <div className={`pointer-events-none absolute inset-x-0 bottom-0 opacity-0 transition-all duration-300 ease-out group-hover:opacity-100 ${expanded ? "h-full" : "h-1/2"}`}
         style={{ background: expanded ? "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.65) 45%, rgba(0,0,0,0) 80%)" : "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 100%)" }}
       />
-      <div className="absolute inset-x-0 bottom-0 translate-y-2 p-4 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
+      <div className="absolute inset-x-0 bottom-0 translate-y-2 p-3 sm:p-4 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
         <div className="flex items-center justify-between gap-2">
-          <p className={`${F} text-base font-bold leading-tight text-white`}>{member.name}</p>
+          <p className={`${F} text-sm sm:text-base font-bold leading-tight text-white`}>{member.name}</p>
           <button type="button" aria-label={expanded ? "Réduire" : "Voir plus"} onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm transition duration-300 ease-out hover:bg-white/25">
             <ChevronIcon expanded={expanded} />
           </button>
         </div>
-        <p className={`mt-0.5 ${F} text-sm font-normal text-white/85`}>{member.title}</p>
+        <p className={`mt-0.5 ${F} text-xs sm:text-sm font-normal text-white/85`}>{member.title}</p>
         <div className={`grid transition-all duration-300 ease-out ${expanded ? "mt-1.5 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
           <div className="overflow-hidden">
             <p className={`${F} text-xs leading-snug text-white/75`}>{member.bio}</p>
@@ -191,7 +228,8 @@ const TeamCard = ({ member }) => {
   );
 };
 
-// ===== Odometer digit =====
+// ========== Odometer Digit ==========
+// Single rolling digit with animated sequence and blur
 const RollingDigit = ({ digit, start, height, width, extraDelay = 0, profile }) => {
   const totalSteps = 2 * 10 + digit;
   const sequence = Array.from({ length: totalSteps + 1 }, (_, i) => i % 10);
@@ -208,18 +246,24 @@ const RollingDigit = ({ digit, start, height, width, extraDelay = 0, profile }) 
   );
 };
 
-// Rolling number (digit group) or infinity icon
-const StatDisplay = ({ stat, start, index }) => {
+// ========== Stat Display ==========
+// Renders either a rolling number or an infinity symbol (with animated stroke)
+const StatDisplay = ({ stat, start, index, isMobile }) => {
   const { value, suffix, fontSize, digitHeight, digitWidth, label } = stat;
+  // Scale the pixel-based odometer digits down on small screens so they stay
+  // in proportion with the responsive `fontSize` text classes above.
+  const scale = isMobile ? 0.6 : 1;
+  const scaledHeight = digitHeight ? Math.round(digitHeight * scale) : digitHeight;
+  const scaledWidth = digitWidth ? Math.round(digitWidth * scale) : digitWidth;
   return (
-    <motion.div className="flex flex-col items-center gap-2 text-center"
+    <motion.div className="flex flex-col items-center gap-2 text-center basis-[45%] sm:basis-auto"
       initial={{ opacity: 0, y: 30 }} animate={start ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.7, delay: index * 0.15, ease: "easeOut" }}
     >
-      <div className="flex h-16 items-end justify-center">
+      <div className="flex h-12 sm:h-16 items-end justify-center">
         {value == null ? (
           // Infinity symbol with stroke‑dasharray animation
-          <div className="relative h-16 w-16" aria-hidden="true">
+          <div className="relative h-12 w-12 sm:h-16 sm:w-16" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" className="h-full w-full">
               {start && (
                 <motion.path
@@ -236,19 +280,19 @@ const StatDisplay = ({ stat, start, index }) => {
         ) : (
           <span className={`inline-flex items-end ${F} font-medium leading-none tracking-[-0.5px] text-[#0b3f34] tabular-nums ${fontSize}`}>
             {String(value).split("").map((ch, i) => (
-              <RollingDigit key={i} digit={Number(ch)} start={start} height={digitHeight} width={digitWidth}
+              <RollingDigit key={i} digit={Number(ch)} start={start} height={scaledHeight} width={scaledWidth}
                 extraDelay={index * 0.15 + i * 0.1 + 0.2} profile={DIGIT_PROFILES[i % DIGIT_PROFILES.length]} />
             ))}
             {suffix && <span className="ml-1">{suffix}</span>}
           </span>
         )}
       </div>
-      <span className={`${F} text-base font-normal tracking-[-0.24px] text-[#0b3f34]`}>{label}</span>
+      <span className={`${F} text-sm sm:text-base font-normal tracking-[-0.24px] text-[#0b3f34] px-2`}>{label}</span>
     </motion.div>
   );
 };
 
-// ===== Wave lines with animated sparks =====
+// ========== Wave Lines with Animated Sparks ==========
 const WaveLines = ({ start }) => (
   <svg viewBox="0 0 1440 501" preserveAspectRatio="none" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full">
     <defs>
@@ -266,17 +310,39 @@ const WaveLines = ({ start }) => (
   </svg>
 );
 
-// ===== Main About Component =====
+// ========== Main About Component ==========
 export default function About() {
+  // Mission slider state
   const [missionIndex, setMissionIndex] = useState(MISSION_START_INDEX);
   const [missionInstant, setMissionInstant] = useState(false);
+
+  // Measure the actual rendered width of the slider viewport so the card
+  // step (and therefore the translateX animation) always matches the real
+  // card size at every breakpoint, instead of relying on one hardcoded
+  // desktop pixel value.
+  const missionViewportRef = useRef(null);
+  const [cardStep, setCardStep] = useState(447);
+  useEffect(() => {
+    const measure = () => {
+      if (missionViewportRef.current) {
+        setCardStep(missionViewportRef.current.offsetWidth);
+      }
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  // Stats ref and in‑view detection
   const statsRef = useRef(null);
   const isStatsInView = useInView(statsRef, { once: true, amount: 0.4 });
+  const isMobile = useIsMobile();
 
+  // Mission navigation
   const prevMission = () => { setMissionInstant(false); setMissionIndex(i => i - 1); };
   const nextMission = () => { setMissionInstant(false); setMissionIndex(i => i + 1); };
 
-  // Re-center slider when reaching buffer boundaries
+  // Re‑center slider when reaching buffer boundaries
   const handleMissionAnimComplete = () => {
     const drift = missionIndex - MISSION_START_INDEX;
     const maxDrift = MISSIONS.length * (Math.floor(LOOP_COPIES / 2) - 1);
@@ -289,94 +355,94 @@ export default function About() {
 
   return (
     <div className="relative w-full overflow-hidden bg-[#ebf8f5] bg-cover bg-top bg-no-repeat" style={{ backgroundImage: `url(${bgImage})` }}>
-      {/* ===== HERO ===== */}
-      <div className="mx-auto flex max-w-[1440px] flex-col px-6 pt-[180px] sm:px-12 sm:pt-[200px] lg:px-24">
+      {/* ===== HERO SECTION ===== */}
+      <div className="mx-auto flex max-w-[1440px] flex-col px-5 pt-[140px] sm:px-12 sm:pt-[200px] lg:px-24">
         <motion.section initial="hidden" animate="visible" variants={staggerParent}
-          className="flex flex-col items-center gap-12 lg:flex-row lg:justify-between lg:gap-16"
+          className="flex flex-col items-center gap-10 lg:flex-row lg:justify-between lg:gap-16"
         >
-          <div className="flex max-w-[601px] flex-col items-start gap-8">
-            <motion.div variants={staggerChild} className="flex flex-col gap-7">
-              <h1 className={`${F} text-4xl font-extrabold leading-[1.5] text-[#0b3f34] sm:text-[44px]`}>
+          <div className="flex max-w-[601px] flex-col items-center gap-8 text-center lg:items-start lg:text-left">
+            <motion.div variants={staggerChild} className="flex flex-col gap-6 sm:gap-7">
+              <h1 className={`${F} text-3xl font-extrabold leading-[1.4] text-[#0b3f34] sm:text-4xl sm:leading-[1.5] lg:text-[44px]`}>
                 Connecter le présent{" "}
                 <span className="bg-gradient-to-r from-[#0b3f34] to-[#1da588] bg-clip-text text-transparent">à l'avenir digital</span>
               </h1>
-              <p className={`${F} text-lg leading-[35px] text-black sm:text-xl`}>
+              <p className={`${F} text-base leading-7 text-black sm:text-lg sm:leading-[35px] lg:text-xl`}>
                 Konektus est une entreprise spécialisée en transformation digitale, opérant en Europe, au Maghreb et en
                 Afrique. Forte de plus de 20 ans d'expérience certifiée, notre équipe accompagne les entreprises dans la
                 modernisation de leurs systèmes.
               </p>
             </motion.div>
-            <motion.div variants={staggerChild} className="flex flex-wrap items-center gap-4">
+            <motion.div variants={staggerChild} className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 lg:justify-start">
               {HERO_BADGES.map(b => (
                 <div key={b.text} className="flex items-center gap-2 rounded-full bg-gradient-to-r from-[#17866f] to-[#0d5143] px-4 py-2">
                   <img src={b.icon} alt="" className={b.iconClass} />
-                  <span className={`${F} text-sm font-semibold text-white`}>{b.text}</span>
+                  <span className={`${F} text-xs sm:text-sm font-semibold text-white`}>{b.text}</span>
                 </div>
               ))}
             </motion.div>
           </div>
-          <motion.div variants={staggerChild} className="relative flex shrink-0 items-center justify-center size-[376px] max-w-full">
+          <motion.div variants={staggerChild} className="relative flex shrink-0 items-center justify-center size-[220px] sm:size-[300px] lg:size-[376px] max-w-full">
             <img src={imgHeroCircle} alt="Konektus" className="h-full w-full rounded-full object-cover" style={{ boxShadow: "0 4px 80px 15px #0D5143" }} />
           </motion.div>
         </motion.section>
       </div>
 
-      {/* ===== STATS with wave lines and rolling numbers ===== */}
-      <section ref={statsRef} className="relative mt-16 flex w-full min-h-[480px] items-center justify-center overflow-hidden py-24 sm:py-32">
+      {/* ===== STATISTICS SECTION with wave lines and rolling numbers ===== */}
+      <section ref={statsRef} className="relative mt-16 flex w-full min-h-[380px] sm:min-h-[480px] items-center justify-center overflow-hidden py-16 sm:py-24 lg:py-32">
         <img src={imgStatsBg} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center" />
         <WaveLines start={isStatsInView} />
         <img src={imgStatsNumbersGlow} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 z-[5] h-full w-full object-contain object-center opacity-70" />
-        <div className="relative z-10 mx-auto flex w-full max-w-[900px] flex-wrap items-start justify-center gap-x-8 gap-y-10 px-6">
-          {STATS.map((stat, i) => <StatDisplay key={stat.label} stat={stat} start={isStatsInView} index={i} />)}
+        <div className="relative z-10 mx-auto flex w-full max-w-[900px] flex-wrap items-start justify-center gap-x-6 gap-y-10 px-6 sm:gap-x-8">
+          {STATS.map((stat, i) => <StatDisplay key={stat.label} stat={stat} start={isStatsInView} index={i} isMobile={isMobile} />)}
         </div>
       </section>
 
       {/* ===== MAIN CONTENT: Mission, Values, Team, CTA ===== */}
-      <div className="mx-auto flex max-w-[1440px] flex-col gap-32 px-6 pb-32 sm:px-12 lg:px-24 mt-16">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-20 sm:gap-32 px-5 pb-20 sm:px-12 sm:pb-32 lg:px-24 mt-16">
         {/* Mission slider */}
         <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={staggerParent}
-          className="flex flex-col items-center gap-12 lg:flex-row lg:items-center lg:justify-between"
+          className="flex flex-col items-center gap-10 sm:gap-12 lg:flex-row lg:items-center lg:justify-between"
         >
-          <motion.div variants={staggerChild} className="flex max-w-[500px] flex-col gap-4">
-            <h2 className={`${F} text-3xl font-black leading-[1.5] text-[#0d5143] sm:text-4xl`}>Notre mission</h2>
-            <p className={`${F} text-lg leading-[30px] text-black`}>
+          <motion.div variants={staggerChild} className="flex max-w-[500px] flex-col gap-4 text-center lg:text-left">
+            <h2 className={`${F} text-2xl font-black leading-[1.4] text-[#0d5143] sm:text-3xl sm:leading-[1.5] lg:text-4xl`}>Notre mission</h2>
+            <p className={`${F} text-base leading-7 text-black sm:text-lg sm:leading-[30px]`}>
               Nous agissons comme un pont vers la nouvelle génération de leaders en proposant des solutions innovantes
               basées sur la transformation digitale, les techniques de communication et les relations professionnelles.
             </p>
           </motion.div>
 
-          <motion.div variants={staggerChild} className="flex w-full max-w-[549px] items-center justify-between gap-4">
+          <motion.div variants={staggerChild} className="flex w-full max-w-[549px] items-center justify-between gap-3 sm:gap-4">
             <motion.button type="button" onClick={prevMission} aria-label="Précédent" whileHover={{ scale: 1.15, x: -2 }} whileTap={{ scale: 0.9 }} className="cursor-pointer shrink-0">
-              <img src={imgArrowLeft} alt="" className="h-6 w-6" />
+              <img src={imgArrowLeft} alt="" className="h-5 w-5 sm:h-6 sm:w-6" />
             </motion.button>
-            <div className="relative h-[380px] w-full overflow-hidden rounded-[30px] sm:h-[412px] sm:w-[447px]">
-              <motion.div className="flex h-full" animate={{ x: -missionIndex * CARD_STEP }}
+            <div ref={missionViewportRef} className="relative h-[280px] w-full overflow-hidden rounded-[20px] sm:h-[412px] sm:w-[447px] sm:rounded-[30px]">
+              <motion.div className="flex h-full" animate={{ x: -missionIndex * cardStep }}
                 transition={missionInstant ? { duration: 0 } : { duration: 1.2, ease: MISSION_EASE }}
                 onAnimationComplete={handleMissionAnimComplete}
               >
                 {LOOPED_MISSIONS.map((mission, i) => (
-                  <div key={i} className="h-full shrink-0" style={{ width: CARD_STEP }}>
+                  <div key={i} className="h-full shrink-0" style={{ width: cardStep }}>
                     <MissionCard mission={mission} />
                   </div>
                 ))}
               </motion.div>
             </div>
             <motion.button type="button" onClick={nextMission} aria-label="Suivant" whileHover={{ scale: 1.15, x: 2 }} whileTap={{ scale: 0.9 }} className="cursor-pointer shrink-0">
-              <img src={imgArrowRight} alt="" className="h-6 w-6" />
+              <img src={imgArrowRight} alt="" className="h-5 w-5 sm:h-6 sm:w-6" />
             </motion.button>
           </motion.div>
         </motion.section>
 
         {/* Values cards */}
         <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={staggerParent}
-          className="flex flex-col gap-16"
+          className="flex flex-col gap-10 sm:gap-16"
         >
-          <motion.h2 variants={staggerChild} className={`${F} text-3xl font-black leading-[1.5] text-[#0d5143] sm:text-4xl`}>Nos valeurs</motion.h2>
+          <motion.h2 variants={staggerChild} className={`${F} text-2xl font-black leading-[1.4] text-[#0d5143] text-center sm:text-3xl sm:leading-[1.5] sm:text-left lg:text-4xl`}>Nos valeurs</motion.h2>
           <div className="flex flex-col items-center gap-8">
-            <div className="flex flex-wrap justify-center gap-8">
+            <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
               {VALUES.slice(0, 3).map(v => <ValueCard key={v.title} value={v} />)}
             </div>
-            <div className="flex flex-wrap justify-center gap-8 lg:-mt-4">
+            <div className="flex flex-wrap justify-center gap-6 sm:gap-8 lg:-mt-4">
               {VALUES.slice(3).map(v => <ValueCard key={v.title} value={v} />)}
             </div>
           </div>
@@ -384,33 +450,33 @@ export default function About() {
 
         {/* Team */}
         <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={staggerParent}
-          className="flex flex-col gap-11"
+          className="flex flex-col gap-8 sm:gap-11"
         >
-          <motion.div variants={staggerChild} className="flex flex-col gap-4">
-            <h2 className={`${F} text-3xl font-black leading-tight tracking-[-0.5px] text-[#0d5143] sm:text-4xl`}>Leadership &amp; Équipe</h2>
-            <p className={`${F} text-lg text-black`}>Des experts passionnés par la résolution de problèmes complexes à l'échelle mondiale.</p>
+          <motion.div variants={staggerChild} className="flex flex-col gap-3 sm:gap-4 text-center sm:text-left">
+            <h2 className={`${F} text-2xl font-black leading-tight tracking-[-0.5px] text-[#0d5143] sm:text-3xl lg:text-4xl`}>Leadership &amp; Équipe</h2>
+            <p className={`${F} text-base sm:text-lg text-black`}>Des experts passionnés par la résolution de problèmes complexes à l'échelle mondiale.</p>
           </motion.div>
-          <div className="flex flex-col items-end gap-9">
+          <div className="flex flex-col items-center gap-9 sm:items-end">
             <motion.button variants={staggerChild} type="button" whileHover={{ x: 4 }}
-              className={`flex items-center gap-2 ${F} text-base font-semibold text-[#006b57] transition-colors hover:text-[#126b59]`}
+              className={`flex items-center gap-2 ${F} text-sm sm:text-base font-semibold text-[#006b57] transition-colors hover:text-[#126b59]`}
             >
               Voir toute l'équipe <span aria-hidden="true">→</span>
             </motion.button>
-            <div className="grid w-full grid-cols-2 gap-8 sm:grid-cols-4">
+            <div className="grid w-full grid-cols-2 gap-4 sm:gap-8 lg:grid-cols-4">
               {TEAM.map((member, i) => <TeamCard key={`${member.name}-${i}`} member={member} />)}
             </div>
           </div>
         </motion.section>
 
-        {/* CTA banner */}
+        {/* ===== FINAL CTA ===== */}
         <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.3 }} variants={sectionVars}
-          className="flex flex-col items-center gap-7 rounded-[64px] bg-gradient-to-br from-[#006b57] to-[#1eb394] px-8 py-16 text-center shadow-[0px_25px_50px_-12px_#0d5143] sm:px-24"
+          className="flex flex-col items-center gap-6 sm:gap-7 rounded-[32px] sm:rounded-[64px] bg-gradient-to-br from-[#006b57] to-[#1eb394] px-6 py-12 text-center shadow-[0px_25px_50px_-12px_#0d5143] sm:px-24 sm:py-16"
         >
-          <h2 className={`${F} text-3xl font-bold leading-[1.5] text-white sm:text-[40px] sm:leading-[60px]`}>
+          <h2 className={`${F} text-2xl font-bold leading-[1.4] text-white sm:text-3xl sm:leading-[1.5] lg:text-[40px] lg:leading-[60px]`}>
             Prêt à transformer votre<br />entreprise avec Konektus?
           </h2>
           <motion.button type="button" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
-            className={`rounded-full bg-white px-10 py-5 ${F} text-lg font-bold text-[#0b3f34] shadow-[0px_8px_10px_rgba(0,0,0,0.25)] sm:text-xl`}
+            className={`rounded-full bg-white px-8 py-4 ${F} text-base font-bold text-[#0b3f34] shadow-[0px_8px_10px_rgba(0,0,0,0.25)] sm:px-10 sm:py-5 sm:text-lg lg:text-xl`}
           >
             Contactez-nous
           </motion.button>
