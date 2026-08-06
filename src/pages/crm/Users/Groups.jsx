@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { getGroups, createGroup, deleteGroup } from '../../../api/groups';
+import { getGroups, createGroup, updateGroup, deleteGroup } from '../../../api/groups';
 import { Pencil, Trash2, Plus, Check, X } from 'lucide-react';
 import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
 import Button from '../../../components/common/ButtonCRM';
+import ConfirmDeleteModal from '../../../components/common/ConfirmDeleteModal';
+
 
 export default function Groups() {
   const [groups, setGroups] = useState([]);
@@ -13,6 +15,7 @@ export default function Groups() {
   const [success, setSuccess] = useState(null);
   const [editingGroup, setEditingGroup] = useState(null);
   const [editValue, setEditValue] = useState('');
+  const [groupToDelete, setGroupToDelete] = useState(null);
 
   const loadGroups = async () => {
     setLoading(true);
@@ -47,13 +50,16 @@ export default function Groups() {
     }
   };
 
-  const handleDelete = async (groupName) => {
-    if (!window.confirm(`Supprimer le groupe "${groupName}" ? Cette action est irréversible.`)) {
-      return;
+  const confirmDelete = async () => {
+    try {
+      await deleteGroup(groupToDelete.group_name);
+      setSuccess('Groupe supprimé avec succès.');
+      loadGroups();
+    } catch (err) {
+      setError('Erreur lors de la suppression.');
+    } finally {
+      setGroupToDelete(null);
     }
-    await deleteGroup(groupName);
-    setSuccess('Opération réussie.');
-    loadGroups();
   };
 
   const startEdit = (groupName) => {
@@ -66,18 +72,23 @@ export default function Groups() {
     setEditValue('');
   };
 
-  const confirmEdit = async (oldName) => {
-    if (!editValue.trim() || editValue.trim() === oldName) {
-      cancelEdit();
-      return;
-    }
-    // TODO: brancher sur une vraie route de rename une fois l'API définie
-    setGroups((prev) =>
-      prev.map((g) => (g.group_name === oldName ? { group_name: editValue.trim() } : g))
-    );
+const confirmEdit = async (oldName) => {
+  const trimmedValue = editValue.trim();
+  if (!trimmedValue || trimmedValue === oldName) {
     cancelEdit();
-  };
-
+    return;
+  }
+  
+  try {
+    await updateGroup(oldName, trimmedValue);
+    setSuccess('Groupe renommé avec succès.');
+    loadGroups();
+  } catch (err) {
+    setError(err.message === 'exists' ? 'Un groupe porte déjà ce nom.' : 'Erreur lors de la modification.');
+  } finally {
+    cancelEdit();
+  }
+};
 
   return (
     <div className="space-y-6">
@@ -101,9 +112,9 @@ export default function Groups() {
                 placeholder="ex: TEAM_SALES"
               />
             </div>
-	            <Button type="submit" variant="primary" disabled={submitting} className="flex items-center gap-1.5">
-                <Plus className="w-4 h-4" />{submitting ? 'Création...' : 'Créer'}
-              </Button>
+            <Button type="submit" variant="primary" disabled={submitting} className="flex items-center gap-1.5">
+              <Plus className="w-4 h-4" />{submitting ? 'Création...' : 'Créer'}
+            </Button>
           </div>
 
           {error && (
@@ -134,8 +145,12 @@ export default function Groups() {
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">Nom du groupe</th>
-              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase w-32">Actions</th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase select-none">
+                Nom du groupe
+              </th>
+              <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase w-32 select-none">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -185,7 +200,7 @@ export default function Groups() {
                         />
                         <Trash2
                           className="w-4 h-4 cursor-pointer hover:text-red-600"
-                          onClick={() => handleDelete(group.group_name)}
+                          onClick={() => setGroupToDelete(group)}
                         />
                       </div>
                     )}
@@ -196,6 +211,14 @@ export default function Groups() {
           </tbody>
         </table>
       </div>
+
+      {/* Modal de confirmation de suppression */}
+      <ConfirmDeleteModal
+        isOpen={!!groupToDelete}
+        onClose={() => setGroupToDelete(null)}
+        itemLabel={groupToDelete ? `le groupe ${groupToDelete.group_name}` : ''}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 }

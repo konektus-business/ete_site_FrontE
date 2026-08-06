@@ -25,7 +25,7 @@ export default function CampaignDonutChart({ fetchData }) {
               data: data.map((d) => d.value),
               backgroundColor: data.map((d) => d.color),
               borderWidth: 0,
-              cutout: '75%', // trou central large, comme la maquette (le total au centre)
+              cutout: '75%', 
             },
           ],
         },

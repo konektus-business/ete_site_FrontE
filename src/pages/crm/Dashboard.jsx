@@ -8,8 +8,9 @@ import EvolutionChart from '../../components/dashboard/EvolutionChart';
 import CampaignDonutChart from '../../components/dashboard/CampaignDonutChart';
 import { getCallsEvolution, getCampaignsRepartition } from '../../api/dashboardCharts';
 import { getDefaultDates } from '../../utils/dateUtils';
-import { formInputClass as inputClass, labelClass } from '../../styles/formClasses';
+import { labelClass } from '../../styles/formClasses';
 import Button from '../../components/common/ButtonCRM';
+import DateInput from '../../components/common/DateInput';
 
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
@@ -45,22 +46,22 @@ export default function Dashboard() {
       {/* Filtre de dates */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
         <form onSubmit={handleApply} className="flex flex-wrap items-end gap-3">
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1.5">Du</label>
-            <input
-              type="date"
+          <div className="w-40">
+            <label className={labelClass}>Du</label>
+            <DateInput
               value={dates.startDate}
               onChange={(e) => setDates((prev) => ({ ...prev, startDate: e.target.value }))}
-              className={inputClass}
+              rangeStart={dates.startDate}
+              rangeEnd={dates.endDate}
             />
           </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-500 mb-1.5">Au</label>
-            <input
-              type="date"
+          <div className="w-40">
+            <label className={labelClass}>Au</label>
+            <DateInput
               value={dates.endDate}
               onChange={(e) => setDates((prev) => ({ ...prev, endDate: e.target.value }))}
-              className={inputClass}
+              rangeStart={dates.startDate}
+              rangeEnd={dates.endDate}
             />
           </div>
 
@@ -105,7 +106,7 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
-    
+
   );
 
 }

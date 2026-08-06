@@ -1,19 +1,42 @@
-// Mock imitant get_recordings.php / save_settings.php. La pagination réelle
-// est gérée côté client par Table.jsx, comme partout ailleurs dans le CRM —
-// ici on renvoie juste la liste déjà filtrée par période/recherche.
-const STATUSES = ['SALE', 'NI', 'DNC', 'CALLBK', 'XFER'];
-const AGENTS = ['Karim Ben Ali', 'Sami Trabelsi', 'Nadia Chaouch', 'Claire Dubois', 'Mouna Ferjani'];
-const LISTS = ['Liste VIP 2026', 'Liste SAV France', 'Liste Relance Q3', 'Liste Standard'];
+// src/api/recordings.js
 
-const generateMockRecordings = (count = 145) => Array.from({ length: count }, (_, i) => ({
-  id: i + 1,
-  date: new Date(Date.now() - i * 3600 * 1000 * (1 + Math.random() * 6)).toISOString(),
-  agent: AGENTS[i % AGENTS.length],
-  phone: `+216 ${20 + (i % 70)} ${(100000 + i * 37).toString().slice(0, 6)}`,
-  status: STATUSES[i % STATUSES.length],
-  list: LISTS[i % LISTS.length],
-  duration: 30 + Math.floor(Math.random() * 600),
-}));
+const STATUSES = ['SALE', 'NI', 'DNC', 'CALLBK', 'XFER'];
+
+// Mappage des agents avec leurs listes et indicatifs téléphoniques correspondants
+const AGENT_CONFIGS = [
+  { agent: 'Karim Ben Ali', list: 'Liste VIP 2026', phonePrefix: '+216 55' },
+  { agent: 'Sami Trabelsi', list: 'Liste Standard', phonePrefix: '+216 20' },
+  { agent: 'Nadia Chaouch', list: 'Liste Relance Q3', phonePrefix: '+216 58' },
+  { agent: 'Claire Dubois', list: 'Liste SAV France', phonePrefix: '+33 6' },
+  { agent: 'Mouna Ferjani', list: 'Liste Relance Q3', phonePrefix: '+216 98' },
+];
+
+// URLs d'exemple d'enregistrements audio pour tester le lecteur audio du CRM
+const SAMPLE_AUDIO_URLS = [
+  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+];
+
+const generateMockRecordings = (count = 145) => {
+  const baseTime = Date.now();
+  return Array.from({ length: count }, (_, i) => {
+    const config = AGENT_CONFIGS[i % AGENT_CONFIGS.length];
+    const phoneNum = `${config.phonePrefix} ${(100000 + i * 37).toString().padStart(6, '0')}`;
+    const recDate = new Date(baseTime - i * 3600 * 1000 * (1 + (i % 4) * 0.7));
+
+    return {
+      id: i + 1,
+      filename: `REC_${recDate.toISOString().slice(0, 10).replace(/-/g, '')}_${1000 + i}.wav`,
+      date: recDate.toISOString(),
+      agent: config.agent,
+      phone: phoneNum,
+      status: STATUSES[i % STATUSES.length],
+      list: config.list,
+      duration: 35 + ((i * 23) % 420), // Durée en secondes (ex: 35s à 455s)
+      url: SAMPLE_AUDIO_URLS[i % SAMPLE_AUDIO_URLS.length],
+    };
+  });
+};
 
 const ALL_RECORDINGS = generateMockRecordings();
 
@@ -22,15 +45,41 @@ export async function getRecordings({ period = 'today', startDate, endDate, sear
 
   const now = new Date();
   let periodStart = null;
+  let periodEnd = null;
+
   switch (period) {
-    case 'today': periodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()); break;
-    case 'yesterday': periodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1); break;
-    case 'week': periodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7); break;
-    case 'month': periodStart = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate()); break;
-    case 'custom': periodStart = startDate ? new Date(startDate) : null; break;
-    default: periodStart = null;
+    case 'today': {
+      periodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+      periodEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+      break;
+    }
+    case 'yesterday': {
+      periodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 0, 0, 0);
+      periodEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 23, 59, 59, 999);
+      break;
+    }
+    case 'week': {
+      periodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7, 0, 0, 0);
+      periodEnd = now;
+      break;
+    }
+    case 'month': {
+      periodStart = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate(), 0, 0, 0);
+      periodEnd = now;
+      break;
+    }
+    case 'custom': {
+      periodStart = startDate ? new Date(startDate) : null;
+      periodEnd = endDate ? new Date(endDate) : now;
+      if (periodEnd && endDate && !endDate.includes('T')) {
+        periodEnd.setHours(23, 59, 59, 999);
+      }
+      break;
+    }
+    default:
+      periodStart = null;
+      periodEnd = null;
   }
-  const periodEnd = period === 'custom' && endDate ? new Date(endDate) : now;
 
   let filtered = ALL_RECORDINGS.filter((r) => {
     const d = new Date(r.date);
@@ -41,18 +90,20 @@ export async function getRecordings({ period = 'today', startDate, endDate, sear
 
   if (search) {
     const s = search.toLowerCase();
-    filtered = filtered.filter((r) =>
-      r.agent.toLowerCase().includes(s) ||
-      r.phone.toLowerCase().includes(s) ||
-      r.status.toLowerCase().includes(s) ||
-      r.list.toLowerCase().includes(s)
+    filtered = filtered.filter(
+      (r) =>
+        r.agent.toLowerCase().includes(s) ||
+        r.phone.toLowerCase().includes(s) ||
+        r.status.toLowerCase().includes(s) ||
+        r.list.toLowerCase().includes(s) ||
+        (r.filename && r.filename.toLowerCase().includes(s))
     );
   }
 
   return { recordings: filtered, total: filtered.length };
 }
 
-const DEFAULT_SETTINGS = {
+let currentSettings = {
   recordings_path: '/var/spool/asterisk/monitor',
   retention_days: 90,
   preferred_format: 'wav',
@@ -61,11 +112,11 @@ const DEFAULT_SETTINGS = {
 
 export async function getRecordingSettings() {
   await new Promise((r) => setTimeout(r, 200));
-  return { ...DEFAULT_SETTINGS };
+  return { ...currentSettings };
 }
 
 export async function saveRecordingSettings(settings) {
   await new Promise((r) => setTimeout(r, 300));
-  Object.assign(DEFAULT_SETTINGS, settings);
-  return { ...DEFAULT_SETTINGS };
+  currentSettings = { ...currentSettings, ...settings };
+  return { ...currentSettings };
 }

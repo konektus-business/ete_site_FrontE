@@ -1,8 +1,19 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Menu, Search, ChevronDown, LogOut } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Menu, Search, ChevronDown, LogOut, User, Settings } from 'lucide-react';
 import { pageLabels } from '../../utils/pageLabels';
 import { getInitials } from '../../utils/avatar';
+import { searchGlobal } from '../../api/search';
+import SearchDropdown from '../common/SearchDropdown';
+import NotificationsDropdown from '../common/NotificationsDropdown';
+
+// Statuts agent possibles pour un centre d'appels VICIdial.
+// ADAPTE les valeurs/labels si ton backend utilise d'autres codes.
+const AGENT_STATUSES = [
+  { value: 'available', label: 'Disponible', color: '#22C55E' },
+  { value: 'paused', label: 'En pause', color: '#F59E0B' },
+  { value: 'offline', label: 'Hors ligne', color: '#94A3B8' },
+];
 
 export default function CrmHeader({
   user,
@@ -12,30 +23,30 @@ export default function CrmHeader({
   tabs = [],
   activeTab,
   onTabChange,
+  agentStatus = 'available',
+  onAgentStatusChange,
+  onLogout,
 }) {
   const location = useLocation();
-  const [notifCount, setNotifCount] = useState(8);
+  const navigate = useNavigate();
   const currentPath = location.pathname.split('/').pop();
   const pageTitle = pageLabels[currentPath] || 'CRM';
+
   const [query, setQuery] = useState('');
+  const [searchResults, setSearchResults] = useState(null);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const searchWrapperRef = useRef(null);
+  const searchInputRef = useRef(null);
+
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef(null);
+
   const today = new Date().toLocaleDateString('fr-FR', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
   });
-
-  const BellIcon = ({ className, style }) => (
-    <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path
-        d="M15 19H20L18.595 17.595C18.2139 17.2139 17.9999 16.697 18 16.158V13C18.0003 10.4567 16.3976 8.18933 14 7.341V7C14 5.89617 13.1038 5 12 5C10.8962 5 10 5.89617 10 7V7.341C7.67 8.165 6 10.388 6 13V16.159C6 16.697 5.786 17.214 5.405 17.595L4 19H9M15 19V20C15 21.6557 13.6557 23 12 23C10.3443 23 9 21.6557 9 20V19M15 19H9"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
 
   const CalendarIcon = ({ className, style }) => (
     <svg className={className} style={style} width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -48,6 +59,57 @@ export default function CrmHeader({
       />
     </svg>
   );
+
+  // Debounce 300ms : on ne relance la recherche qu'apres une pause de frappe
+  useEffect(() => {
+    if (query.trim().length < 2) {
+      setSearchResults(null);
+      setShowSearchDropdown(false);
+      return;
+    }
+
+    setSearchLoading(true);
+    setShowSearchDropdown(true);
+    const timer = setTimeout(async () => {
+      const results = await searchGlobal(query);
+      setSearchResults(results);
+      setSearchLoading(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  // Raccourci Ctrl+K / Cmd+K pour focus la recherche, comme affiche dans le kbd hint
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      if (e.key === 'Escape') {
+        setShowSearchDropdown(false);
+        searchInputRef.current?.blur();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Fermeture au clic exterieur (recherche + menu utilisateur)
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchWrapperRef.current && !searchWrapperRef.current.contains(e.target)) {
+        setShowSearchDropdown(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const currentStatus = AGENT_STATUSES.find((s) => s.value === agentStatus) || AGENT_STATUSES[0];
 
   return (
     <div className="bg-white rounded-[30px]  border border-slate-200/80 shadow-sm">
@@ -84,71 +146,72 @@ export default function CrmHeader({
         </div>
 
         {showSearch && (
-          <div className="relative flex-1 min-w-0 max-w-[480px] hidden sm:block">
+          <div ref={searchWrapperRef} className="relative flex-1 min-w-0 max-w-[480px] hidden sm:block">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
+              ref={searchInputRef}
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onFocus={() => query.trim().length >= 2 && setShowSearchDropdown(true)}
               placeholder="Chercher un agent, une campagne..."
               className="w-full h-9 rounded-lg py-[9px] pr-4 pl-10 bg-slate-100 font-jakarta text-sm leading-none focus:outline-none focus:ring-2 focus:ring-crmPrimary placeholder:font-normal placeholder:text-sm placeholder:leading-none placeholder:text-gray-500"
             />
             <kbd className="hidden lg:inline-flex absolute right-3 top-1/2 -translate-y-1/2 font-mono text-[10px] leading-[15px] text-slate-400 border border-slate-300 rounded px-1 h-[17px] items-center">
               Ctrl + K
             </kbd>
+
+            {showSearchDropdown && (
+              <SearchDropdown
+                results={searchResults}
+                loading={searchLoading}
+                query={query}
+                onSelect={() => {
+                  setShowSearchDropdown(false);
+                  setQuery('');
+                }}
+              />
+            )}
           </div>
         )}
 
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-          <button className="relative p-2 text-slate-500 hover:text-crmPrimary rounded-full hover:bg-slate-100 transition-colors">
-            <BellIcon className="w-5 h-5" style={{ color: '#94A3B8', strokeWidth: 2 }} />
-            {notifCount > 0 && (
-              <span
-                className="absolute flex items-center justify-center rounded-full text-white leading-none"
-                style={{
-                  top: '5px',
-                  right: '4px',
-                  width: '16px',
-                  height: '19px',
-                  background: '#EF4444',
-                  border: '2px solid #FFFFFF',
-                  borderRadius: '9999px',
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: 400,
-                  fontSize: '10px',
-                }}
-              >
-                {notifCount > 9 ? '9+' : notifCount}
-              </span>
-            )}
-          </button>
+          <NotificationsDropdown />
 
           <div className="hidden md:flex items-center gap-2 font-jakarta font-medium text-sm leading-5 text-slate-500">
             <CalendarIcon className="w-4 h-4" style={{ color: '#64748B' }} />
             <span>{today}</span>
           </div>
 
-          <div className="relative">
+          <div className="relative" ref={userMenuRef}>
             <div
               className="flex items-center gap-2 cursor-pointer group"
               onClick={() => setShowUserMenu(!showUserMenu)}
             >
-              {user?.avatarUrl ? (
-                <img
-                  src={user.avatarUrl}
-                  alt={user.name}
-                  className="w-9 h-9 rounded-full object-cover border border-slate-300 shrink-0"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
+              <div className="relative shrink-0">
+                {user?.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt={user.name}
+                    className="w-9 h-9 rounded-full object-cover border border-slate-300"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div
+                  className="w-9 h-9 bg-slate-200 text-slate-600 rounded-full items-center justify-center font-medium border border-slate-300 text-sm"
+                  style={{ display: user?.avatarUrl ? 'none' : 'flex' }}
+                >
+                  {getInitials(`${user?.prenom || ''} ${user?.nom || ''}`)}
+                </div>
+                {/* Pastille de statut agent - visible directement sur l'avatar */}
+                <span
+                  className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white"
+                  style={{ background: currentStatus.color }}
+                  title={currentStatus.label}
                 />
-              ) : null}
-              <div
-                className="w-9 h-9 bg-slate-200 text-slate-600 rounded-full items-center justify-center font-medium border border-slate-300 text-sm shrink-0"
-                style={{ display: user?.avatarUrl ? 'none' : 'flex' }}
-              >
-                {getInitials(`${user?.prenom || ''} ${user?.nom || ''}`)}
               </div>
 
               <div className="hidden lg:flex flex-col min-w-0">
@@ -174,11 +237,57 @@ export default function CrmHeader({
             </div>
 
             {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-2 z-50">
-                <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition">
-                  <LogOut className="w-4 h-4" />
-                  Déconnexion
-                </button>
+              <div className="absolute right-0 mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-lg py-2 z-50">
+                <div className="px-4 py-2 border-b border-slate-100 mb-1">
+                  <p className="text-sm font-semibold text-slate-800 truncate">{user?.name || 'Utilisateur'}</p>
+                  <p className="text-xs text-slate-400 truncate">{user?.email || user?.role}</p>
+                </div>
+
+                {/* Statut agent */}
+                <div className="px-4 py-2">
+                  <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5">Statut</p>
+                  <div className="flex flex-col gap-1">
+                    {AGENT_STATUSES.map((s) => (
+                      <button
+                        key={s.value}
+                        onClick={() => onAgentStatusChange?.(s.value)}
+                        className={`flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm text-left transition-colors cursor-pointer ${
+                          agentStatus === s.value ? 'bg-slate-50 font-medium text-slate-800' : 'text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        <span className="w-2 h-2 rounded-full" style={{ background: s.color }} />
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="border-t border-slate-100 mt-1 pt-1">
+                  <button
+                    onClick={() => navigate('/crm/profile')}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+                  >
+                    <User className="w-4 h-4" />
+                    Mon profil
+                  </button>
+                  <button
+                    onClick={() => navigate('/crm/settings')}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition cursor-pointer"
+                  >
+                    <Settings className="w-4 h-4" />
+                    Paramètres
+                  </button>
+                </div>
+
+                <div className="border-t border-slate-100 mt-1 pt-1">
+                  <button
+                    onClick={onLogout}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Déconnexion
+                  </button>
+                </div>
               </div>
             )}
           </div>

@@ -12,8 +12,12 @@ export const leadListColumns = (onEdit, onDelete) => [
     key: 'actions', label: 'Actions',
     render: (r) => (
       <div className="flex items-center gap-2">
-        <button onClick={() => onEdit(r)} className="p-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-emerald-700"><Pencil className="w-3.5 h-3.5" /></button>
-        <button onClick={() => onDelete(r)} className="p-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
+        <button onClick={() => onEdit(r)} className="p-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-emerald-700">
+          <Pencil className="w-3.5 h-3.5" />
+        </button>
+        <button onClick={() => onDelete(r)} className="p-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-red-50 hover:text-red-600">
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
       </div>
     ),
   },
