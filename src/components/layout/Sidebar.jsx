@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { getInitials } from '../../utils/avatar';
-import logo from '../../assets/logo.png';
+import logo from '../../assets/home/logo.png';
 import { ChevronDown, LayoutDashboard, Users, Radio, BarChart3, Mic, Headset, Megaphone, UserPlus, FileClock, Link2, Plug, Phone } from 'lucide-react';
 
 

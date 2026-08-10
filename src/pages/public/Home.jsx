@@ -1,12 +1,12 @@
 import { motion, useInView } from "framer-motion";
-import { useRef, memo } from "react";
-import arrowRightIcon from "../../assets/arrow-right.svg";
+import { useRef, memo, useState, useEffect } from "react";
+import arrowRightIcon from "../../assets/home/arrow-right.svg";
 
 const S = { type: "spring", mass: 1, stiffness: 100, damping: 15 };
 const HOVER_EASE = [0.52, 0, 0.27, 1];
 const HOVER_TRANS = { duration: 0.45, ease: HOVER_EASE };
-const asset = f => `src/assets/${f}`;
-const icon = f => `src/assets/icons/${f}`;
+const asset = f => new URL(`../../assets/home/${f}`, import.meta.url).href;
+const icon = f => new URL(`../../assets/icons/${f}`, import.meta.url).href;
 
 const HERO_BG = {
   background:
@@ -159,12 +159,33 @@ const KonvictionCard = memo(({ n, icon: iconName, iconSize, title, tag, text, ch
   </div>
 ));
 
+/**
+ * Hook: returns true when viewport width is below the `sm` breakpoint (640px).
+ * Used to tame large transform offsets on mobile so they don't blow out
+ * the page's scrollable width (the cause of the horizontal-scroll bug).
+ */
+function useIsMobile(breakpoint = 640) {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth < breakpoint : false
+  );
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 const ValueCard = memo(({ icon: iconName, size, label, index, isVisible }) => {
   const xOffsets = [352.7328, 98.9281, -154.8707, -408.7457, -662.5446];
   const yOffsets = [260.0004, 267.9789, 267.9789, 271.8793, 280.9789];
+  const isMobile = useIsMobile();
+  // Scale down the horizontal travel distance on small screens so cards
+  // never start far enough off-screen to expand the page's scroll width.
+  const xScale = isMobile ? 0.25 : 1;
   return (
     <motion.div
-      initial={{ opacity: 0, x: xOffsets[index], y: yOffsets[index], rotate: -90 }}
+      initial={{ opacity: 0, x: xOffsets[index] * xScale, y: yOffsets[index], rotate: -90 }}
       animate={isVisible ? { opacity: 1, x: 0, y: 0, rotate: 0 } : {}}
       transition={{ type: "spring", mass: 1, stiffness: 80, damping: 20, visualDuration: 1.666831 }}
       whileHover="hover"
@@ -182,9 +203,9 @@ const ValueCard = memo(({ icon: iconName, size, label, index, isVisible }) => {
         <p className="text-sm font-semibold text-[#1A1C1C] sm:text-[16px]">{label}</p>
       </motion.div>
       <motion.div
-        variants={{ rest: { opacity: 0 }, hover: { opacity: 1 } }}
+        variants={{ rest: { color: "transparent" }, hover: { color: "#ffffff" } }}
         transition={{ ...HOVER_TRANS, delay: 0.05 }}
-        className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm font-bold text-white"
+        className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm font-bold text-transparent"
       >
         Explorer
       </motion.div>
@@ -214,7 +235,7 @@ const ServiceCard = memo(({ title, description, bg, layers }) => {
             <p className="mt-1.5 text-xs leading-[18px] text-[#64748B] sm:text-[13px] sm:leading-[19px]">{description}</p>
           </div>
           <button className="flex items-center gap-1 text-xs font-bold text-[#1EB394] sm:text-[13px]">
-            Voir plus <img src={icon("arrow-right-sm.svg")} alt="" className="h-[14px] w-[14px]" loading="lazy" decoding="async" />
+            Voir plus <img src={icon("arrow-right.svg")} alt="" className="h-[14px] w-[14px]" loading="lazy" decoding="async" />
           </button>
         </motion.div>
       </div>
@@ -309,7 +330,7 @@ const DashboardPreview = () => {
       viewport={{ once: true, amount: 0.2 }}
       transition={S}
       whileHover="hover"
-      className="group relative z-10 -mt-16 w-full max-w-[92%] cursor-pointer sm:-mt-32 lg:-mt-[380px] lg:w-[1264px]"
+      className="group relative z-10 mx-auto -mt-16 w-full max-w-[92%] cursor-pointer sm:-mt-32 lg:-mt-[380px] lg:w-[1264px]"
     >
       <img src={asset("dashboard.png")} alt="Aperçu du tableau de bord KoneKtUS" className="w-full rounded-2xl shadow-[0_25px_60px_-15px_rgba(30,179,148,0.5)]" loading="lazy" decoding="async" />
       <div className="hidden sm:block">
@@ -340,7 +361,7 @@ const LogoMarquee = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
   return (
-    <div ref={ref}>
+    <div ref={ref} className="overflow-hidden">
       <motion.div
         initial={{ opacity: 0, y: 62 }}
         animate={isInView ? { opacity: 1, y: 4 } : {}}
@@ -366,7 +387,10 @@ const KonvictionsSection = () => {
   const konvictionDelays = { Kulture: 0, Katalyst: 0.4, Kality: 0.8 };
   const konvictionYOffsets = { Kulture: 250, Katalyst: 340, Kality: 350 };
   return (
-    <section ref={konvictionsRef} className={`mx-auto w-full max-w-[1248px] px-4 py-16 sm:py-20 lg:py-[100px] ${areKonvictionsInView ? "overflow-visible" : "overflow-hidden"}`}>
+    // NOTE: this section needs overflow-visible so hover shadows can
+    // extend beyond the card container. The page-level overflow-x-hidden
+    // on Home still prevents stray horizontal scroll.
+    <section ref={konvictionsRef} className="mx-auto w-full max-w-[1248px] overflow-visible px-4 py-16 sm:py-20 lg:py-[100px]">
       <motion.div
         initial={{ opacity: 0, y: -100 }}
         animate={areKonvictionsInView ? { opacity: 1, y: 0 } : {}}
@@ -406,7 +430,11 @@ const ValuesSection = () => {
   const txtSpring = { type: "spring", mass: 1, stiffness: 100, damping: 15, visualDuration: 1.91645 };
   const feaSpring = { type: "spring", mass: 1, stiffness: 100, damping: 15, visualDuration: 2.044188 };
   return (
-    <section className="relative mx-auto w-full max-w-[1248px] px-4 py-14 sm:py-16 lg:py-20">
+    // FIX: overflow-hidden added here. The ValueCard entrance animation
+    // starts cards at large translateX offsets (up to ±662px), which on
+    // mobile viewports sit far outside the screen and were expanding the
+    // page's scrollable width, causing the page-wide horizontal scroll.
+    <section className="relative mx-auto w-full max-w-[1248px] overflow-hidden px-4 py-14 sm:py-16 lg:py-20">
       <div ref={valuesTextRef} className="mb-10 flex flex-col items-start gap-5 text-left sm:mb-16 sm:gap-7">
         <div className="w-full max-w-[770px]">
           <p className="text-xs font-bold uppercase tracking-[1.4px] text-[#1EB394] sm:text-sm">Nos valeurs</p>
@@ -432,7 +460,7 @@ const ValuesSection = () => {
       </div>
       <div ref={valuesRef} className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-5">
         {values.map((v, i) => <ValueCard key={v.label} {...v} index={i} isVisible={areValuesInView} />)}
-        <div className="col-span-2 flex justify-center sm:col-span-1 sm:col-start-3 sm:justify-end lg:col-start-5">
+        <div className="col-span-2 flex justify-end sm:col-span-1 sm:col-start-3 sm:justify-end lg:col-start-5">
           <button className="flex items-center gap-1 rounded-full bg-[#1EB394] px-4 py-2 text-sm text-white transition hover:bg-[#178f76]">
             En savoir plus <img src={arrowRightIcon} alt="" className="h-3 w-3" loading="lazy" decoding="async" />
           </button>
@@ -585,7 +613,10 @@ const CtaSection = () => {
 
 export default function Home() {
   return (
-    <>
+    // FIX: overflow-x-hidden as a page-level safety net, in addition to the
+    // targeted fixes in ValuesSection/KonvictionsSection above. This catches
+    // any future stray-transform overflow issues from entrance animations.
+    <div className="w-full overflow-x-hidden">
       <HeroSection />
       <DashboardPreview />
       <LogoMarquee />
@@ -605,6 +636,6 @@ export default function Home() {
         <TestimonialsSection />
         <CtaSection />
       </div>
-    </>
+    </div>
   );
 }

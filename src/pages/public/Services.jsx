@@ -150,7 +150,11 @@ const STATS = [
 export default function Services() {
   // Refs and view states for hero section
   const heroRef = useRef(null);
+  const servicesRef = useRef(null);
   const isHeroInView = useInView(heroRef, { once: true, amount: 0.2 });
+
+  const scrollToSection = (ref) =>
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   // Hero animation variants (text and image)
   const heroText = { hidden: { opacity: 0, x: -40 }, visible: { opacity: 1, x: 0, transition: SPRING } };
@@ -209,6 +213,7 @@ export default function Services() {
           </div>
           <button
             type="button"
+            onClick={() => scrollToSection(servicesRef)}
             className="flex items-center gap-3 rounded-3xl px-6 py-3 text-sm font-medium text-white transition-transform hover:scale-[1.02] sm:gap-4 sm:px-8 sm:py-4 sm:text-base"
             style={{ backgroundImage: "linear-gradient(155deg, #1eb394 15%, #006b57 84%)" }}
           >
@@ -281,7 +286,7 @@ export default function Services() {
       </section>
 
       {/* ===== SERVICES LIST ===== */}
-      <section className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 md:gap-16 md:px-24 md:py-32">
+      <section ref={servicesRef} className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 md:gap-16 md:px-24 md:py-32">
         <SectionTitle title="Nos services" />
 
         <div className="flex w-full flex-col gap-16 sm:gap-20 md:gap-32">

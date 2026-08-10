@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import logo from "../../assets/company_logo.png";
+import logo from "../../assets/home/company_logo.png";
 
 function useOnClickOutside(ref, handler) {
   useEffect(() => {

@@ -45,11 +45,12 @@ const HERO_SPRING = {
   bounce: 0.18,
 };
 
-function PrimaryButton({ children, className = "" }) {
+function PrimaryButton({ children, className = "", ...rest }) {
   return (
     <button
       className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-white font-semibold text-sm whitespace-normal sm:gap-3 sm:px-6 sm:py-3 sm:text-base sm:whitespace-nowrap ${className}`}
       style={{ backgroundImage: PRIMARY_GRADIENT }}
+      {...rest}
     >
       {children}
       <ChevronDown className="size-3 -rotate-90 shrink-0" strokeWidth={3} />
@@ -344,7 +345,7 @@ function WaveLines({ start }) {
 }
 
 // ---------- Sections ----------
-function Hero() {
+function Hero({ onDiscoveryClick }) {
   return (
     <section className="w-full flex flex-col items-center gap-6 px-4 pt-28 pb-6 max-w-6xl mx-auto sm:gap-8 sm:px-6 sm:pt-36 sm:pb-8 md:mt-[150px] md:pt-16">
       <div className="flex flex-col gap-4 text-center max-w-3xl sm:gap-6">
@@ -380,7 +381,7 @@ function Hero() {
           transition={{ ...HERO_SPRING, delay: 0.3 }}
           className="flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4"
         >
-          <PrimaryButton>Découvrir VTM</PrimaryButton>
+          <PrimaryButton onClick={onDiscoveryClick}>Découvrir VTM</PrimaryButton>
           <SecondaryButton>Découvrir les solutions</SecondaryButton>
         </motion.div>
       </div>
@@ -458,9 +459,9 @@ function Stats() {
   );
 }
 
-function SectionIntro() {
+function SectionIntro({ sectionRef }) {
   return (
-    <section className="w-full max-w-3xl mx-auto px-4 py-10 text-center flex flex-col gap-4 sm:px-6 sm:py-12 sm:gap-6">
+    <section ref={sectionRef} className="w-full max-w-3xl mx-auto px-4 py-10 text-center flex flex-col gap-4 sm:px-6 sm:py-12 sm:gap-6">
       <span className="uppercase tracking-wide text-xs font-semibold text-[#006b57] sm:text-sm">
         La plateforme VTM
       </span>
@@ -673,6 +674,9 @@ function FinalCta() {
 
 // ---------- Page Component ----------
 export default function Solutions() {
+  const vtmRef = useRef(null);
+  const scrollToSection = (ref) => ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+
   return (
     <div
       className="w-full min-h-screen relative overflow-x-hidden"
@@ -684,9 +688,9 @@ export default function Solutions() {
     >
       <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
       <div className="relative z-10 flex flex-col">
-        <Hero />
+        <Hero onDiscoveryClick={() => scrollToSection(vtmRef)} />
         <Stats />
-        <SectionIntro />
+        <SectionIntro sectionRef={vtmRef} />
         <ModuleCards />
         <SolutionsSection />
         <Testimonials />

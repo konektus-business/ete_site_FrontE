@@ -691,8 +691,14 @@ const STATS = [
 // ========== Main Component ==========
 export default function Webinar() {
   const [selectedWebinar, setSelectedWebinar] = useState(null);
+  const webinarsRef = useRef(null);
+  const replaysRef = useRef(null);
+
   const handleRegistrationSubmit = async (data) =>
     console.log("Registration submitted:", data);
+
+  const scrollToSection = (ref) =>
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   return (
     <div className="relative w-full overflow-hidden">
@@ -734,6 +740,7 @@ export default function Webinar() {
           >
             <button
               type="button"
+              onClick={() => scrollToSection(webinarsRef)}
               className="flex items-center gap-3 rounded-2xl px-5 py-2.5 text-sm font-semibold text-white sm:px-6 sm:py-3 sm:text-base"
               style={{
                 backgroundImage:
@@ -745,6 +752,7 @@ export default function Webinar() {
             </button>
             <button
               type="button"
+              onClick={() => scrollToSection(replaysRef)}
               className="flex items-center gap-3 rounded-2xl border-2 border-[#006b57] px-5 py-2.5 text-sm font-semibold text-[#006b57] sm:px-6 sm:py-3 sm:text-base"
             >
               Voir les replays
@@ -763,7 +771,7 @@ export default function Webinar() {
         </section>
 
         {/* ===== PROCHAINS WEBINAIRES ===== */}
-        <section className="mt-16 flex w-full flex-col gap-8 sm:mt-20 sm:gap-10 lg:mt-24 lg:gap-12">
+        <section ref={webinarsRef} className="mt-16 flex w-full flex-col gap-8 sm:mt-20 sm:gap-10 lg:mt-24 lg:gap-12">
           <motion.h2
             initial={{ opacity: 0, x: -60 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -793,7 +801,7 @@ export default function Webinar() {
         </section>
 
         {/* ===== REPLAYS & RESSOURCES ===== */}
-        <section className="mt-16 flex w-full flex-col gap-8 sm:mt-20 sm:gap-10 lg:mt-24 lg:gap-12">
+        <section ref={replaysRef} className="mt-16 flex w-full flex-col gap-8 sm:mt-20 sm:gap-10 lg:mt-24 lg:gap-12">
           <motion.h2
             initial={{ opacity: 0, x: -60 }}
             whileInView={{ opacity: 1, x: 0 }}
