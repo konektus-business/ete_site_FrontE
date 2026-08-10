@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mic, Folder, Timer, FileAudio2 } from 'lucide-react';
+import { Mic } from 'lucide-react';
 import { getRecordingSettings, saveRecordingSettings } from '../../../api/recordings';
 import Select from '../../../components/common/Select';
 import Button from '../../../components/common/ButtonCRM';
@@ -78,7 +78,7 @@ export default function RecordingsSettings() {
             <label className={labelClass}>Durée de conservation (jours)</label>
             <input
               type="number"
-              min={1}
+              min={0}
               value={settings.retention_days}
               onChange={(e) => handleChange('retention_days', Number(e.target.value))}
               className={inputClass}
@@ -93,7 +93,6 @@ export default function RecordingsSettings() {
           </div>
         </div>
 
-        {/* Toggle switch identique à CarrierForm.jsx */}
         <div className="flex items-center gap-3 pt-1">
           <button
             type="button"
