@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
-import logo from "../../assets/company_logo.png";
+import logo from "../../assets/home/company_logo.png";
 
 // ----- Footer content data -----
 // NOTE: Solutions & Services items currently all point to /services.

@@ -1,5 +1,6 @@
 // ========== Core Imports ==========
 import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 
 // ========== Asset Imports ==========
@@ -315,6 +316,18 @@ export default function About() {
   // Mission slider state
   const [missionIndex, setMissionIndex] = useState(MISSION_START_INDEX);
   const [missionInstant, setMissionInstant] = useState(false);
+  const missionRef = useRef(null);
+  const valuesRef = useRef(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash === "#valeurs") {
+      valuesRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
+    }
+    if (location.hash === "#mission") {
+      missionRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
+    }
+  }, [location.hash]);
 
   // Measure the actual rendered width of the slider viewport so the card
   // step (and therefore the translateX animation) always matches the real
@@ -400,7 +413,7 @@ export default function About() {
       {/* ===== MAIN CONTENT: Mission, Values, Team, CTA ===== */}
       <div className="mx-auto flex max-w-[1440px] flex-col gap-20 sm:gap-32 px-5 pb-20 sm:px-12 sm:pb-32 lg:px-24 mt-16">
         {/* Mission slider */}
-        <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={staggerParent}
+        <motion.section id="mission" ref={missionRef} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={staggerParent}
           className="flex flex-col items-center gap-10 sm:gap-12 lg:flex-row lg:items-center lg:justify-between"
         >
           <motion.div variants={staggerChild} className="flex max-w-[500px] flex-col gap-4 text-center lg:text-left">
@@ -434,7 +447,7 @@ export default function About() {
         </motion.section>
 
         {/* Values cards */}
-        <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={staggerParent}
+        <motion.section id="valeurs" ref={valuesRef} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={staggerParent}
           className="flex flex-col gap-10 sm:gap-16"
         >
           <motion.h2 variants={staggerChild} className={`${F} text-2xl font-black leading-[1.4] text-[#0d5143] text-center sm:text-3xl sm:leading-[1.5] sm:text-left lg:text-4xl`}>Nos valeurs</motion.h2>

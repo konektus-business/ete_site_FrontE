@@ -61,10 +61,6 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/register" element={<Register />} />
 
-        <Route
-          path="/onboarding"
-          element={<Navigate to="/onboarding/success" replace />}
-        />
         
 
         {/* CRM routes – nested under /crm with CrmLayout */}

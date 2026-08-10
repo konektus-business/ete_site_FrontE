@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import { CheckCircle2, ChevronDown } from "lucide-react";
 
@@ -45,11 +46,12 @@ const HERO_SPRING = {
   bounce: 0.18,
 };
 
-function PrimaryButton({ children, className = "" }) {
+function PrimaryButton({ children, className = "", ...rest }) {
   return (
     <button
       className={`inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-white font-semibold text-sm whitespace-normal sm:gap-3 sm:px-6 sm:py-3 sm:text-base sm:whitespace-nowrap ${className}`}
       style={{ backgroundImage: PRIMARY_GRADIENT }}
+      {...rest}
     >
       {children}
       <ChevronDown className="size-3 -rotate-90 shrink-0" strokeWidth={3} />
@@ -57,10 +59,11 @@ function PrimaryButton({ children, className = "" }) {
   );
 }
 
-function SecondaryButton({ children, className = "" }) {
+function SecondaryButton({ children, className = "", ...rest }) {
   return (
     <button
       className={`inline-flex items-center gap-2 rounded-full border-2 border-[#006b57] px-4 py-2.5 text-[#006b57] font-semibold text-sm whitespace-normal sm:gap-3 sm:px-6 sm:py-3 sm:text-base sm:whitespace-nowrap ${className}`}
+      {...rest}
     >
       {children}
       <ChevronDown className="size-3 -rotate-90 shrink-0" strokeWidth={3} />
@@ -344,7 +347,7 @@ function WaveLines({ start }) {
 }
 
 // ---------- Sections ----------
-function Hero() {
+function Hero({ onDiscoveryClick, onSolutionsClick }) {
   return (
     <section className="w-full flex flex-col items-center gap-6 px-4 pt-28 pb-6 max-w-6xl mx-auto sm:gap-8 sm:px-6 sm:pt-36 sm:pb-8 md:mt-[150px] md:pt-16">
       <div className="flex flex-col gap-4 text-center max-w-3xl sm:gap-6">
@@ -380,8 +383,8 @@ function Hero() {
           transition={{ ...HERO_SPRING, delay: 0.3 }}
           className="flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4"
         >
-          <PrimaryButton>Découvrir VTM</PrimaryButton>
-          <SecondaryButton>Découvrir les solutions</SecondaryButton>
+          <PrimaryButton onClick={onDiscoveryClick}>Découvrir VTM</PrimaryButton>
+          <SecondaryButton onClick={onSolutionsClick}>Découvrir les solutions</SecondaryButton>
         </motion.div>
       </div>
 
@@ -458,9 +461,9 @@ function Stats() {
   );
 }
 
-function SectionIntro() {
+function SectionIntro({ sectionRef }) {
   return (
-    <section className="w-full max-w-3xl mx-auto px-4 py-10 text-center flex flex-col gap-4 sm:px-6 sm:py-12 sm:gap-6">
+    <section ref={sectionRef} className="w-full max-w-3xl mx-auto px-4 py-10 text-center flex flex-col gap-4 sm:px-6 sm:py-12 sm:gap-6">
       <span className="uppercase tracking-wide text-xs font-semibold text-[#006b57] sm:text-sm">
         La plateforme VTM
       </span>
@@ -513,8 +516,8 @@ function ModuleCards() {
 }
 
 // ---------- SolutionsSection with animated lines ----------
-function SolutionsSection() {
-  const ref = useRef(null);
+function SolutionsSection({ sectionRef }) {
+  const ref = sectionRef ?? useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
 
   const headingRef = useRef(null);
@@ -643,7 +646,7 @@ function Testimonials() {
   );
 }
 
-function FinalCta() {
+function FinalCta({ onTrialClick, onGuideClick }) {
   return (
     <section className="w-full px-4 py-10 relative z-10 sm:px-6 sm:py-12">
       <div className="relative max-w-6xl mx-auto rounded-[28px] bg-[#126B59] overflow-hidden px-6 py-10 flex flex-col items-center gap-6 text-center sm:rounded-[36px] sm:px-8 sm:py-16 sm:gap-9 md:rounded-[48px]">
@@ -659,10 +662,10 @@ function FinalCta() {
           </p>
         </div>
         <div className="relative flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-center sm:gap-7">
-          <button className="w-full max-w-[320px] rounded-full bg-white px-6 py-3 text-[#2b6859] font-bold text-base shadow-[0_8px_10px_rgba(0,0,0,0.25)] sm:w-auto sm:px-8 sm:py-4 sm:text-lg">
+          <button type="button" onClick={onTrialClick} className="w-full max-w-[320px] rounded-full bg-white px-6 py-3 text-[#2b6859] font-bold text-base shadow-[0_8px_10px_rgba(0,0,0,0.25)] sm:w-auto sm:px-8 sm:py-4 sm:text-lg">
             Démarrer l'essai gratuit
           </button>
-          <button className="w-full max-w-[320px] rounded-full bg-white px-6 py-3 text-[#2b6859] font-bold text-base shadow-[0_8px_10px_rgba(0,0,0,0.25)] sm:w-auto sm:px-8 sm:py-4 sm:text-lg">
+          <button type="button" onClick={onGuideClick} className="w-full max-w-[320px] rounded-full bg-white px-6 py-3 text-[#2b6859] font-bold text-base shadow-[0_8px_10px_rgba(0,0,0,0.25)] sm:w-auto sm:px-8 sm:py-4 sm:text-lg">
             Télécharger nos guides
           </button>
         </div>
@@ -673,6 +676,14 @@ function FinalCta() {
 
 // ---------- Page Component ----------
 export default function Solutions() {
+  const navigate = useNavigate();
+  const vtmRef = useRef(null);
+  const solutionsRef = useRef(null);
+  const scrollToSection = (ref) => ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const handleSolutionsClick = () => scrollToSection(solutionsRef);
+  const handleStartTrialClick = () => navigate("/contact");
+  const handleDownloadGuideClick = () => navigate("/ressources/guide");
+
   return (
     <div
       className="w-full min-h-screen relative overflow-x-hidden"
@@ -684,13 +695,13 @@ export default function Solutions() {
     >
       <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
       <div className="relative z-10 flex flex-col">
-        <Hero />
+        <Hero onDiscoveryClick={() => scrollToSection(vtmRef)} onSolutionsClick={handleSolutionsClick} />
         <Stats />
-        <SectionIntro />
+        <SectionIntro sectionRef={vtmRef} />
         <ModuleCards />
-        <SolutionsSection />
+        <SolutionsSection sectionRef={solutionsRef} />
         <Testimonials />
-        <FinalCta />
+        <FinalCta onTrialClick={handleStartTrialClick} onGuideClick={handleDownloadGuideClick} />
       </div>
     </div>
   );
