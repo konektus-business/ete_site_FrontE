@@ -1,7 +1,8 @@
 // ========== Core Imports ==========
 import { motion, useInView } from "framer-motion";
-import { useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useRef, useState, useEffect } from "react";
+
+import ServicesSkeleton from "../../components/skeleton/ServicesSkeleton";
 
 // ========== Asset Imports ==========
 import servicesBg from "../../assets/services/services-bg.png";
@@ -149,22 +150,62 @@ const STATS = [
 
 // ========== Main Component ==========
 export default function Services() {
-  // Refs and view states for hero section
-  const heroRef = useRef(null);
+  // Refs for scrolling
   const servicesRef = useRef(null);
-  const isHeroInView = useInView(heroRef, { once: true, amount: 0.2 });
-  const location = useLocation();
-
-  const scrollToSection = (ref, smooth = true) =>
-    ref.current?.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
-
-  useEffect(() => {
-    if (location.hash === "#services") {
-      scrollToSection(servicesRef, false);
-    }
-  }, [location.hash]);
+  const scrollToSection = (ref) =>
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   // Hero animation variants (text and image)
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const images = [
+      servicesBg,
+      heroImg,
+      telVoipImg,
+      cloudImg,
+      conseilImg,
+      bigDataImg,
+      supportImg,
+      iconTelVoip,
+      iconCloud,
+      iconConseil,
+      iconBigData,
+      iconSupport,
+      iconCheck,
+      iconPerf,
+      iconFlex,
+      iconIntegration,
+    ];
+
+    let loadedCount = 0;
+    const imageObjects = [];
+
+    const onLoadOrError = () => {
+      loadedCount += 1;
+      if (loadedCount >= images.length) {
+        setIsLoaded(true);
+      }
+    };
+
+    images.forEach((src) => {
+      const img = new Image();
+      imageObjects.push(img);
+      img.onload = onLoadOrError;
+      img.onerror = onLoadOrError;
+      img.src = src;
+    });
+
+    return () => {
+      imageObjects.forEach((img) => {
+        img.onload = null;
+        img.onerror = null;
+      });
+    };
+  }, []);
+
+  if (!isLoaded) return <ServicesSkeleton />;
+
   const heroText = { hidden: { opacity: 0, x: -40 }, visible: { opacity: 1, x: 0, transition: SPRING } };
   const heroImage = { hidden: { opacity: 0, scale: 0.95 }, visible: { opacity: 1, scale: 1, transition: { ...SPRING, delay: 0.15 } } };
 
@@ -198,12 +239,12 @@ export default function Services() {
     >
       {/* ===== HERO SECTION ===== */}
       <section
-        ref={heroRef}
         className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-8 px-4 pt-14 sm:px-6 sm:pt-16 md:mt-[160px] md:flex-row md:gap-14 md:px-24 md:pt-24 mt-20 sm:mt-28"
       >
         <motion.div
           initial="hidden"
-          animate={isHeroInView ? "visible" : "hidden"}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
           variants={heroText}
           className="flex flex-1 flex-col items-center gap-6 text-center sm:gap-8 md:items-start md:text-left"
         >
@@ -235,7 +276,8 @@ export default function Services() {
         {/* Fix: Add overflow-hidden to the motion wrapper to clip the image scale overshoot */}
         <motion.div
           initial="hidden"
-          animate={isHeroInView ? "visible" : "hidden"}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
           variants={heroImage}
           className="w-full flex-1 overflow-hidden"
         >
@@ -294,7 +336,7 @@ export default function Services() {
       </section>
 
       {/* ===== SERVICES LIST ===== */}
-      <section id="services" ref={servicesRef} className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 md:gap-16 md:px-24 md:py-32">
+      <section ref={servicesRef} className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 md:gap-16 md:px-24 md:py-32">
         <SectionTitle title="Nos services" />
 
         <div className="flex w-full flex-col gap-16 sm:gap-20 md:gap-32">

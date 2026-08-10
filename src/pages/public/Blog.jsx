@@ -1,5 +1,7 @@
 // ========== Core Imports ==========
-import React from "react";
+import React, { useState, useEffect } from "react";
+
+import BlogSkeleton from "../../components/skeleton/Blogskeleton.jsx";
 
 // ========== Asset Imports ==========
 import bg from "../../assets/ressources/bg.png";
@@ -237,6 +239,64 @@ const Newsletter = React.memo(() => (
 
 // ========== Main Component ==========
 export default function Blog() {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const images = [
+      IMAGES.bg,
+      IMAGES.hero,
+      IMAGES.post1,
+      IMAGES.post2,
+      IMAGES.post3,
+      IMAGES.post4,
+      IMAGES.post5,
+      IMAGES.post6,
+      IMAGES.post7,
+      IMAGES.post8,
+      IMAGES.post9,
+      IMAGES.post10,
+      IMAGES.post11,
+      IMAGES.post12,
+      IMAGES.post13,
+      IMAGES.post14,
+      IMAGES.post15,
+      IMAGES.post16,
+      IMAGES.post17,
+      IMAGES.post18,
+      IMAGES.post19,
+      IMAGES.post20,
+      IMAGES.post21,
+      IMAGES.chevron,
+    ];
+
+    let loadedCount = 0;
+    const imageObjects = [];
+
+    const onLoadOrError = () => {
+      loadedCount += 1;
+      if (loadedCount >= images.length) {
+        setIsLoaded(true);
+      }
+    };
+
+    images.forEach((src) => {
+      const img = new Image();
+      imageObjects.push(img);
+      img.onload = onLoadOrError;
+      img.onerror = onLoadOrError;
+      img.src = src;
+    });
+
+    return () => {
+      imageObjects.forEach((img) => {
+        img.onload = null;
+        img.onerror = null;
+      });
+    };
+  }, []);
+
+  if (!isLoaded) return <BlogSkeleton />;
+
   return (
     <div className="relative w-full overflow-hidden pt-28 pb-12 sm:pt-40 sm:pb-16 lg:pt-[220px] lg:pb-20">
       {/* Background image */}

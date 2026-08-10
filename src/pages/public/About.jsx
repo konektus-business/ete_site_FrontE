@@ -3,6 +3,8 @@ import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 
+import AboutSkeleton from "../../components/skeleton/Aboutskeleton .jsx";
+
 // ========== Asset Imports ==========
 import bgImage from "../../assets/about/about.png";
 import imgHeroCircle from "../../assets/about/hero-circle.png";
@@ -316,9 +318,55 @@ export default function About() {
   // Mission slider state
   const [missionIndex, setMissionIndex] = useState(MISSION_START_INDEX);
   const [missionInstant, setMissionInstant] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const missionRef = useRef(null);
   const valuesRef = useRef(null);
   const location = useLocation();
+
+  useEffect(() => {
+    const images = [
+      bgImage,
+      imgHeroCircle,
+      imgIconExperience,
+      imgIconGlobal,
+      imgMission1,
+      imgMission2,
+      imgMission3,
+      imgIconTransparency,
+      imgIconInnovation,
+      imgIconLicense,
+      imgIconSecurity,
+      imgIconEcosystem,
+      imgTeamDirecteur,
+      imgTeamMarketing,
+      imgStatsBg,
+      imgStatsNumbersGlow,
+      imgArrowLeft,
+      imgArrowRight,
+    ];
+
+    let loadedCount = 0;
+    const imageObjects = [];
+    const onLoadOrError = () => {
+      loadedCount += 1;
+      if (loadedCount >= images.length) setIsLoaded(true);
+    };
+
+    images.forEach((src) => {
+      const img = new Image();
+      imageObjects.push(img);
+      img.onload = onLoadOrError;
+      img.onerror = onLoadOrError;
+      img.src = src;
+    });
+
+    return () => {
+      imageObjects.forEach((img) => {
+        img.onload = null;
+        img.onerror = null;
+      });
+    };
+  }, []);
 
   useEffect(() => {
     if (location.hash === "#valeurs") {
@@ -365,6 +413,8 @@ export default function About() {
       setMissionIndex(MISSION_START_INDEX + normalized);
     }
   };
+
+  if (!isLoaded) return <AboutSkeleton />;
 
   return (
     <div className="relative w-full overflow-hidden bg-[#ebf8f5] bg-cover bg-top bg-no-repeat" style={{ backgroundImage: `url(${bgImage})` }}>

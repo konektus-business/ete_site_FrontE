@@ -1,6 +1,8 @@
 // ========== Core Imports ==========
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
+
+import GuideSkeleton from "../../components/skeleton/Guideskeleton.jsx";
 
 // ========== Asset Imports ==========
 import heroImage from "../../assets/guide/guides-hero.png";
@@ -378,9 +380,59 @@ const CategorySection = React.memo(({ category }) => (
 
 // ========== Main Component ==========
 export default function Guide() {
+  const [isLoaded, setIsLoaded] = useState(false);
   const statsRef = React.useRef(null);
   const isStatsInView = useInView(statsRef, { once: true, amount: 0.4 });
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    const images = [
+      heroImage,
+      iconChevronRight,
+      iconChevronRightSm,
+      iconCalendar,
+      iconPages,
+      iconDownload,
+      guideCloud1,
+      guideCloud2,
+      guideCloud3,
+      guideAi1,
+      guideAi2,
+      guideAi3,
+      guideMigration1,
+      guideMigration2,
+      guideMigration3,
+      imgStatsBg,
+      imgStatsNumbersGlow,
+    ];
+
+    let loadedCount = 0;
+    const imageObjects = [];
+
+    const onLoadOrError = () => {
+      loadedCount += 1;
+      if (loadedCount >= images.length) {
+        setIsLoaded(true);
+      }
+    };
+
+    images.forEach((src) => {
+      const img = new Image();
+      imageObjects.push(img);
+      img.onload = onLoadOrError;
+      img.onerror = onLoadOrError;
+      img.src = src;
+    });
+
+    return () => {
+      imageObjects.forEach((img) => {
+        img.onload = null;
+        img.onerror = null;
+      });
+    };
+  }, []);
+
+  if (!isLoaded) return <GuideSkeleton />;
 
   return (
     <div className="relative w-full overflow-hidden bg-gradient-to-b from-[#f8fcfb] to-[#e9f7f4]">

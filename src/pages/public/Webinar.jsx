@@ -2,6 +2,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 
+import WebinarSkeleton from "../../components/skeleton/Webinarskeleton.jsx";
+
 // ========== Asset Imports ==========
 // Background and hero
 import bg from "../../assets/webinar/bg-gradient.png";
@@ -691,14 +693,77 @@ const STATS = [
 // ========== Main Component ==========
 export default function Webinar() {
   const [selectedWebinar, setSelectedWebinar] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false);
   const webinarsRef = useRef(null);
   const replaysRef = useRef(null);
+
+  useEffect(() => {
+    const images = [
+      bg,
+      heroImage,
+      iconClock,
+      iconCalendarModal,
+      iconCalendarCard,
+      iconGlobe,
+      iconPlay,
+      iconSlides,
+      iconGuide,
+      iconChevronRight,
+      iconEvents,
+      iconLearning,
+      iconCommunity,
+      iconNetwork,
+      iconChevronDown,
+      iconChevronDownGreen,
+      avatar3,
+      avatar4,
+      newAvatar1,
+      newAvatar2,
+      replayThumb1,
+      replayThumb2,
+      replayThumb3,
+      replayThumb4,
+      webinarThumb1,
+      webinarThumb2,
+      customVideoIcon,
+      customCasesIcon,
+      customQAIcon,
+      customCheckIcon,
+      customCloseIcon,
+    ];
+
+    let loadedCount = 0;
+    const imageObjects = [];
+    const onLoadOrError = () => {
+      loadedCount += 1;
+      if (loadedCount >= images.length) {
+        setIsLoaded(true);
+      }
+    };
+
+    images.forEach((src) => {
+      const img = new Image();
+      imageObjects.push(img);
+      img.onload = onLoadOrError;
+      img.onerror = onLoadOrError;
+      img.src = src;
+    });
+
+    return () => {
+      imageObjects.forEach((img) => {
+        img.onload = null;
+        img.onerror = null;
+      });
+    };
+  }, []);
 
   const handleRegistrationSubmit = async (data) =>
     console.log("Registration submitted:", data);
 
   const scrollToSection = (ref) =>
     ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  if (!isLoaded) return <WebinarSkeleton />;
 
   return (
     <div className="relative w-full overflow-hidden">

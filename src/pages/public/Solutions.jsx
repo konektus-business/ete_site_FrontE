@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import { CheckCircle2, ChevronDown } from "lucide-react";
 
+import SolutionsSkeleton from "../../components/skeleton/SolutionsSkeleton";
+
 // ---------- Assets ----------
 import telephonieImg from "../../assets/solutions/telephonie-voip.png";
 import chatImg from "../../assets/solutions/chat-collaboratif.png";
@@ -683,6 +685,58 @@ export default function Solutions() {
   const handleSolutionsClick = () => scrollToSection(solutionsRef);
   const handleStartTrialClick = () => navigate("/contact");
   const handleDownloadGuideClick = () => navigate("/ressources/guide");
+
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const images = [
+      heroImg,
+      globalBgImg,
+      telephonieImg,
+      chatImg,
+      visioImg,
+      projetImg,
+      iaImg,
+      cloudCrmImg,
+      commUnifieeImg,
+      multicanaleImg,
+      contactCenterImg,
+      dataImg,
+      collaboratifImg,
+      infraImg,
+      surMesureImg,
+      avatarSarah,
+      avatarKarim,
+      avatarLeila,
+    ];
+
+    let loadedCount = 0;
+    const imageObjects = [];
+
+    const onLoadOrError = () => {
+      loadedCount += 1;
+      if (loadedCount >= images.length) {
+        setIsLoaded(true);
+      }
+    };
+
+    images.forEach((src) => {
+      const img = new Image();
+      imageObjects.push(img);
+      img.onload = onLoadOrError;
+      img.onerror = onLoadOrError;
+      img.src = src;
+    });
+
+    return () => {
+      imageObjects.forEach((img) => {
+        img.onload = null;
+        img.onerror = null;
+      });
+    };
+  }, []);
+
+  if (!isLoaded) return <SolutionsSkeleton />;
 
   return (
     <div

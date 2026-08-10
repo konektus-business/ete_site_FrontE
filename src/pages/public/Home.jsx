@@ -2,6 +2,7 @@ import { motion, useInView } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useRef, memo, useState, useEffect } from "react";
 import arrowRightIcon from "../../assets/home/arrow-right.svg";
+import HomeSkeleton from "../../components/skeleton/HomeSkeleton";
 
 const S = { type: "spring", mass: 1, stiffness: 100, damping: 15 };
 const HOVER_EASE = [0.52, 0, 0.27, 1];
@@ -613,10 +614,17 @@ const CtaSection = () => {
 };
 
 export default function Home() {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = new URL("../../assets/home/dashboard.png", import.meta.url).href;
+    img.decode().catch(() => {}).finally(() => setIsLoaded(true));
+  }, []);
+
+  if (!isLoaded) return <HomeSkeleton />;
+
   return (
-    // FIX: overflow-x-hidden as a page-level safety net, in addition to the
-    // targeted fixes in ValuesSection/KonvictionsSection above. This catches
-    // any future stray-transform overflow issues from entrance animations.
     <div className="w-full overflow-x-hidden">
       <HeroSection />
       <DashboardPreview />

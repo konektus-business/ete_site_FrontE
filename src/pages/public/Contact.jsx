@@ -1,5 +1,8 @@
 // ========== Core Imports ==========
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+
+import ContactSkeleton from "../../components/skeleton/Contactskeleton.jsx";
 
 // ========== Asset Imports ==========
 import mailIcon from "../../assets/contact/mail-icon.svg";
@@ -175,6 +178,55 @@ const orbTransition = { duration: 3, ease: "linear", repeat: Infinity, repeatTyp
 
 // ========== Main Component ==========
 export default function Contact() {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const images = [
+      bgContact,
+      mailIcon,
+      arrowIcon,
+      pinIcon,
+      clockIcon,
+      globeIcon,
+      starIcon,
+      boltIcon,
+      officeTunisia,
+      officeAlgeria,
+      officeEgypt,
+      user1,
+      user2,
+      user3,
+      headsetBadgeIcon,
+    ];
+
+    let loadedCount = 0;
+    const imageObjects = [];
+
+    const onLoadOrError = () => {
+      loadedCount += 1;
+      if (loadedCount >= images.length) {
+        setIsLoaded(true);
+      }
+    };
+
+    images.forEach((src) => {
+      const img = new Image();
+      imageObjects.push(img);
+      img.onload = onLoadOrError;
+      img.onerror = onLoadOrError;
+      img.src = src;
+    });
+
+    return () => {
+      imageObjects.forEach((img) => {
+        img.onload = null;
+        img.onerror = null;
+      });
+    };
+  }, []);
+
+  if (!isLoaded) return <ContactSkeleton />;
+
   return (
     <div className="min-h-screen w-full font-sans" style={{ backgroundImage: `url(${bgContact})`, backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundColor: "#f8fcfb" }}>
       
