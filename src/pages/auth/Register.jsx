@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import apiClient from "../../api/apiClient";
+import { NavLink,useNavigate } from "react-router-dom";
 import { User, Mail, Phone, Building2, Lock, Eye, EyeOff } from "lucide-react";
 import robotImage from "../../assets/login-robot.png";
 import logo from "../../assets/company_logo_black.png";
@@ -7,6 +8,9 @@ import cardBackground from "../../assets/bg_form_1.png"; // asset dédié à la 
 import googleIcon from "../../assets/icons/google-icon.svg"; // adapte le nom si différent
 
 export default function Register() {
+  const navigate = useNavigate();
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     nomPrenom: "",
     phone: "",
@@ -22,11 +26,33 @@ export default function Register() {
   const handleChange = (field) => (e) =>
     setForm((f) => ({ ...f, [field]: e.target.value }));
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // TODO: wire up to auth API (Rahma's endpoint)
-    console.log({ ...form, acceptTerms });
-  };
+  const handleSubmit = async (e) => {
+      e.preventDefault();
+      setError("");
+      setLoading(true);
+
+      try {
+        await apiClient.post("/auth/register", {
+          email: form.email,
+          password: form.password,
+          passwordConfirmation: form.confirmPassword,
+          nom: form.nomPrenom,
+          prenom: form.nomPrenom,
+          societe: form.company,
+          telephone: form.phone,
+        });
+
+        navigate("/login");
+      } catch (err) {
+        if (err.response && err.response.data && err.response.data.message) {
+          setError(err.response.data.message);
+        } else {
+          setError("Une erreur est survenue, réessayez");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
 
   return (
     <div
@@ -262,13 +288,19 @@ export default function Register() {
                 </span>
               </label>
 
-              {/* Submit */}
-              <button
-                type="submit"
-                className="w-full h-[56px] box-border bg-[#1eb394] hover:bg-[#0d5143] transition-colors rounded-[10px] font-semibold text-[14px] text-white"
-              >
-                Créer mon compte
-              </button>
+              {/* Erreur */}
+                {error && (
+                  <p className="text-red-500 text-[12px] text-center w-full">{error}</p>
+                )}
+
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-[56px] box-border bg-[#1eb394] hover:bg-[#0d5143] transition-colors rounded-[10px] font-semibold text-[14px] text-white disabled:opacity-50"
+                >
+                  {loading ? "Création en cours..." : "Créer mon compte"}
+                </button>
 
               {/* Divider */}
               <div className="flex items-center gap-[8px] w-full">

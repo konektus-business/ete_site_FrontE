@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import apiClient from "../../api/apiClient";
 import { motion, useInView } from "framer-motion";
 import bg from "../../assets/ressources/bg-gradient.png";
 import heroImage from "../../assets/ressources/webinar-hero.png";
@@ -616,78 +617,6 @@ const StatCard = ({ value, label }) => (
 );
 
 // ---------- Data ----------
-const WEBINARS = [
-  {
-    id: 1,
-    live: true,
-    category: "VoIP & Téléphonie",
-    title: "Transformer votre téléphonie en levier commercial — Live démo VTM",
-    date: "12 Février 2025",
-    duration: "75 min",
-    timezones: "14h00 (Paris) / 15h00 (Tunis) / 15h00 (Rabat)",
-    tags: ["Démo live", "témoignage", "Q&A"],
-    avatars: [avatar1, avatar2],
-    extraAvatars: "+1",
-    spots: "200 places",
-    highlighted: false,
-    thumbnail: webinarThumb1,
-  },
-  {
-    id: 2,
-    live: true,
-    category: "Service client",
-    title: "Service client omnicanal au Maghreb — De la théorie à la pratique",
-    date: "12 Février 2025",
-    duration: "75 min",
-    timezones: "14h00 (Paris) / 15h00 (Tunis) / 15h00 (Rabat)",
-    tags: ["Présentation", "cas concret", "débat"],
-    avatars: [avatar3, avatar4, avatar1],
-    extraAvatars: "+1",
-    spots: "200 places",
-    highlighted: true,
-    thumbnail: webinarThumb2,
-  },
-];
-
-const REPLAYS = [
-  {
-    id: 1,
-    thumbnail: replayThumb1,
-    duration: "54:32",
-    category: "VoIP",
-    title: "Optimiser vos appels commerciaux avec l'IA",
-    date: "18 Déc. 2024",
-    dimmed: false,
-  },
-  {
-    id: 2,
-    thumbnail: replayThumb2,
-    duration: "47:18",
-    category: "Service client",
-    title: "WhatsApp Business API : le guide complet",
-    date: "4 Déc. 2024",
-    dimmed: true,
-  },
-  {
-    id: 3,
-    thumbnail: replayThumb3,
-    duration: "1:02:45",
-    category: "Cloud",
-    title: "Sécurité cloud : protéger vos données vocales",
-    date: "27 Nov. 2024",
-    dimmed: true,
-  },
-  {
-    id: 4,
-    thumbnail: replayThumb4,
-    duration: "58:11",
-    category: "IA",
-    title: "Analyse des sentiments : le guide pratique",
-    date: "12 Nov. 2024",
-    dimmed: true,
-  },
-];
-
 const FEATURES = [
   {
     icon: iconEvents,
@@ -725,9 +654,70 @@ const STATS = [
 // ---------- Main Webinar component ----------
 export default function Webinar() {
   const [selectedWebinar, setSelectedWebinar] = useState(null);
-  const handleRegistrationSubmit = async (data) =>
-    console.log("Registration submitted:", data);
+  const [webinars, setWebinars] = useState([]);
+  const [replays, setReplays] = useState([]);
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterMessage, setNewsletterMessage] = useState("");
 
+  useEffect(() => {
+  // Webinaires
+  apiClient.get("/webinars").then((res) => {
+    setWebinars(
+      res.data.map((w, index) => ({
+        id: w.id,
+        index: index + 1,
+        live: w.live ?? true,
+        category: w.categorie || "Webinaire",
+        title: w.titre,
+        date: w.dateWebinaire ? new Date(w.dateWebinaire).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : "Date à venir",
+        duration: w.duree || "75 min",
+        timezones: w.timezones ? w.timezones.join(" / ") : "14h00 (Paris) / 15h00 (Tunis) / 15h00 (Rabat)",
+        tags: w.tags || ["Démo live", "témoignage", "Q&A"],
+        avatars: w.avatarsUrl || [avatar1, avatar2],  // ← récupéré de la base ou fallback
+        extraAvatars: w.extraAvatars || "+1",
+        spots: w.places ? `${w.places} places` : "200 places",
+        highlighted: w.highlighted || false,
+        thumbnail: w.thumbnailUrl || webinarThumb1,  // ← récupéré de la base ou fallback
+        onReserve: () => setSelectedWebinar(w),
+      }))
+    );
+  });
+
+  // Replays
+  apiClient.get("/replays").then((res) => {
+    setReplays(
+      res.data.map((w) => ({
+        id: w.id,
+        thumbnail: w.thumbnailUrl || replayThumb1,  // ← récupéré de la base ou fallback
+        duration: w.dureeReplay || "45:00",
+        category: w.categorie || "Webinaire",
+        title: w.titre,
+        date: w.dateWebinaire ? new Date(w.dateWebinaire).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : "Date inconnue",
+        dimmed: w.dimmed || false,
+      }))
+    );
+  });
+}, []);
+
+  const handleRegistrationSubmit = async (data) => {
+    await apiClient.post(`/webinars/${data.webinarId}/registrations`, {
+      prenom: data.firstName,
+      email: data.email,
+      societe: data.company,
+      tailleEntreprise: data.companySize,
+    });
+  };
+
+  const handleNewsletterSubmit = async () => {
+    if (!newsletterEmail) return;
+    try {
+      await apiClient.post("/newsletter/subscribe", { email: newsletterEmail });
+      setNewsletterMessage("Merci pour votre inscription !");
+      setNewsletterEmail("");
+    } catch (err) {
+      setNewsletterMessage("Une erreur est survenue, réessayez");
+    }
+  };
   return (
     <div className="relative w-full overflow-hidden">
       <img
@@ -808,7 +798,7 @@ export default function Webinar() {
             Les prochaines webinars
           </motion.h2>
           <div className="flex flex-col gap-8">
-            {WEBINARS.map((w, i) => (
+            {webinars.map((w, i) => (
               <motion.div
                 key={w.id}
                 initial={{ opacity: 0, x: -80 }}
@@ -838,7 +828,7 @@ export default function Webinar() {
             Les replays & Ressources
           </motion.h2>
           <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {REPLAYS.map((r, i) => (
+            {replays.map((r, i) => (
               <motion.div
                 key={r.id}
                 initial={{ opacity: 0, y: 60 }}

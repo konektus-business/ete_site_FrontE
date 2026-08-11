@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import apiClient from "../../api/apiClient";
 import logo from "../../assets/company_logo.png";
 
 // ----- Footer content data -----
@@ -33,6 +34,33 @@ const Icon = ({ children, label }) => (
 export default function Footer() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.2 });
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState({ type: "idle", message: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleNewsletterSubmit = async (event) => {
+    event.preventDefault();
+
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setStatus({ type: "error", message: "Veuillez saisir une adresse e-mail valide." });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setStatus({ type: "idle", message: "" });
+
+    try {
+      await apiClient.post("/newsletter/subscribe", { email: trimmedEmail });
+      setStatus({ type: "success", message: "Merci pour votre inscription !" });
+      setEmail("");
+    } catch (error) {
+      const apiMessage = error?.response?.data?.message || "Une erreur est survenue. Veuillez réessayer.";
+      setStatus({ type: "error", message: apiMessage });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <motion.footer
@@ -88,12 +116,31 @@ export default function Footer() {
           <motion.div variants={item(OFFSETS.newsletter)} className="w-full lg:w-[284px] shrink-0">
             <h4 className="text-[12px] font-bold uppercase tracking-[1.2px] text-white mb-6">Newsletter</h4>
             <p className="text-[14px] leading-[20px] text-[#cbd5e1] mb-6">Recevez nos dernières actualités et conseils.</p>
-            <form className="flex flex-col gap-3" onSubmit={(e) => e.preventDefault()}>
-              <input type="email" placeholder="votre@email.com" className="h-[43px] w-full rounded-lg bg-[#E9F7F4] px-3 text-[14px] text-[#6b7280] placeholder:text-[#6b7280] outline-none focus:ring-2 focus:ring-[#1EB394]" />
-              <button type="submit" className="h-[44px] w-full rounded-lg bg-[#1EB394] text-[14px] font-bold text-white hover:bg-[#0D5143] transition-colors">
-                S'abonner
+            <form className="flex flex-col gap-3" onSubmit={handleNewsletterSubmit}>
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="votre@email.com"
+                disabled={isSubmitting}
+                className="h-[43px] w-full rounded-lg bg-[#E9F7F4] px-3 text-[14px] text-[#6b7280] placeholder:text-[#6b7280] outline-none focus:ring-2 focus:ring-[#1EB394] disabled:opacity-70"
+              />
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="h-[44px] w-full rounded-lg bg-[#1EB394] text-[14px] font-bold text-white hover:bg-[#0D5143] transition-colors disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {isSubmitting ? "Envoi..." : "S'abonner"}
               </button>
             </form>
+            {status.message ? (
+              <p
+                className={`mt-3 text-[13px] ${status.type === "success" ? "text-[#8ef0d6]" : "text-[#fecaca]"}`}
+                aria-live="polite"
+              >
+                {status.message}
+              </p>
+            ) : null}
           </motion.div>
         </div>
 

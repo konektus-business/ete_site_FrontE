@@ -1,4 +1,5 @@
 import { useState } from "react";
+import apiClient from "../../api/apiClient";
 import { NavLink } from "react-router-dom";
 import { Mail } from "lucide-react";
 import robotImage from "../../assets/login-robot.png";
@@ -7,12 +8,23 @@ import cardBackground from "../../assets/card-background.png";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // TODO: wire up to auth API (Rahma's endpoint) — send reset link
-    console.log({ email });
-  };
+  const handleSubmit = async (e) => {
+      e.preventDefault();
+      setLoading(true);
+      setMessage("");
+
+      try {
+        await apiClient.post("/auth/forgot-password", { email });
+        setMessage("Si cet email existe, un lien de réinitialisation a été envoyé");
+      } catch (err) {
+        setMessage("Une erreur est survenue, réessayez");
+      } finally {
+        setLoading(false);
+      }
+    };
 
   return (
     <div
@@ -73,12 +85,18 @@ export default function ForgotPassword() {
                   </div>
                 </div>
 
+                {/* Message */}
+                {message && (
+                  <p className="text-[#0d5143] text-[12px] text-center w-full">{message}</p>
+                )}
+
                 {/* Submit */}
                 <button
                   type="submit"
-                  className="w-full h-[46px] box-border bg-[#1eb394] hover:bg-[#0d5143] transition-colors rounded-[10px] font-semibold text-[14px] text-white"
+                  disabled={loading}
+                  className="w-full h-[46px] box-border bg-[#1eb394] hover:bg-[#0d5143] transition-colors rounded-[10px] font-semibold text-[14px] text-white disabled:opacity-50"
                 >
-                  Réinitialiser mon mot de passe
+                  {loading ? "Envoi en cours..." : "Réinitialiser mon mot de passe"}
                 </button>
               </div>
 

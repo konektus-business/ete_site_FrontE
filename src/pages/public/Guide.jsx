@@ -1,5 +1,6 @@
-import React from "react";
+import React,{useState,useEffect} from "react";
 import { motion, useInView } from "framer-motion";
+import apiClient from "../../api/apiClient";
 
 // ===== Assets =====
 import heroImage from "../../assets/guide/guides-hero.png";
@@ -176,116 +177,6 @@ const STATS = [
   { value: "2025", label: "Mis à jour" },
 ];
 
-const GUIDE_CATEGORIES = [
-  {
-    id: "voip",
-    title: "VoIP & Téléphonie",
-    guides: [
-      {
-        id: "g1",
-        badge: "GUIDE TECHNIQUE",
-        image: guideCloud1,
-        date: "Jan 2025",
-        pages: "24 pages",
-        title: "Migration Cloud : Le livre blanc",
-        description:
-          "Comment réussir votre transition vers une téléphonie 100% dématérialisée sans interruption de service.",
-      },
-      {
-        id: "g2",
-        badge: "GUIDE COMPLET",
-        image: guideCloud2,
-        date: "Jan 2025",
-        pages: "24 pages",
-        title: "Communication Multi-sites Afrique",
-        description:
-          "Optimiser la connectivité de vos filiales au Maghreb et en Afrique Subsaharienne avec la technologie SD-WAN.",
-      },
-      {
-        id: "g3",
-        badge: "GUIDE TECHNIQUE",
-        image: guideCloud3,
-        date: "Jan 2025",
-        pages: "24 pages",
-        title: "Centre d'appel performant",
-        description:
-          "Une check-list pratique pour auditer et améliorer l'efficacité opérationnelle de votre centre de relation.",
-      },
-    ],
-  },
-  {
-    id: "ia",
-    title: "Intelligence Artificielle",
-    guides: [
-      {
-        id: "g4",
-        badge: "GUIDE TECHNIQUE",
-        image: guideAi1,
-        date: "Jan 2025",
-        pages: "24 pages",
-        title: "L'IA au service de la relation client",
-        description:
-          "Comment l'IA générative transforme l'expérience client et booste la productivité de vos agents.",
-      },
-      {
-        id: "g5",
-        badge: "GUIDE COMPLET",
-        image: guideAi2,
-        date: "Jan 2025",
-        pages: "24 pages",
-        title: "Automatisation Intelligente",
-        description:
-          "Découvrez comment l'IPA (Intelligent Process Automation) réduit vos coûts opérationnels de 30%.",
-      },
-      {
-        id: "g6",
-        badge: "GUIDE TECHNIQUE",
-        image: guideAi3,
-        date: "Jan 2025",
-        pages: "24 pages",
-        title: "L'IA dans votre centre de contact",
-        description:
-          "Transcription, résumés, analyse des sentiments : passer de la théorie à l'usage quotidien en 30 jours.",
-      },
-    ],
-  },
-  {
-    id: "cloud",
-    title: "Cloud & Migration",
-    guides: [
-      {
-        id: "g7",
-        badge: "GUIDE TECHNIQUE",
-        image: guideMigration1,
-        date: "Jan 2025",
-        pages: "36 pages",
-        title: "Migrer vers le cloud sans coupure",
-        description:
-          "De l'audit initial au go-live, plan de migration en 6 semaines pour les équipes IT. Destiné : DSI, responsables IT, architectes système.",
-      },
-      {
-        id: "g8",
-        badge: "GUIDE COMPLET",
-        image: guideMigration2,
-        date: "Jan 2025",
-        pages: "24 pages",
-        title: "Haute disponibilité 99,9%",
-        description:
-          "Traduction concrète du SLA cloud — ce que vous payez, ce que vous êtes en droit d'exiger.",
-      },
-      {
-        id: "g9",
-        badge: "LE GUIDE DU DSI",
-        image: guideMigration3,
-        date: "Jan 2025",
-        pages: "24 pages",
-        title: "Sécurité & Conformité dans le cloud",
-        description:
-          "RGPD, chiffrement E2EE, droits d'accès et audits — tout ce qu'un responsable IT doit exiger de son prestataire cloud.",
-      },
-    ],
-  },
-];
 
 /* =========================================================================
    Sub‑components
@@ -313,13 +204,15 @@ const GuideCard = ({ guide }) => (
         <h4 className="text-xl text-[#171d1b]">{guide.title}</h4>
         <p className="text-sm text-[#3c4a45]">{guide.description}</p>
       </div>
-      <button
-        type="button"
+      <a
+        href={`${import.meta.env.VITE_API_URL}/guides/${guide.id}/download`}
+        target="_blank"
+        rel="noopener noreferrer"
         className="mt-auto flex items-center justify-center gap-2 rounded-lg border border-[#006b57] px-8 py-4 text-base font-bold text-[#006b57] transition-colors hover:bg-[#006b57] hover:text-white"
       >
         <img src={iconDownload} alt="" className="size-5" />
         Télécharger PDF
-      </button>
+      </a>
     </div>
   </motion.article>
 );
@@ -361,6 +254,29 @@ const CategorySection = ({ category }) => (
 export default function Guide() {
   const statsRef = React.useRef(null);
   const isStatsInView = useInView(statsRef, { once: true, amount: 0.4 });
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    apiClient.get("/guides", { params: { limit: 100 } }).then((res) => {
+      const guides = res.data.items;
+      const grouped = guides.reduce((acc, guide) => {
+        const catId = guide.category.id;
+        if (!acc[catId]) {
+          acc[catId] = { id: catId, title: guide.category.nom, guides: [] };
+        }
+        acc[catId].guides.push({
+          id: guide.id,
+          badge: guide.badge,
+          image: guide.imageUrl,
+          date: guide.datePublication,
+          pages: `${guide.nombrePages} pages`,
+          title: guide.titre,
+          description: guide.description,
+        });
+        return acc;
+      }, {});
+      setCategories(Object.values(grouped));
+    });
+  }, []);
 
   return (
     <div className="relative w-full overflow-hidden bg-gradient-to-b from-[#f8fcfb] to-[#e9f7f4]">
@@ -467,7 +383,7 @@ export default function Guide() {
           </motion.div>
 
           <div className="flex w-full flex-col gap-14">
-            {GUIDE_CATEGORIES.map((category) => (
+            {categories.map((category) => (
               <CategorySection key={category.id} category={category} />
             ))}
           </div>

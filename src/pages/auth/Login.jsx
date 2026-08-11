@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import apiClient from "../../api/apiClient";
+import { NavLink ,useNavigate} from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import robotImage from "../../assets/login-robot.png";
 import logo from "../../assets/company_logo_black.png";
@@ -7,15 +8,51 @@ import cardBackground from "../../assets/card-background.png";
 import googleIcon from "../../assets/icons/google-icon.svg"; // adapte le nom si différent (.svg, etc.)
 
 export default function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: wire up to auth API (Rahma's endpoint)
-    console.log({ email, password, rememberMe });
+    setError("");
+    setLoading(true);
+
+  try {
+    const response = await apiClient.post("/auth/login", {
+      email,
+      password,
+      rememberMe,
+    });
+
+    localStorage.setItem("access_token", response.data.token);
+    if (response.data.refresh_token) {
+      localStorage.setItem("refresh_token", response.data.refresh_token);
+    }
+
+    if (response.data.redirectUrl) {
+      // Un seul tag : redirection directe vers le bon site
+      window.location.href = response.data.redirectUrl;
+    } else if (response.data.tags && response.data.tags.length > 1) {
+      // Plusieurs tags : stocke la liste, redirige vers une page de choix
+      localStorage.setItem("available_tags", JSON.stringify(response.data.tags));
+      navigate("/choisir-espace");
+    } else {
+      // Aucun tag : cas limite, reste sur le dashboard par défaut
+      navigate("/dashboard");
+    }
+  } catch (err) {
+      if (err.response && err.response.status === 401) {
+        setError("Email ou mot de passe incorrect");
+      } else {
+        setError("Une erreur est survenue, réessayez");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -137,14 +174,20 @@ export default function Login() {
                 </NavLink>
               </div>
 
+            {/* Erreur */}
+              {error && (
+                <p className="text-red-500 text-[12px] text-center">{error}</p>
+              )}
+
               {/* Submit */}
               <button
                 type="submit"
-                className="w-full h-[46px] box-border bg-[#1eb394] hover:bg-[#0d5143] transition-colors rounded-[10px] font-semibold text-[14px] text-white"
+                disabled={loading}
+                className="w-full h-[46px] box-border bg-[#1eb394] hover:bg-[#0d5143] transition-colors rounded-[10px] font-semibold text-[14px] text-white disabled:opacity-50"
               >
-                Se connecter
+                {loading ? "Connexion..." : "Se connecter"}
               </button>
-            </div>
+              </div>
 
             {/* Divider */}
             <div className="flex items-center gap-[9px] w-full">
