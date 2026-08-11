@@ -2,7 +2,16 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const WEEKDAYS = [
+  { id: 'sun', label: 'S' },
+  { id: 'mon', label: 'M' },
+  { id: 'tue', label: 'T' },
+  { id: 'wed', label: 'W' },
+  { id: 'thu', label: 'T' },
+  { id: 'fri', label: 'F' },
+  { id: 'sat', label: 'S' },
+];
+
 const MONTH_NAMES = [
   'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
   'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
@@ -84,19 +93,19 @@ export default function CalendarPopover({ value, onChange, rangeStart, rangeEnd 
 
       {/* Jours de la semaine */}
       <div className="grid grid-cols-7 mb-1">
-        {WEEKDAYS.map((w, i) => (
+        {WEEKDAYS.map((w) => (
           <div
-            key={i}
+            key={w.id}
             className="h-8 flex items-center justify-center text-[11px] font-medium text-gray-300"
           >
-            {w}
+            {w.label}
           </div>
         ))}
       </div>
 
       {/* Grille des jours */}
       <div className="grid grid-cols-7">
-        {days.map((d, i) => {
+        {days.map((d) => {
           const isCurrentMonth = d.getMonth() === viewDate.getMonth();
           const isSelected = isSameDay(d, selectedDate);
           const isToday = isSameDay(d, today);
@@ -106,7 +115,7 @@ export default function CalendarPopover({ value, onChange, rangeStart, rangeEnd 
 
           return (
             <div
-              key={i}
+              key={toDateStr(d)}
               className={[
                 'h-9 flex items-center justify-center',
                 inRangeDay ? 'bg-emerald-50' : '',

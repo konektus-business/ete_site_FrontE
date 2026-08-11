@@ -70,7 +70,7 @@ export const genericGroupColors = [
 function hashString(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
-    hash = (hash * 31 + str.charCodeAt(i)) % 997; // 997 = nombre premier pour une bonne dispersion
+    hash = (hash * 31 + str.codePointAt(i)) % 997; // 997 = nombre premier pour une bonne dispersion
   }
   return hash;
 }

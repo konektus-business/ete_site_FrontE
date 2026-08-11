@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { PhoneCall, Euro, Building2, Smartphone } from 'lucide-react';
 import { getCdrList } from '../../../api/cdr';
 import { cdrColumns } from '../../../config/cdrColumns';
@@ -35,21 +35,43 @@ export default function CdrList() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchCdr = (sKey = sortKey, sOrder = sortOrder) => {
-    setLoading(true);
-    getCdrList({ period, ...dates, type, sort: sKey, order: sOrder }).then((res) => {
-      setResult(res);
-      setLoading(false);
-    });
-  };
+  // Fonction de requêtage encapsulée avec useCallback
+  const fetchCdr = useCallback(
+    async (sKey = sortKey, sOrder = sortOrder) => {
+      setLoading(true);
+      try {
+        const res = await getCdrList({ period, ...dates, type, sort: sKey, order: sOrder });
+        setResult(res);
+      } catch (err) {
+        console.error('Erreur lors du chargement des CDR:', err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [period, dates, type, sortKey, sortOrder]
+  );
 
+  // Premier chargement sécurisé au montage (sans suppression d'avertissement eslint)
   useEffect(() => {
-    fetchCdr();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    let isMounted = true;
 
-  // Le tri se déclenche directement au clic sur l'en-tête (comme le PHP),
-  // pas besoin de cliquer sur "Appliquer" pour ça
+    getCdrList({ period, ...dates, type, sort: sortKey, order: sortOrder })
+      .then((res) => {
+        if (isMounted) {
+          setResult(res);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error('Erreur lors de la récupération des CDR:', err);
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [dates, period, sortKey, sortOrder, type]);
+
   const handleSort = (key) => {
     const newOrder = key === sortKey && sortOrder === 'ASC' ? 'DESC' : 'ASC';
     setSortKey(key);
@@ -58,7 +80,7 @@ export default function CdrList() {
   };
 
   const handleExportExcel = () => {
-    if (!result?.recordings.length) return;
+    if (!result?.recordings?.length) return;
     exportToExcel(result.recordings, `cdr-${dates.startDate}-au-${dates.endDate}`, cdrExportColumns);
   };
 
@@ -74,14 +96,18 @@ export default function CdrList() {
           <PeriodFilter period={period} setPeriod={setPeriod} dates={dates} setDates={setDates} />
 
           <div className="w-40">
-            <label className={labelClass}>Type</label>
-            <Select value={type} onChange={setType} options={TYPE_OPTIONS} />
+            <label htmlFor="type" className={labelClass}>Type</label>
+            <Select id="type" value={type} onChange={setType} options={TYPE_OPTIONS} />
           </div>
 
-          <Button type="submit" variant="primary" onClick={() => fetchCdr()}>Appliquer</Button>
+          <Button type="button" variant="primary" onClick={() => fetchCdr()}>
+            Appliquer
+          </Button>
 
           <div className="ml-auto">
-            <Button variant="warning" onClick={handleExportExcel} disabled={!result?.recordings.length}>Exporter en Excel</Button>
+            <Button variant="warning" onClick={handleExportExcel} disabled={!result?.recordings?.length}>
+              Exporter en Excel
+            </Button>
           </div>
         </div>
       </div>
@@ -93,15 +119,39 @@ export default function CdrList() {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <KPIWidget icon={<PhoneCall className="w-6 h-6 text-[#1EB394]" strokeWidth={2} />} title="Appels lancés" badge="PÉRIODE" value={result.total_appels} showPercent={false} />
-            <KPIWidget icon={<Euro className="w-6 h-6 text-[#1EB394]" strokeWidth={2} />} title="Prix total" badge="PÉRIODE" value={`${result.total_prix.toFixed(4)} €`} showPercent={false} />
-            <KPIWidget icon={<Building2 className="w-6 h-6 text-[#1EB394]" strokeWidth={2} />} title="Prix total fixe" badge="PÉRIODE" value={`${result.total_prix_fixe.toFixed(4)} €`} showPercent={false} />
-            <KPIWidget icon={<Smartphone className="w-6 h-6 text-[#1EB394]" strokeWidth={2} />} title="Prix total mobile" badge="PÉRIODE" value={`${result.total_prix_mobile.toFixed(4)} €`} showPercent={false} />
+            <KPIWidget
+              icon={<PhoneCall className="w-6 h-6 text-[#1EB394]" strokeWidth={2} />}
+              title="Appels lancés"
+              badge="PÉRIODE"
+              value={result.total_appels ?? 0}
+              showPercent={false}
+            />
+            <KPIWidget
+              icon={<Euro className="w-6 h-6 text-[#1EB394]" strokeWidth={2} />}
+              title="Prix total"
+              badge="PÉRIODE"
+              value={`${(result.total_prix ?? 0).toFixed(4)} €`}
+              showPercent={false}
+            />
+            <KPIWidget
+              icon={<Building2 className="w-6 h-6 text-[#1EB394]" strokeWidth={2} />}
+              title="Prix total fixe"
+              badge="PÉRIODE"
+              value={`${(result.total_prix_fixe ?? 0).toFixed(4)} €`}
+              showPercent={false}
+            />
+            <KPIWidget
+              icon={<Smartphone className="w-6 h-6 text-[#1EB394]" strokeWidth={2} />}
+              title="Prix total mobile"
+              badge="PÉRIODE"
+              value={`${(result.total_prix_mobile ?? 0).toFixed(4)} €`}
+              showPercent={false}
+            />
           </div>
 
           <Table
             columns={cdrColumns}
-            data={result.recordings}
+            data={result.recordings || []}
             onRowClick={() => {}}
             itemLabel="appels"
             sortKey={sortKey}

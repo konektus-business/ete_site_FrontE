@@ -2,7 +2,7 @@ import { Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Button from './ButtonCRM';
 
-// Carte "accès restreint" générique, reprise du PHP legacy (calls.php).
+// Carte "accès restreint" générique
 // Réutilisable pour n'importe quel module pas inclus dans l'abonnement du client.
 export default function RestrictedAccess({
   title = 'Accès restreint',

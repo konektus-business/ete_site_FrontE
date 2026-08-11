@@ -1,8 +1,8 @@
-// src/pages/crm/users/AddAgent.jsx
 import { useState } from 'react';
 import { createAgent } from '../../../api/agent';
 import { userGroups } from '../../../config/userGroups';
 import Select from '../../../components/common/Select';
+import Toast from '../../../components/common/Toast';
 import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
 import Button from '../../../components/common/ButtonCRM';
 
@@ -26,10 +26,11 @@ const userGroupOptions = [
   ...userGroups.map((group) => ({ value: group, label: group })),
 ];
 
-export default function AddAgent() {
+export default function AddAgent({ onSuccess }) {
   const [form, setForm] = useState(initialForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [toast, setToast] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -47,75 +48,87 @@ export default function AddAgent() {
     try {
       await createAgent(form);
       setForm(initialForm);
-      // TODO: toast succès + redirection vers la liste
+      setToast({ message: 'Agent créé avec succès', type: 'success' });
+      setTimeout(() => { if (onSuccess) onSuccess(); }, 1000);
     } catch (err) {
+      console.error(err);
       setError("Erreur lors de la création de l'agent");
     } finally {
       setLoading(false);
     }
   };
 
-
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100">
-      <div className="px-6 py-4 border-b border-gray-100">
-        <h2 className="font-sans font-semibold text-sm text-gray-900">Ajouter un agent</h2>
-        <p className="text-xs text-gray-400 mt-0.5">Créer un nouvel agent avec ses accès de connexion</p>
+    <>
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div className="px-6 py-4 border-b border-gray-100">
+          <h2 className="font-sans font-semibold text-sm text-gray-900">Ajouter un agent</h2>
+          <p className="text-xs text-gray-400 mt-0.5">Créer un nouvel agent avec ses accès de connexion</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div>
+              <label htmlFor="user" className={labelClass}>Login *</label>
+              <input type="text" id="user" name="user" required value={form.user} onChange={handleChange} className={inputClass} placeholder="ex: agent042" />
+            </div>
+
+            <div>
+              <label htmlFor="pass" className={labelClass}>Mot de passe *</label>
+              <input type="password" id="pass" name="pass" required value={form.pass} onChange={handleChange} className={inputClass} />
+            </div>
+
+            <div>
+              <label htmlFor="full_name" className={labelClass}>Nom complet *</label>
+              <input type="text" id="full_name" name="full_name" required value={form.full_name} onChange={handleChange} className={inputClass} placeholder="ex: Ahmed Ben Ali" />
+            </div>
+
+            <div>
+              <label htmlFor="user_level" className={labelClass}>Niveau utilisateur</label>
+              <Select
+                value={form.user_level}
+                id="user_level"
+                onChange={handleFieldChange('user_level')}
+                options={userLevelOptions}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="user_group" className={labelClass}>Groupe</label>
+              <Select
+                value={form.user_group}
+                id="user_group"
+                onChange={handleFieldChange('user_group')}
+                options={userGroupOptions}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="phone_login" className={labelClass}>Login téléphone</label>
+              <input type="text" id="phone_login" name="phone_login" value={form.phone_login} onChange={handleChange} className={inputClass} />
+            </div>
+
+            <div>
+              <label htmlFor="phone_pass" className={labelClass}>Mot de passe téléphone</label>
+              <input type="text" id="phone_pass" name="phone_pass" value={form.phone_pass} onChange={handleChange} className={inputClass} />
+            </div>
+          </div>
+
+          {error && <p className="text-xs text-red-600 mt-4">{error}</p>}
+
+          <div className="flex items-center gap-3 mt-6 pt-5 border-t border-gray-100">
+            <Button type="submit" variant="primary" disabled={loading}>{loading ? 'Création...' : "Créer l'agent"}</Button>
+            <Button type="button" variant="secondary">Annuler</Button>
+          </div>
+        </form>
       </div>
-
-      <form onSubmit={handleSubmit} className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div>
-            <label htmlFor="user" className={labelClass}>Login *</label>
-            <input type="text" id="user" name="user" required value={form.user} onChange={handleChange} className={inputClass} placeholder="ex: agent042" />
-          </div>
-
-          <div>
-            <label htmlFor="pass" className={labelClass}>Mot de passe *</label>
-            <input type="password" id="pass" name="pass" required value={form.pass} onChange={handleChange} className={inputClass} />
-          </div>
-
-          <div>
-            <label htmlFor="full_name" className={labelClass}>Nom complet *</label>
-            <input type="text" id="full_name" name="full_name" required value={form.full_name} onChange={handleChange} className={inputClass} placeholder="ex: Ahmed Ben Ali" />
-          </div>
-
-          <div>
-            <label className={labelClass}>Niveau utilisateur</label>
-            <Select
-              value={form.user_level}
-              onChange={handleFieldChange('user_level')}
-              options={userLevelOptions}
-            />
-          </div>
-
-          <div>
-            <label className={labelClass}>Groupe</label>
-            <Select
-              value={form.user_group}
-              onChange={handleFieldChange('user_group')}
-              options={userGroupOptions}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="phone_login" className={labelClass}>Login téléphone</label>
-            <input type="text" id="phone_login" name="phone_login" value={form.phone_login} onChange={handleChange} className={inputClass} />
-          </div>
-
-          <div>
-            <label htmlFor="phone_pass" className={labelClass}>Mot de passe téléphone</label>
-            <input type="text" id="phone_pass" name="phone_pass" value={form.phone_pass} onChange={handleChange} className={inputClass} />
-          </div>
-        </div>
-
-        {error && <p className="text-xs text-red-600 mt-4">{error}</p>}
-
-        <div className="flex items-center gap-3 mt-6 pt-5 border-t border-gray-100">
-          <Button type="submit" variant="primary" disabled={loading}>{loading ? 'Création...' : "Créer l'agent"}</Button> 
-          <Button type="button" variant="secondary">Annuler</Button>
-        </div>
-      </form>
-    </div>
+    </>
   );
 }

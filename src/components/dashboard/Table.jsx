@@ -1,7 +1,18 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 
-const Table = ({ data, columns, onRowClick, itemsPerPage: initialItemsPerPage = 12, itemLabel = 'résultats', minWidth, pageSizeOptions = [10, 12, 20, 50], sortKey, sortOrder, onSort }) => {
+const Table = ({
+  data = [],
+  columns = [],
+  onRowClick,
+  itemsPerPage: initialItemsPerPage = 12,
+  itemLabel = 'résultats',
+  minWidth,
+  pageSizeOptions = [10, 12, 20, 50],
+  sortKey,
+  sortOrder,
+  onSort,
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(initialItemsPerPage);
 
@@ -20,49 +31,71 @@ const Table = ({ data, columns, onRowClick, itemsPerPage: initialItemsPerPage = 
   return (
     <div className="w-full rounded-xl shadow-md overflow-hidden bg-white border border-emerald-100">
       <div className="overflow-x-auto table-scroll">
-      <table className="w-full" style={minWidth ? { minWidth } : undefined}>
-        <thead className="bg-[#DDF4EF] text-[#6C798B] font-bold text-[10px] uppercase text-left tracking-[0.5px] leading-none">
-          <tr>
-            {columns.map((column) => (
-              <th className="px-4 py-3" key={column.key}>
-                {column.sortable && onSort ? (
-                  <button
-                    onClick={() => onSort(column.key)}
-                    className="flex items-center gap-1 uppercase hover:text-gray-800 transition-colors"
-                  >
-                    {column.label}
-                    {sortKey === column.key && (sortOrder === 'ASC' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
-                  </button>
-                ) : (
-                  column.label
-                )}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-emerald-100 text-left">
-          {paginatedData.map((row) => (
-            <tr className="hover:bg-emerald-50/40" key={row.id} onClick={() => onRowClick(row)}>
-              {columns.map((column) => (
-                <td
-                  className="px-4 py-3"
-                  key={column.key}
-                  onClick={(column.key === 'select' || column.key === 'actions') ? (e) => e.stopPropagation() : undefined}
-                >
-                  {column.render ? column.render(row) : row[column.key]}
-                </td>
-              ))}
+        <table className="w-full" style={minWidth ? { minWidth } : undefined}>
+          <thead className="bg-[#DDF4EF] text-[#6C798B] font-bold text-[10px] uppercase text-left tracking-[0.5px] leading-none">
+            <tr>
+              {columns.map((column, colIndex) => {
+                const colKey = column.key || column.accessor || `col-${colIndex}`;
+                return (
+                  <th className="px-4 py-3" key={colKey}>
+                    {column.sortable && onSort ? (
+                      <button
+                        onClick={() => onSort(column.key || column.accessor)}
+                        className="flex items-center gap-1 uppercase hover:text-gray-800 transition-colors"
+                      >
+                        {column.label}
+                        {sortKey === (column.key || column.accessor) &&
+                          (sortOrder === 'ASC' ? (
+                            <ChevronUp className="w-3 h-3" />
+                          ) : (
+                            <ChevronDown className="w-3 h-3" />
+                          ))}
+                      </button>
+                    ) : (
+                      column.label
+                    )}
+                  </th>
+                );
+              })}
             </tr>
-          ))}
-        </tbody>
-      </table>
-      </div>
+          </thead>
+          <tbody className="divide-y divide-emerald-100 text-left">
+            {paginatedData.map((row, rowIndex) => {
+              // Sécurisation de la clé de la ligne
+              const rowKey = row.id ?? row._id ?? row.uuid ?? `row-${startIndex + rowIndex}`;
+              return (
+                <tr
+                  className="hover:bg-emerald-50/40 cursor-pointer"
+                  key={rowKey}
+                  onClick={() => onRowClick && onRowClick(row)}
+                >
+                  {columns.map((column, colIndex) => {
+                    const colProp = column.key || column.accessor;
+                    const cellKey = `${rowKey}-${colProp || colIndex}`;
+                    const isNonClickable = colProp === 'select' || colProp === 'actions';
 
+                    return (
+                      <td
+                        className="px-4 py-3"
+                        key={cellKey}
+                        onClick={isNonClickable ? (e) => e.stopPropagation() : undefined}
+                      >
+                        {column.render ? column.render(row) : row[colProp]}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
 
       {data.length > 0 && (
         <div className="flex items-center justify-between px-5 py-3.5 border-t border-emerald-100">
           <span className="text-xs text-gray-500">
-            Affichage de {startIndex + 1} à {Math.min(startIndex + itemsPerPage, data.length)} sur {data.length} {itemLabel}
+            Affichage de {startIndex + 1} à {Math.min(startIndex + itemsPerPage, data.length)} sur{' '}
+            {data.length} {itemLabel}
           </span>
 
           <div className="flex items-center gap-1.5">
@@ -76,7 +109,7 @@ const Table = ({ data, columns, onRowClick, itemsPerPage: initialItemsPerPage = 
 
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
-                key={page}
+                key={`page-${page}`}
                 onClick={() => goToPage(page)}
                 className={`w-7 h-7 flex items-center justify-center rounded-full text-xs font-medium transition-colors ${
                   page === currentPage
@@ -106,7 +139,9 @@ const Table = ({ data, columns, onRowClick, itemsPerPage: initialItemsPerPage = 
                 className="appearance-none pl-3 pr-7 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
               >
                 {pageSizeOptions.map((n) => (
-                  <option key={n} value={n}>{n}</option>
+                  <option key={`opt-${n}`} value={n}>
+                    {n}
+                  </option>
                 ))}
               </select>
               <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />

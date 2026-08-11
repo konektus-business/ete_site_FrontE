@@ -3,6 +3,7 @@ import { Mic } from 'lucide-react';
 import { getRecordingSettings, saveRecordingSettings } from '../../../api/recordings';
 import Select from '../../../components/common/Select';
 import Button from '../../../components/common/ButtonCRM';
+import ToggleSwitch from '../../../components/common/ToggleSwitch';
 import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
 
 const FORMAT_OPTIONS = [
@@ -62,9 +63,10 @@ export default function RecordingsSettings() {
         )}
 
         <div>
-          <label className={labelClass}>Chemin des enregistrements</label>
+          <label htmlFor="recordings_path" className={labelClass}>Chemin des enregistrements</label>
           <input
             type="text"
+            id="recordings_path"
             value={settings.recordings_path}
             onChange={(e) => handleChange('recordings_path', e.target.value)}
             required
@@ -75,10 +77,11 @@ export default function RecordingsSettings() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className={labelClass}>Durée de conservation (jours)</label>
+            <label htmlFor="retention_days" className={labelClass}>Durée de conservation (jours)</label>
             <input
               type="number"
               min={0}
+              id="retention_days"
               value={settings.retention_days}
               onChange={(e) => handleChange('retention_days', Number(e.target.value))}
               className={inputClass}
@@ -87,30 +90,23 @@ export default function RecordingsSettings() {
           </div>
 
           <div>
-            <label className={labelClass}>Format préféré</label>
-            <Select value={settings.preferred_format} onChange={(v) => handleChange('preferred_format', v)} options={FORMAT_OPTIONS} />
+            <label htmlFor="preferred_format" className={labelClass}>Format préféré</label>
+            <Select
+              id="preferred_format"
+              value={settings.preferred_format}
+              onChange={(v) => handleChange('preferred_format', v)}
+              options={FORMAT_OPTIONS}
+            />
             <p className="text-xs text-gray-400 mt-1">Pour la lecture et le téléchargement.</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 pt-1">
-          <button
-            type="button"
-            role="switch"
-            aria-checked={settings.direct_play}
-            onClick={handleToggleDirectPlay}
-            className={`relative w-10 h-5 rounded-full transition-colors ${
-              settings.direct_play ? 'bg-[#1EB394]' : 'bg-gray-300'
-            }`}
-          >
-            <span
-              className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
-                settings.direct_play ? 'translate-x-5' : 'translate-x-0'
-              }`}
-            />
-          </button>
-          <span className="text-xs font-medium text-gray-600">Activer la lecture directe (streaming)</span>
-        </div>
+      <ToggleSwitch
+        checked={settings.direct_play}
+        onChange={handleToggleDirectPlay}
+        label="Activer la lecture directe (streaming)"
+        className="pt-1"
+      />
 
         <div className="pt-2">
           <Button type="submit" variant="primary" disabled={saving}>

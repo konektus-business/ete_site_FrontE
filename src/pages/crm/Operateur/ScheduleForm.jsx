@@ -3,6 +3,7 @@ import { createSchedule, updateSchedule } from '../../../api/schedules';
 import { hhmmToTimeInput, timeInputToHhmm } from '../../../utils/timeFormat';
 import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
 import Button from '../../../components/common/ButtonCRM';
+import Toast from '../../../components/common/Toast';
 
 // Valeurs par défaut d'un nouvel horaire (ct_default_start/stop en HHMM)
 const emptyForm = {
@@ -24,6 +25,7 @@ export default function ScheduleForm({ mode = 'add', initialData = null, onSucce
   const [originalId] = useState(initialData?.call_time_id ?? null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [toast, setToast] = useState(null);
 
   // Gère les inputs texte classiques (name/value standard)
   const handleChange = (e) => {
@@ -47,8 +49,11 @@ export default function ScheduleForm({ mode = 'add', initialData = null, onSucce
       } else {
         await createSchedule(form);
       }
-      onSuccess?.(form);
+      setToast({ message: mode === 'edit' ? 'Horaire mis à jour' : 'Horaire créé', type: 'success' });
+      setTimeout(() => onSuccess?.(form), 1000);
     } catch (err) {
+      console.error(err);
+      setToast({ message: 'Erreur lors de l\'enregistrement.', type: 'error' });
       setError(
         mode === 'edit' ? "Erreur lors de la mise à jour de l'horaire" : "Erreur lors de la création de l'horaire"
       );
@@ -66,6 +71,8 @@ export default function ScheduleForm({ mode = 'add', initialData = null, onSucce
 
 
   return (
+    <>
+    {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
       <div className="px-6 py-4 border-b border-gray-100">
         <h2 className="font-sans font-semibold text-sm text-gray-900">{titles[mode].title}</h2>
@@ -146,5 +153,6 @@ export default function ScheduleForm({ mode = 'add', initialData = null, onSucce
         </div>
       </form>
     </div>
+    </>
   );
 }

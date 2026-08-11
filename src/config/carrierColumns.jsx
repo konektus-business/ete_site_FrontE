@@ -12,33 +12,33 @@ export const carrierColumns = (onEdit, onDelete, onClone) => [
   },
 
 
-{
-  key: 'carrier_name',
-  label: 'Nom',
-  render: (row) => {
-    const logo = getCarrierLogo(row);
-    if (logo) {
-      return (
-        <img
-          src={logo}
-          alt={row.carrier_name}
-          title={row.carrier_name}
-          className="h-6 w-auto object-contain"
-        />
-      );
-    }
+  {
+    key: 'carrier_name',
+    label: 'Nom',
+    render: (row) => {
+      const logo = getCarrierLogo(row);
+      if (logo) {
+        return (
+          <img
+            src={logo}
+            alt={row.carrier_name}
+            title={row.carrier_name}
+            className="h-6 w-auto object-contain"
+          />
+        );
+      }
 
-    const { text } = getCarrierNameColor(row.carrier_name);
-    return (
-      <span
-        className="inline-flex  rounded-md text-xs font-semibold"
-        style={{ color: text }}
-      >
-        {row.carrier_name}
-      </span>
-    );
+      const { text } = getCarrierNameColor(row.carrier_name);
+      return (
+        <span
+          className="inline-flex  rounded-md text-xs font-semibold"
+          style={{ color: text }}
+        >
+          {row.carrier_name}
+        </span>
+      );
+    },
   },
-},
   {
     key: 'protocol',
     label: 'Protocole',

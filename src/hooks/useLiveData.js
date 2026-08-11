@@ -3,6 +3,17 @@ import { getLiveData } from '../api/live';
 
 const HISTORY_LENGTH = 15; // Nombre de points affichés sur la sparkline
 
+// 💡 Fonction extraite à l'extérieur pour réduire le niveau d'imbrication des fonctions
+const generateSimulatedHistory = (numericVal) => {
+  const simulatedHistory = Array.from({ length: HISTORY_LENGTH }, (_, i) => {
+    const variation = Math.sin(i * 0.8) * 0.08 * numericVal; // +/- 8% de variation
+    return Math.max(0, Math.round(numericVal + variation));
+  });
+  // Le dernier point est la vraie valeur actuelle
+  simulatedHistory[HISTORY_LENGTH - 1] = numericVal;
+  return simulatedHistory;
+};
+
 export function useLiveData(widgetsConfig = []) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,16 +36,8 @@ export function useLiveData(widgetsConfig = []) {
           const currentArr = prev[key];
 
           if (!currentArr) {
-            // 💡 PRE-REMPLISSAGE INITIAL :
-            // Si c'est le 1er chargement, on génère 15 points réalistes autour de la valeur actuelle
-            // pour que la courbe ait immédiatement du relief au lieu d'être un trait plat.
-            const simulatedHistory = Array.from({ length: HISTORY_LENGTH }, (_, i) => {
-              const variation = (Math.sin(i * 0.8) * 0.08) * numericVal; // +/- 8% de variation
-              return Math.max(0, Math.round(numericVal + variation));
-            });
-            // Le dernier point est la vraie valeur actuelle
-            simulatedHistory[HISTORY_LENGTH - 1] = numericVal;
-            next[key] = simulatedHistory;
+            // 💡 PRE-REMPLISSAGE INITIAL
+            next[key] = generateSimulatedHistory(numericVal);
           } else {
             // En cours de route : on pousse la nouvelle valeur réelle
             next[key] = [...currentArr, numericVal].slice(-HISTORY_LENGTH);

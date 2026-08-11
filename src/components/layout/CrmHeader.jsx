@@ -3,12 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { Menu, Search, ChevronDown, LogOut, User, Settings } from 'lucide-react';
 import { pageLabels } from '../../utils/pageLabels';
 import { getInitials } from '../../utils/avatar';
-import { searchGlobal } from '../../api/search';
-import SearchDropdown from '../common/SearchDropdown';
 import NotificationsDropdown from '../common/NotificationsDropdown';
 
-// Statuts agent possibles pour un centre d'appels VICIdial.
-// ADAPTE les valeurs/labels si ton backend utilise d'autres codes.
 const AGENT_STATUSES = [
   { value: 'available', label: 'Disponible', color: '#22C55E' },
   { value: 'paused', label: 'En pause', color: '#F59E0B' },
@@ -26,19 +22,17 @@ export default function CrmHeader({
   agentStatus = 'available',
   onAgentStatusChange,
   onLogout,
+  // Recherche : geree par CrmLayout (le parent), CrmHeader ne fait
+  // qu'afficher l'input controle - pas de state ni de logique de recherche ici.
+  searchQuery = '',
+  onSearchQueryChange,
 }) {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname.split('/').pop();
   const pageTitle = pageLabels[currentPath] || 'CRM';
 
-  const [query, setQuery] = useState('');
-  const [searchResults, setSearchResults] = useState(null);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-  const searchWrapperRef = useRef(null);
   const searchInputRef = useRef(null);
-
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef(null);
 
@@ -60,47 +54,20 @@ export default function CrmHeader({
     </svg>
   );
 
-  // Debounce 300ms : on ne relance la recherche qu'apres une pause de frappe
-  useEffect(() => {
-    if (query.trim().length < 2) {
-      setSearchResults(null);
-      setShowSearchDropdown(false);
-      return;
-    }
-
-    setSearchLoading(true);
-    setShowSearchDropdown(true);
-    const timer = setTimeout(async () => {
-      const results = await searchGlobal(query);
-      setSearchResults(results);
-      setSearchLoading(false);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [query]);
-
-  // Raccourci Ctrl+K / Cmd+K pour focus la recherche, comme affiche dans le kbd hint
+  // Ctrl+K / Cmd+K pour focus la recherche (uniquement utile si showSearch)
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         searchInputRef.current?.focus();
       }
-      if (e.key === 'Escape') {
-        setShowSearchDropdown(false);
-        searchInputRef.current?.blur();
-      }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Fermeture au clic exterieur (recherche + menu utilisateur)
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (searchWrapperRef.current && !searchWrapperRef.current.contains(e.target)) {
-        setShowSearchDropdown(false);
-      }
       if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
         setShowUserMenu(false);
       }
@@ -146,32 +113,19 @@ export default function CrmHeader({
         </div>
 
         {showSearch && (
-          <div ref={searchWrapperRef} className="relative flex-1 min-w-0 max-w-[480px] hidden sm:block">
+          <div className="relative flex-1 min-w-0 max-w-[480px] hidden sm:block">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               ref={searchInputRef}
               type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => query.trim().length >= 2 && setShowSearchDropdown(true)}
+              value={searchQuery}
+              onChange={(e) => onSearchQueryChange?.(e.target.value)}
               placeholder="Chercher un agent, une campagne..."
               className="w-full h-9 rounded-lg py-[9px] pr-4 pl-10 bg-slate-100 font-jakarta text-sm leading-none focus:outline-none focus:ring-2 focus:ring-crmPrimary placeholder:font-normal placeholder:text-sm placeholder:leading-none placeholder:text-gray-500"
             />
             <kbd className="hidden lg:inline-flex absolute right-3 top-1/2 -translate-y-1/2 font-mono text-[10px] leading-[15px] text-slate-400 border border-slate-300 rounded px-1 h-[17px] items-center">
               Ctrl + K
             </kbd>
-
-            {showSearchDropdown && (
-              <SearchDropdown
-                results={searchResults}
-                loading={searchLoading}
-                query={query}
-                onSelect={() => {
-                  setShowSearchDropdown(false);
-                  setQuery('');
-                }}
-              />
-            )}
           </div>
         )}
 
@@ -206,7 +160,6 @@ export default function CrmHeader({
                 >
                   {getInitials(`${user?.prenom || ''} ${user?.nom || ''}`)}
                 </div>
-                {/* Pastille de statut agent - visible directement sur l'avatar */}
                 <span
                   className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white"
                   style={{ background: currentStatus.color }}
@@ -243,7 +196,6 @@ export default function CrmHeader({
                   <p className="text-xs text-slate-400 truncate">{user?.email || user?.role}</p>
                 </div>
 
-                {/* Statut agent */}
                 <div className="px-4 py-2">
                   <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5">Statut</p>
                   <div className="flex flex-col gap-1">
@@ -264,14 +216,14 @@ export default function CrmHeader({
 
                 <div className="border-t border-slate-100 mt-1 pt-1">
                   <button
-                    onClick={() => navigate('/crm/profile')}
+                    onClick={() => navigate('/crm/#profile')}
                     className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition cursor-pointer"
                   >
                     <User className="w-4 h-4" />
                     Mon profil
                   </button>
                   <button
-                    onClick={() => navigate('/crm/settings')}
+                    onClick={() => navigate('/crm/#settings')}
                     className="w-full flex items-center gap-3 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition cursor-pointer"
                   >
                     <Settings className="w-4 h-4" />

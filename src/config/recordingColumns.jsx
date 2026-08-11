@@ -7,7 +7,7 @@ import { getInitials, getAvatarColor } from '../utils/avatar';
 import CustomAudioPlayer from '../components/recordings/CustomAudioPlayer';
 
 const formatShortDuration = (seconds) => {
-  if (!seconds || isNaN(seconds)) return '00:00';
+  if (!seconds || Number.isNaN(seconds)) return '00:00';
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);
   return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
@@ -20,7 +20,7 @@ const downloadAudioFile = (url, fileName) => {
   link.download = fileName;
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
+  link.remove();
 };
 
 export const recordingColumns = (selectedIds, onToggleSelect) => [
@@ -106,29 +106,29 @@ export const recordingColumns = (selectedIds, onToggleSelect) => [
       </span>
     ),
   },
-  {
-    key: 'actions',
-    label: 'Actions',
-    render: (row) => {
-      const audioUrl = row.url || `/mock/recordings/${row.id}.mp3`;
+{
+  key: 'actions',
+  label: 'Actions',
+  render: (row) => {
+    const audioUrl = row.url || `/mock/recordings/${row.id}.mp3`;
 
-      return (
-        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-          <CustomAudioPlayer src={audioUrl} seed={row.id} />
+    return (
+      <div className="flex items-center gap-2">
+        <CustomAudioPlayer src={audioUrl} seed={row.id} />
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              downloadAudioFile(audioUrl, `enregistrement-${row.id}.mp3`);
-            }}
-            title="Télécharger"
-            className="p-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-colors cursor-pointer"
-          >
-            <Download className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      );
-    },
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            downloadAudioFile(audioUrl, `enregistrement-${row.id}.mp3`);
+          }}
+          title="Télécharger"
+          className="p-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 transition-colors cursor-pointer"
+        >
+          <Download className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    );
   },
+},
 ];

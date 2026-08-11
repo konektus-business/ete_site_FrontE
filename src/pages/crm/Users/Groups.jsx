@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
-import { getGroups, createGroup, updateGroup, deleteGroup } from '../../../api/groups';
+import { useState, useEffect, useCallback } from 'react';
 import { Pencil, Trash2, Plus, Check, X } from 'lucide-react';
-import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
+import { getGroups, createGroup, updateGroup, deleteGroup } from '../../../api/groups';
+import { formInputClass as inputClass } from '../../../styles/formClasses';
 import Button from '../../../components/common/ButtonCRM';
 import ConfirmDeleteModal from '../../../components/common/ConfirmDeleteModal';
-
 
 export default function Groups() {
   const [groups, setGroups] = useState([]);
@@ -17,33 +16,49 @@ export default function Groups() {
   const [editValue, setEditValue] = useState('');
   const [groupToDelete, setGroupToDelete] = useState(null);
 
-  const loadGroups = async () => {
-    setLoading(true);
-    const data = await getGroups();
-    setGroups(data);
-    setLoading(false);
+  const clearAlerts = () => {
+    setError(null);
+    setSuccess(null);
   };
 
-  useEffect(() => {
-    loadGroups();
+  const loadGroups = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getGroups();
+      setGroups(data ?? []);
+    } catch {
+      setError('Erreur lors du chargement des groupes.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadGroups();
+  }, [loadGroups]);
 
   const handleAdd = async (e) => {
     e.preventDefault();
-    if (!newGroupName.trim()) {
+    clearAlerts();
+
+    const trimmedName = newGroupName.trim();
+    if (!trimmedName) {
       setError('Le nom du groupe est obligatoire.');
       return;
     }
+
     setSubmitting(true);
-    setError(null);
     try {
-      await createGroup(newGroupName.trim());
+      await createGroup(trimmedName);
       setNewGroupName('');
       setSuccess('Groupe créé avec succès.');
-      loadGroups();
+      await loadGroups();
     } catch (err) {
       setError(
-        err.message === 'exists' ? 'Ce groupe existe déjà.' : "Erreur lors de l'insertion."
+        err.message === 'exists'
+          ? 'Ce groupe existe déjà.'
+          : "Erreur lors de la création du groupe."
       );
     } finally {
       setSubmitting(false);
@@ -51,11 +66,14 @@ export default function Groups() {
   };
 
   const confirmDelete = async () => {
+    if (!groupToDelete?.group_name) return;
+    clearAlerts();
+
     try {
       await deleteGroup(groupToDelete.group_name);
       setSuccess('Groupe supprimé avec succès.');
-      loadGroups();
-    } catch (err) {
+      await loadGroups();
+    } catch {
       setError('Erreur lors de la suppression.');
     } finally {
       setGroupToDelete(null);
@@ -63,6 +81,7 @@ export default function Groups() {
   };
 
   const startEdit = (groupName) => {
+    clearAlerts();
     setEditingGroup(groupName);
     setEditValue(groupName);
   };
@@ -72,23 +91,36 @@ export default function Groups() {
     setEditValue('');
   };
 
-const confirmEdit = async (oldName) => {
-  const trimmedValue = editValue.trim();
-  if (!trimmedValue || trimmedValue === oldName) {
-    cancelEdit();
-    return;
-  }
-  
-  try {
-    await updateGroup(oldName, trimmedValue);
-    setSuccess('Groupe renommé avec succès.');
-    loadGroups();
-  } catch (err) {
-    setError(err.message === 'exists' ? 'Un groupe porte déjà ce nom.' : 'Erreur lors de la modification.');
-  } finally {
-    cancelEdit();
-  }
-};
+  const confirmEdit = async (oldName) => {
+    const trimmedValue = editValue.trim();
+    if (!trimmedValue || trimmedValue === oldName) {
+      cancelEdit();
+      return;
+    }
+
+    clearAlerts();
+    try {
+      await updateGroup(oldName, trimmedValue);
+      setSuccess('Groupe renommé avec succès.');
+      await loadGroups();
+    } catch (err) {
+      setError(
+        err.message === 'exists'
+          ? 'Un groupe porte déjà ce nom.'
+          : 'Erreur lors de la modification.'
+      );
+    } finally {
+      cancelEdit();
+    }
+  };
+
+  const handleKeyDownEdit = (e, oldName) => {
+    if (e.key === 'Enter') {
+      confirmEdit(oldName);
+    } else if (e.key === 'Escape') {
+      cancelEdit();
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -112,23 +144,40 @@ const confirmEdit = async (oldName) => {
                 placeholder="ex: TEAM_SALES"
               />
             </div>
-            <Button type="submit" variant="primary" disabled={submitting} className="flex items-center gap-1.5">
-              <Plus className="w-4 h-4" />{submitting ? 'Création...' : 'Créer'}
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={submitting}
+              className="flex items-center gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              {submitting ? 'Création...' : 'Créer'}
             </Button>
           </div>
 
+          {/* Messages de retour */}
           {error && (
             <div className="mt-4 flex items-center justify-between rounded-lg bg-red-50 border border-red-100 px-4 py-2.5 text-xs text-red-700">
-              {error}
-              <button type="button" onClick={() => setError(null)}>
+              <span>{error}</span>
+              <button
+                type="button"
+                onClick={() => setError(null)}
+                className="text-red-400 hover:text-red-600 transition-colors"
+                aria-label="Fermer"
+              >
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
           )}
           {success && (
             <div className="mt-4 flex items-center justify-between rounded-lg bg-emerald-50 border border-emerald-100 px-4 py-2.5 text-xs text-emerald-700">
-              {success}
-              <button type="button" onClick={() => setSuccess(null)}>
+              <span>{success}</span>
+              <button
+                type="button"
+                onClick={() => setSuccess(null)}
+                className="text-emerald-400 hover:text-emerald-600 transition-colors"
+                aria-label="Fermer"
+              >
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -157,8 +206,12 @@ const confirmEdit = async (oldName) => {
             {loading ? (
               Array.from({ length: 3 }).map((_, i) => (
                 <tr key={i}>
-                  <td className="px-6 py-4"><div className="h-3 w-32 bg-gray-100 rounded animate-pulse" /></td>
-                  <td className="px-6 py-4"><div className="h-3 w-16 bg-gray-100 rounded animate-pulse" /></td>
+                  <td className="px-6 py-4">
+                    <div className="h-3 w-32 bg-gray-100 rounded animate-pulse" />
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="h-3 w-16 bg-gray-100 rounded animate-pulse" />
+                  </td>
                 </tr>
               ))
             ) : groups.length === 0 ? (
@@ -168,45 +221,73 @@ const confirmEdit = async (oldName) => {
                 </td>
               </tr>
             ) : (
-              groups.map((group) => (
-                <tr key={group.group_name} className="hover:bg-gray-50/50">
-                  <td className="px-6 py-3">
-                    {editingGroup === group.group_name ? (
-                      <input
-                        autoFocus
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && confirmEdit(group.group_name)}
-                        className="rounded-md border border-emerald-300 px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                      />
-                    ) : (
-                      <span className="text-xs font-medium text-gray-900">{group.group_name}</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-3">
-                    {editingGroup === group.group_name ? (
-                      <div className="flex items-center gap-2 text-gray-400">
-                        <Check
-                          className="w-4 h-4 cursor-pointer hover:text-emerald-600"
-                          onClick={() => confirmEdit(group.group_name)}
+              groups.map((group) => {
+                const isEditing = editingGroup === group.group_name;
+                return (
+                  <tr key={group.group_name} className="hover:bg-gray-50/50">
+                    <td className="px-6 py-3">
+                      {isEditing ? (
+                        <input
+                          autoFocus
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          onKeyDown={(e) => handleKeyDownEdit(e, group.group_name)}
+                          className="rounded-md border border-emerald-300 px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-emerald-500"
                         />
-                        <X className="w-4 h-4 cursor-pointer hover:text-red-600" onClick={cancelEdit} />
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 text-gray-400">
-                        <Pencil
-                          className="w-4 h-4 cursor-pointer hover:text-gray-700"
-                          onClick={() => startEdit(group.group_name)}
-                        />
-                        <Trash2
-                          className="w-4 h-4 cursor-pointer hover:text-red-600"
-                          onClick={() => setGroupToDelete(group)}
-                        />
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))
+                      ) : (
+                        <span className="text-xs font-medium text-gray-900">
+                          {group.group_name}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-3">
+                      {isEditing ? (
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => confirmEdit(group.group_name)}
+                            className="text-gray-400 hover:text-emerald-600 transition-colors p-1"
+                            aria-label="Valider la modification"
+                            title="Valider"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={cancelEdit}
+                            className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                            aria-label="Annuler la modification"
+                            title="Annuler"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => startEdit(group.group_name)}
+                            className="text-gray-400 hover:text-gray-700 transition-colors p-1"
+                            aria-label={`Modifier le groupe ${group.group_name}`}
+                            title="Modifier"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setGroupToDelete(group)}
+                            className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                            aria-label={`Supprimer le groupe ${group.group_name}`}
+                            title="Supprimer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

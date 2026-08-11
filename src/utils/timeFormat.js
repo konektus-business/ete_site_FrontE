@@ -13,7 +13,7 @@ export const timeInputToHhmm = (timeStr) => {
   if (!timeStr) return null;
   const [h, m] = timeStr.split(':');
   // ex: '09:00' -> 9 * 100 + 0 = 900
-  return parseInt(h, 10) * 100 + parseInt(m, 10);
+  return Number.parseInt(h, 10) * 100 + Number.parseInt(m, 10);
 };
 
 // Convertit une durée "HH:MM:SS" en nombre de minutes (pour les graphiques),
@@ -31,4 +31,15 @@ export const formatDuration = (seconds) => {
   const m = Math.floor((seconds % 3600) / 60);
   const s = seconds % 60;
   return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+};
+
+// Formate une date en "il y a X min/h/j" pour les listes type notifications
+export const timeAgo = (dateStr) => {
+  const diffMs = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "à l'instant";
+  if (mins < 60) return `il y a ${mins} min`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `il y a ${hours}h`;
+  return `il y a ${Math.floor(hours / 24)}j`;
 };

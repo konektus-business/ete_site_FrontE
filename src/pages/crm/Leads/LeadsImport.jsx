@@ -1,11 +1,29 @@
-// src/pages/crm/Leads/LeadsImport.jsx
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Upload } from 'lucide-react';
 import { getCampaigns, getCampaignLists } from '../../../api/campaigns';
 import { importLeads } from '../../../api/leads';
 import Select from '../../../components/common/Select';
 import Button from '../../../components/common/ButtonCRM';
 import { labelClass } from '../../../styles/formClasses';
+
+// Analyse d'un fichier CSV texte
+const parseCSV = (text) => {
+  const lines = text.split(/\r\n|\n/).filter((line) => line.trim() !== '');
+  if (lines.length < 2) return [];
+
+  const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
+  const data = [];
+
+  for (let i = 1; i < lines.length; i += 1) {
+    const values = lines[i].split(',').map((v) => v.trim());
+    const row = {};
+    headers.forEach((header, index) => {
+      row[header] = values[index] ?? '';
+    });
+    data.push(row);
+  }
+  return data;
+};
 
 export default function LeadsImport() {
   const [campaigns, setCampaigns] = useState([]);
@@ -25,7 +43,7 @@ export default function LeadsImport() {
       .catch(() => setError('Erreur lors du chargement des campagnes.'));
   }, []);
 
-  const handleCampaignChange = (id) => {
+  const handleCampaignChange = useCallback((id) => {
     setCampaignId(id);
     setListId('');
     setLists([]);
@@ -34,9 +52,9 @@ export default function LeadsImport() {
         .then(setLists)
         .catch(() => setError('Erreur lors du chargement des listes.'));
     }
-  };
+  }, []);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setCampaignId('');
     setListId('');
     setLists([]);
@@ -46,26 +64,7 @@ export default function LeadsImport() {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-  };
-
-  // Parser rapidement un fichier CSV texte
-  const parseCSV = (text) => {
-    const lines = text.split(/\r\n|\n/).filter((line) => line.trim() !== '');
-    if (lines.length < 2) return [];
-
-    const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
-    const data = [];
-
-    for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map((v) => v.trim());
-      const row = {};
-      headers.forEach((header, index) => {
-        row[header] = values[index] || '';
-      });
-      data.push(row);
-    }
-    return data;
-  };
+  }, []);
 
   const handleImport = async (e) => {
     e.preventDefault();
@@ -88,38 +87,29 @@ export default function LeadsImport() {
     setLoading(true);
 
     try {
-      const reader = new FileReader();
-      reader.onload = async (evt) => {
-        try {
-          const csvText = evt.target.result;
-          const parsedData = parseCSV(csvText);
+      // Modernisation : Remplacement de FileReader par Blob#text() basé sur les promesses
+      const csvText = await file.text();
+      const parsedData = parseCSV(csvText);
 
-          // Si le fichier est vide ou incomplet, on génère par sécurité un jeu par défaut
-          const rowsToImport = parsedData.length > 0 
-            ? parsedData 
-            : Array.from({ length: 15 }, (_, i) => ({
-                first_name: `Client_${i + 1}`,
-                last_name: 'CSV',
-                phone: `+216 20 ${100000 + i}`,
-              }));
+      const rowsToImport =
+        parsedData.length > 0
+          ? parsedData
+          : Array.from({ length: 15 }, (_, i) => ({
+              first_name: `Client_${i + 1}`,
+              last_name: 'CSV',
+              phone: `+216 20 ${100000 + i}`,
+            }));
 
-          const res = await importLeads(campaignId, listId, rowsToImport);
-          setImported(res.count);
+      const res = await importLeads(campaignId, listId, rowsToImport);
+      setImported(res.count);
 
-          setFile(null);
-          if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-          }
-        } catch (err) {
-          setError("Format de fichier invalide ou erreur de lecture.");
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      reader.readAsText(file);
-    } catch (err) {
+      setFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch {
       setError("Erreur lors de l'importation du fichier.");
+    } finally {
       setLoading(false);
     }
   };
@@ -127,14 +117,21 @@ export default function LeadsImport() {
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
       <div className="px-6 py-4 border-b border-gray-100">
-        <h2 className="font-sans font-semibold text-sm text-gray-900">Import de leads</h2>
-        <p className="text-xs text-gray-400 mt-0.5">Importer des contacts CSV dans une liste spécifique</p>
+        <h2 className="font-sans font-semibold text-sm text-gray-900">
+          Import de leads
+        </h2>
+        <p className="text-xs text-gray-400 mt-0.5">
+          Importer des contacts CSV dans une liste spécifique
+        </p>
       </div>
 
       <form onSubmit={handleImport} className="p-6 space-y-5 max-w-3xl">
         {imported !== null && (
           <div className="px-4 py-3 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-100 text-sm flex items-center justify-between">
-            <span>{imported} leads importés avec succès ! Le compteur de la liste a été mis à jour.</span>
+            <span>
+              {imported} leads importés avec succès ! Le compteur de la liste a
+              été mis à jour.
+            </span>
           </div>
         )}
 
@@ -146,38 +143,52 @@ export default function LeadsImport() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
           <div>
-            <label className={labelClass}>Campagne *</label>
+            <label htmlFor="campaignId" className={labelClass}>
+              Campagne *
+            </label>
             <Select
+              id="campaignId"
               value={campaignId}
               onChange={handleCampaignChange}
               options={[
                 { value: '', label: '-- Choisir --' },
-                ...campaigns.map((c) => ({ value: c.campaign_id, label: c.campaign_name })),
+                ...campaigns.map((c) => ({
+                  value: c.campaign_id,
+                  label: c.campaign_name,
+                })),
               ]}
             />
           </div>
 
           <div>
-            <label className={labelClass}>Liste (fichier) *</label>
+            <label htmlFor="listId" className={labelClass}>
+              Liste (fichier) *
+            </label>
             <Select
+              id="listId"
               value={listId}
               onChange={setListId}
               disabled={!campaignId}
               options={[
                 { value: '', label: '-- Choisir --' },
-                ...lists.map((l) => ({ value: l.list_id, label: l.list_name })),
+                ...lists.map((l) => ({
+                  value: l.list_id,
+                  label: l.list_name,
+                })),
               ]}
             />
           </div>
 
           <div>
-            <label className={labelClass}>Fichier CSV *</label>
+            <label htmlFor="csv-upload" className={labelClass}>
+              Fichier CSV *
+            </label>
             <input
               ref={fileInputRef}
               id="csv-upload"
               type="file"
               accept=".csv"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               className="hidden"
             />
             <div className="flex items-center gap-2 mt-1 min-w-0">
@@ -190,7 +201,7 @@ export default function LeadsImport() {
                 Choisir un fichier
               </button>
 
-              <span 
+              <span
                 className="text-xs text-gray-500 truncate min-w-0 flex-1"
                 title={file ? file.name : ''}
               >

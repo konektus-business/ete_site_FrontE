@@ -47,13 +47,24 @@ export default function StatusForm({ mode = 'add', initialData, onSubmit, onCanc
     setError(null);
     try {
       await onSubmit(form);
-      if (mode === 'add') setForm({ ...emptyStatus }); // formulaire réinitialisé après ajout, prêt pour le suivant
+      if (mode === 'add') {
+        setForm({ ...emptyStatus });
+      }
     } catch (err) {
-      setError(err.message === 'exists' ? 'Ce statut existe déjà.' : "Erreur lors de l'enregistrement.");
+      setError(err?.message === 'exists' ? 'Ce statut existe déjà.' : "Erreur lors de l'enregistrement.");
     } finally {
       setSaving(false);
     }
   };
+
+  let buttonLabel;
+  if (saving) {
+    buttonLabel = 'Enregistrement...';
+  } else if (mode === 'edit') {
+    buttonLabel = 'Mettre à jour';
+  } else {
+    buttonLabel = 'Ajouter le statut';
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -61,9 +72,10 @@ export default function StatusForm({ mode = 'add', initialData, onSubmit, onCanc
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
-          <label className={labelClass}>Code statut *</label>
+          <label htmlFor="status" className={labelClass}>Code statut *</label>
           <input
             type="text"
+            id="status"
             maxLength={6}
             value={form.status}
             onChange={(e) => handleChange('status', e.target.value.toUpperCase())}
@@ -73,38 +85,38 @@ export default function StatusForm({ mode = 'add', initialData, onSubmit, onCanc
           />
         </div>
         <div className="md:col-span-2">
-          <label className={labelClass}>Nom *</label>
-          <input type="text" value={form.status_name} onChange={(e) => handleChange('status_name', e.target.value)} className={inputClass} required />
+          <label htmlFor="status_name" className={labelClass}>Nom *</label>
+          <input type="text" id="status_name" value={form.status_name} onChange={(e) => handleChange('status_name', e.target.value)} className={inputClass} required />
         </div>
         <div>
-          <label className={labelClass}>Catégorie</label>
-          <input type="text" value={form.category} onChange={(e) => handleChange('category', e.target.value)} className={inputClass} />
+          <label htmlFor="category" className={labelClass}>Catégorie</label>
+          <input type="text" id="category" value={form.category} onChange={(e) => handleChange('category', e.target.value)} className={inputClass} />
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {BOOLEAN_FIELDS.map((f) => (
           <div key={f.key}>
-            <label className={labelClass}>{f.label}</label>
-            <Select value={form[f.key]} onChange={(v) => handleChange(f.key, v)} options={YES_NO} />
+            <label htmlFor={f.key} className={labelClass}>{f.label}</label>
+            <Select id={f.key} value={form[f.key]} onChange={(v) => handleChange(f.key, v)} options={YES_NO} />
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div>
-          <label className={labelClass}>Min sec</label>
-          <input type="number" value={form.min_sec} onChange={(e) => handleChange('min_sec', Number(e.target.value))} className={inputClass} />
+          <label htmlFor="min_sec" className={labelClass}>Min sec</label>
+          <input type="number" id="min_sec" value={form.min_sec} onChange={(e) => handleChange('min_sec', Number(e.target.value))} className={inputClass} />
         </div>
         <div>
-          <label className={labelClass}>Max sec</label>
-          <input type="number" value={form.max_sec} onChange={(e) => handleChange('max_sec', Number(e.target.value))} className={inputClass} />
+          <label htmlFor="max_sec" className={labelClass}>Max sec</label>
+          <input type="number" id="max_sec" value={form.max_sec} onChange={(e) => handleChange('max_sec', Number(e.target.value))} className={inputClass} />
         </div>
       </div>
 
       <div className="flex items-center gap-3 pt-2">
         <Button type="submit" variant="primary" disabled={saving}>
-          {saving ? 'Enregistrement...' : mode === 'edit' ? 'Mettre à jour' : 'Ajouter le statut'}
+          {buttonLabel}
         </Button>
         {onCancel && <Button type="button" variant="secondary" onClick={onCancel}>Annuler</Button>}
       </div>

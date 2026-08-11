@@ -2,34 +2,44 @@ import ooredoo from '../assets/carrierLogos/ooredoo.png';
 import orange from '../assets/carrierLogos/orange.png';
 
 const normalize = (name) =>
-  name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '');
+  name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '');
 
-// Logos statiques par défaut (fallback si aucun logo custom n'est uploadé)
-export const carrierLogos = {
-  ooredoo: ooredoo,
+// Logos statiques par défaut (immutabilité garantie par Object.freeze)
+export const carrierLogos = Object.freeze({
+  ooredoo,
   ooredootunisie: ooredoo,
-  orange: orange,
+  orange,
   orangetunisie: orange,
-};
+});
 
-// row = carrier complet, pas juste le nom, pour pouvoir checker row.logo en premier
+/**
+ * Récupère le logo de l'opérateur à partir de l'objet row.
+ * Priorité au logo personnalisé uploade (base64).
+ */
 export const getCarrierLogo = (row) => {
-  if (row?.logo) return row.logo; // logo uploadé par l'utilisateur (base64), priorité absolue
-  return carrierLogos[normalize(row?.carrier_name ?? '')] || null;
+  if (row?.logo) return row.logo;
+  return carrierLogos[normalize(row?.carrier_name ?? '')] ?? null;
 };
 
-//nom de l'opérateur
-const nameColors = [
-  {  text: '#5B21B6' }, // violet
-  {  text: '#9D174D' }, // pink
-  {  text: '#065F46' }, // emerald
-  {  text: '#334155' }, // slate
-  {  text: '#92400E' }, // amber
-  {  text: '#1E40AF' }, // blue
-  {  text: '#9F1239' }, // rose
-];
+// Palette de couleurs pour l'affichage des noms d'opérateurs
+const nameColors = Object.freeze([
+  { text: '#5B21B6' }, // violet
+  { text: '#9D174D' }, // pink
+  { text: '#065F46' }, // emerald
+  { text: '#334155' }, // slate
+  { text: '#92400E' }, // amber
+  { text: '#1E40AF' }, // blue
+  { text: '#9F1239' }, // rose
+]);
 
 export const getCarrierNameColor = (name = '') => {
-  const hash = [...name].reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  let hash = 0;
+  for (let i = 0; i < name.length; i += 1) {
+    hash += name.codePointAt(i);
+  }
   return nameColors[hash % nameColors.length];
 };

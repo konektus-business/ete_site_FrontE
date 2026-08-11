@@ -33,7 +33,7 @@ const audioPlayerRegistry = {
   current: null, // { audio: HTMLAudioElement, stop: () => void }
 };
 
-// Composant lecteur audio personnalisé — badge micro + waveform, style CRM
+// Composant lecteur audio personnalisé — badge micro + waveform
 export default function CustomAudioPlayer({ src, seed }) {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -128,7 +128,6 @@ export default function CustomAudioPlayer({ src, seed }) {
       />
 
       {/* Badge micro — vert quand ça joue, gris neutre en pause */}
-      {/* Variante "rouge en pause" : remplacer bg-gray-300 par bg-red-500 ci-dessous */}
       <button
         type="button"
         onClick={togglePlay}

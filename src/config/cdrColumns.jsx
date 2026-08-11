@@ -20,7 +20,7 @@ export const cdrColumns = [
     },
   },
   // "Type" ici = classification tarifaire (Fixe/Mobile), pas le sens de l'appel
-  // (Sortant/Entrant, qui lui est géré par le filtre) — même logique que le PHP
+  // (Sortant/Entrant, qui lui est géré par le filtre)
   { key: 'type_detected', label: 'Type', render: (row) => <span className="text-xs text-gray-500 whitespace-nowrap">{row.type_detected === 'mobile' ? 'Mobile' : 'Fixe'}</span> },
   { key: 'phone_number', label: 'Numéro appelé', sortable: true, render: (row) => <span className="text-xs font-mono text-gray-700 whitespace-nowrap">{row.phone_number}</span> },
   { key: 'length_in_sec', label: 'Durée', render: (row) => <span className="text-xs font-mono text-gray-500 whitespace-nowrap">{formatDuration(row.length_in_sec)}</span> },

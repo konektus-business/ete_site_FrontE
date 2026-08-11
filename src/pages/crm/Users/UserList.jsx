@@ -1,7 +1,7 @@
 // src/pages/crm/Users/UserList.jsx
 import { usersTable } from '../../../config/userColumns';
 import { getUsers, softDeleteUser } from '../../../api/users';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getAvatarColor, getInitials } from '../../../utils/avatar';
 import { userStatusLabels, userStatusColors } from '../../../utils/statusConstants';
 import Table from '../../../components/dashboard/Table';
@@ -28,7 +28,6 @@ function TableSkeleton({ rows = 6, columns = 5 }) {
 }
 
 export default function UsersList() {
-  // Liste complète (y compris désactivés) + états des 3 modales
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -36,20 +35,40 @@ export default function UsersList() {
   const [editingUser, setEditingUser] = useState(null);
   const [userToDelete, setUserToDelete] = useState(null);
 
-  const loadUsers = () => {
+  // Rechargement manuel des utilisateurs (ex: après ajout, édition ou suppression)
+  const loadUsers = useCallback(async () => {
     setLoading(true);
-    getUsers().then((data) => {
+    try {
+      const data = await getUsers();
       setUsers(data);
+    } catch (error) {
+      console.error('Erreur lors du chargement des utilisateurs:', error);
+    } finally {
       setLoading(false);
-    });
-  };
-
-  useEffect(() => {
-    loadUsers();
+    }
   }, []);
 
-  // "Cache" les utilisateurs désactivés (active === 'N') de la liste affichée,
-  // sans les supprimer de mockUsers — ils restent en base, juste invisibles ici.
+  // Chargement initial sans modification synchrone d'état dans useEffect
+  useEffect(() => {
+    let isMounted = true;
+
+    getUsers()
+      .then((data) => {
+        if (isMounted) {
+          setUsers(data);
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error('Erreur lors du chargement des utilisateurs:', error);
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const visibleUsers = users.filter((u) => u.active !== 'N');
 
   const handleRowClick = (user) => {
@@ -57,9 +76,9 @@ export default function UsersList() {
     setIsModalOpen(true);
   };
 
-  // Appelée uniquement après validation du mot de passe admin dans ConfirmDeleteModal
   const confirmSoftDelete = async () => {
     await softDeleteUser(userToDelete.id);
+    setUserToDelete(null);
     loadUsers();
   };
 

@@ -1,34 +1,16 @@
 // src/components/common/NotificationsDropdown.jsx
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Bell } from 'lucide-react';
 import { getNotifications, markNotificationRead, markAllNotificationsRead } from '../../api/notifications';
-
-const BellIcon = ({ className, style }) => (
-  <svg className={className} style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path
-      d="M15 19H20L18.595 17.595C18.2139 17.2139 17.9999 16.697 18 16.158V13C18.0003 10.4567 16.3976 8.18933 14 7.341V7C14 5.89617 13.1038 5 12 5C10.8962 5 10 5.89617 10 7V7.341C7.67 8.165 6 10.388 6 13V16.159C6 16.697 5.786 17.214 5.405 17.595L4 19H9M15 19V20C15 21.6557 13.6557 23 12 23C10.3443 23 9 21.6557 9 20V19M15 19H9"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const timeAgo = (dateStr) => {
-  const diffMs = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diffMs / 60000);
-  if (mins < 1) return "a l'instant";
-  if (mins < 60) return `il y a ${mins} min`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `il y a ${hours}h`;
-  return `il y a ${Math.floor(hours / 24)}j`;
-};
+import { timeAgo } from '../../utils/timeFormat';
+import { getNotificationTypeConfig } from '../../utils/notificationTypes';
 
 const POLL_INTERVAL = 30_000; // 30s : rafraichissement automatique
 
-// Remplace le bouton cloche statique du header : fetch + polling + dropdown
-// avec marquage lu/non-lu, click sur un item -> navigue si un lien est fourni.
+// Bouton cloche du header : fetch + polling + dropdown avec types de notif
+// (success/danger/warning/info/primary), marquage lu/non-lu, click -> navigue
+// si un lien est fourni.
 export default function NotificationsDropdown() {
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
@@ -77,13 +59,40 @@ export default function NotificationsDropdown() {
     markAllNotificationsRead().catch(() => {});
   };
 
+  let content;
+  if (loading) {
+    content = <div className="px-4 py-6 text-center text-sm text-slate-400">Chargement...</div>;
+  } else if (notifications.length === 0) {
+    content = <div className="px-4 py-6 text-center text-sm text-slate-400">Aucune notification</div>;
+  } else {
+    content = notifications.map((notif) => {
+      const { icon: TypeIcon, iconColor, bg } = getNotificationTypeConfig(notif.type);
+      return (
+        <button
+          key={notif.id}
+          onClick={() => handleItemClick(notif)}
+          className={`w-full flex items-start gap-2.5 px-4 py-3 text-left border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors cursor-pointer ${
+            !notif.read ? bg : ''
+          }`}
+        >
+          <TypeIcon className="w-4 h-4 mt-0.5 shrink-0" style={{ color: iconColor }} />
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-slate-800 truncate">{notif.title}</p>
+            <p className="text-sm text-slate-600 line-clamp-2">{notif.message}</p>
+            <p className="text-[11px] text-slate-400 mt-0.5">{timeAgo(notif.createdAt)}</p>
+          </div>
+        </button>
+      );
+    });
+  }
+
   return (
     <div className="relative" ref={wrapperRef}>
       <button
         onClick={() => setOpen((o) => !o)}
         className="relative p-2 text-slate-500 hover:text-crmPrimary rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
       >
-        <BellIcon className="w-5 h-5" style={{ color: '#94A3B8', strokeWidth: 2 }} />
+        <Bell className="w-5 h-5" style={{ color: '#94A3B8', strokeWidth: 2 }} />
         {unreadCount > 0 && (
           <span
             className="absolute flex items-center justify-center rounded-full text-white leading-none"
@@ -116,29 +125,7 @@ export default function NotificationsDropdown() {
             )}
           </div>
 
-          <div className="overflow-y-auto">
-            {loading ? (
-              <div className="px-4 py-6 text-center text-sm text-slate-400">Chargement...</div>
-            ) : notifications.length === 0 ? (
-              <div className="px-4 py-6 text-center text-sm text-slate-400">Aucune notification</div>
-            ) : (
-              notifications.map((notif) => (
-                <button
-                  key={notif.id}
-                  onClick={() => handleItemClick(notif)}
-                  className={`w-full flex items-start gap-2 px-4 py-3 text-left border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors cursor-pointer ${
-                    !notif.read ? 'bg-emerald-50/40' : ''
-                  }`}
-                >
-                  {!notif.read && <span className="w-1.5 h-1.5 rounded-full bg-crmPrimary mt-1.5 shrink-0" />}
-                  <div className={!notif.read ? '' : 'pl-3.5'}>
-                    <p className="text-sm text-slate-700">{notif.message}</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5">{timeAgo(notif.createdAt)}</p>
-                  </div>
-                </button>
-              ))
-            )}
-          </div>
+          <div className="overflow-y-auto">{content}</div>
         </div>
       )}
     </div>

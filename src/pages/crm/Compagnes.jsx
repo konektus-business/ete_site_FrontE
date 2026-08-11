@@ -26,17 +26,19 @@ export default function Compagnes() {
     setActiveTab('liste');
   };
 
+  const renderListContent = () => {
+    if (listsCampaign) {
+      return <CampaignLists campaign={listsCampaign} onBack={() => setListsCampaign(null)} />;
+    }
+    if (formMode === 'edit') {
+      return <CampaignForm mode="edit" initialData={selectedCampaign} onSuccess={handleDone} onCancel={handleDone} />;
+    }
+    return <CampaignsList onEdit={handleEdit} onLists={setListsCampaign} />;
+  };
+
   return (
     <div className="p-4">
-      {activeTab === 'liste' && (
-        listsCampaign ? (
-          <CampaignLists campaign={listsCampaign} onBack={() => setListsCampaign(null)} />
-        ) : formMode === 'edit' ? (
-          <CampaignForm mode="edit" initialData={selectedCampaign} onSuccess={handleDone} onCancel={handleDone} />
-        ) : (
-          <CampaignsList onEdit={handleEdit} onLists={setListsCampaign} />
-        )
-      )}
+      {activeTab === 'liste' && renderListContent()}
 
       {activeTab === 'add' && (
         <CampaignForm mode="add" onSuccess={handleDone} onCancel={() => setActiveTab('liste')} />

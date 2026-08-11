@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getCampaigns, deleteCampaign } from '../../../api/campaigns';
 import { campaignColumns } from '../../../config/campaignColumns';
 import Table from '../../../components/dashboard/Table';
@@ -11,28 +11,52 @@ export default function CampaignsList({ onEdit, onLists }) {
   const [viewedCampaign, setViewedCampaign] = useState(null);
   const [campaignToDelete, setCampaignToDelete] = useState(null);
 
-  const loadCampaigns = () => {
+  // Fonction stabilisée avec useCallback pour être réutilisée après suppression
+  const loadCampaigns = useCallback(async () => {
     setLoading(true);
-    getCampaigns().then((data) => {
+    try {
+      const data = await getCampaigns();
       setCampaigns(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
       setLoading(false);
-    });
-  };
+    }
+  }, []);
 
+  // Chargement initial sécurisé sans re-rendu synchrone
   useEffect(() => {
-    loadCampaigns();
+    let isMounted = true;
+
+    getCampaigns()
+      .then((data) => {
+        if (isMounted) {
+          setCampaigns(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const confirmDelete = async () => {
     await deleteCampaign(campaignToDelete.campaign_id);
+    setCampaignToDelete(null);
     loadCampaigns();
   };
 
   return (
-
     <div className="space-y-4">
       {loading ? (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-center text-sm text-gray-400">Chargement...</div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 text-center text-sm text-gray-400">
+          Chargement...
+        </div>
       ) : (
         <Table
           columns={campaignColumns(setViewedCampaign, onLists, onEdit, setCampaignToDelete)}
@@ -42,18 +66,20 @@ export default function CampaignsList({ onEdit, onLists }) {
         />
       )}
 
-      {/* Détails  */}
+      {/* Détails */}
       <Modal isOpen={!!viewedCampaign} onClose={() => setViewedCampaign(null)}>
         {viewedCampaign && (
           <div className="w-96">
             <h2 className="text-base font-bold text-gray-900 mb-4">{viewedCampaign.campaign_name}</h2>
             <div className="divide-y divide-gray-100 text-sm">
-              {Object.entries(viewedCampaign).filter(([key]) => key !== 'id').map(([key, value]) => (
-                <div key={key} className="flex justify-between py-2">
-                  <span className="text-gray-400">{key}</span>
-                  <span className="text-gray-800 font-medium">{value ?? '-'}</span>
-                </div>
-              ))}
+              {Object.entries(viewedCampaign)
+                .filter(([key]) => key !== 'id')
+                .map(([key, value]) => (
+                  <div key={key} className="flex justify-between py-2">
+                    <span className="text-gray-400">{key}</span>
+                    <span className="text-gray-800 font-medium">{value ?? '-'}</span>
+                  </div>
+                ))}
             </div>
           </div>
         )}

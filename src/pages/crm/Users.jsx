@@ -5,13 +5,15 @@ import AddSupUser from './Users/AddSupUser';
 import Groups from './Users/Groups';
 
 export default function Users() {
-  const { activeTab } = useOutletContext();
+  const { activeTab, setActiveTab } = useOutletContext();
+
+  const handleDone = () => setActiveTab('list');
 
   return (
     <div className="p-4">
       {activeTab === 'list' && <UsersList />}
-      {activeTab === 'addAgent' && <AddAgent />}
-      {activeTab === 'addSupUser' && <AddSupUser />}
+      {activeTab === 'addAgent' && <AddAgent onSuccess={handleDone} />}
+      {activeTab === 'addSupUser' && <AddSupUser onSuccess={handleDone} />}
       {activeTab === 'groups' && <Groups />}
     </div>
   );

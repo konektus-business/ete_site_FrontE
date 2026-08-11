@@ -17,26 +17,48 @@ export default function CdrConfig() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    if (!pays) {
-      setConfig(null);
-      return;
-    }
-    getCdrConfig(pays).then(setConfig);
+  const handlePaysChange = (selectedPays) => {
+    setPays(selectedPays);
     setSaved(false);
+    if (!selectedPays) {
+      setConfig(null);
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!pays) return;
+
+    const fetchConfig = async () => {
+      try {
+        const data = await getCdrConfig(pays);
+        if (isMounted) {
+          setConfig(data);
+        }
+      } catch (err) {
+        console.error('Erreur lors de la récupération de la configuration CDR :', err);
+      }
+    };
+
+    fetchConfig();
+
+    return () => {
+      isMounted = false;
+    };
   }, [pays]);
 
   const operateurs = pays ? (operateursMobiles[pays] || ['Mobile']) : [];
 
   const handleFixeChange = (field, value) => {
-    setConfig((prev) => ({ ...prev, fixe: { ...prev.fixe, [field]: value } }));
+    setConfig((prev) => ({ ...prev, fixe: { ...prev?.fixe, [field]: value } }));
     setSaved(false);
   };
 
   const handleMobileChange = (op, field, value) => {
     setConfig((prev) => ({
       ...prev,
-      mobile: { ...prev.mobile, [op]: { ...(prev.mobile[op] || {}), [field]: value } },
+      mobile: { ...prev?.mobile, [op]: { ...prev?.mobile?.[op], [field]: value } },
     }));
     setSaved(false);
   };
@@ -44,9 +66,14 @@ export default function CdrConfig() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    await saveCdrConfig(pays, config);
-    setSaving(false);
-    setSaved(true);
+    try {
+      await saveCdrConfig(pays, config);
+      setSaved(true);
+    } catch (err) {
+      console.error('Erreur lors de la sauvegarde de la configuration CDR :', err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -63,8 +90,8 @@ export default function CdrConfig() {
 
       <div className="p-6">
         <div className="max-w-xs mb-6">
-          <label className={labelClass}>Sélectionner un pays</label>
-          <Select value={pays} onChange={setPays} options={PAYS_OPTIONS} />
+          <label htmlFor="select-pays" className={labelClass}>Sélectionner un pays</label>
+          <Select id="select-pays" value={pays} onChange={handlePaysChange} options={PAYS_OPTIONS} />
           {pays && paysFlags[pays] && (
             <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
               <span className={`rounded-[4px] fi fi-${paysFlags[pays]}`}></span>
@@ -83,30 +110,66 @@ export default function CdrConfig() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className={labelClass}>Prix minute fixe (€)</label>
-                <input type="number" step="0.0001" min="0" value={config.fixe.prix} onChange={(e) => handleFixeChange('prix', e.target.value)} className={inputClass} />
+                <label htmlFor="fixe-prix" className={labelClass}>Prix minute fixe (€)</label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  min="0"
+                  id="fixe-prix"
+                  value={config.fixe?.prix ?? ''}
+                  onChange={(e) => handleFixeChange('prix', e.target.value)}
+                  className={inputClass}
+                />
               </div>
               <div className="md:col-span-2">
-                <label className={labelClass}>Préfixes fixes (séparés par des virgules)</label>
-                <input type="text" value={config.fixe.prefixes} onChange={(e) => handleFixeChange('prefixes', e.target.value)} placeholder="ex: 1,2,3,4,5,9" className={inputClass} />
+                <label htmlFor="fixe-prefixes" className={labelClass}>Préfixes fixes (séparés par des virgules)</label>
+                <input
+                  type="text"
+                  id="fixe-prefixes"
+                  value={config.fixe?.prefixes ?? ''}
+                  onChange={(e) => handleFixeChange('prefixes', e.target.value)}
+                  placeholder="ex: 1,2,3,4,5,9"
+                  className={inputClass}
+                />
               </div>
             </div>
 
-            {operateurs.map((op) => (
-              <div key={op} className="border border-gray-100 rounded-xl p-4">
-                <h4 className="text-xs font-semibold text-gray-700 mb-3">{op}</h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className={labelClass}>Prix minute (€)</label>
-                    <input type="number" step="0.0001" min="0" value={config.mobile[op]?.prix || ''} onChange={(e) => handleMobileChange(op, 'prix', e.target.value)} className={inputClass} />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className={labelClass}>Préfixes mobiles (séparés par des virgules)</label>
-                    <input type="text" value={config.mobile[op]?.prefixes || ''} onChange={(e) => handleMobileChange(op, 'prefixes', e.target.value)} placeholder="ex: 6,7" className={inputClass} />
+            {operateurs.map((op) => {
+              const opIdKey = op.toLowerCase().replace(/\s+/g, '-');
+              const prixId = `mobile-prix-${opIdKey}`;
+              const prefixesId = `mobile-prefixes-${opIdKey}`;
+
+              return (
+                <div key={op} className="border border-gray-100 rounded-xl p-4">
+                  <h4 className="text-xs font-semibold text-gray-700 mb-3">{op}</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label htmlFor={prixId} className={labelClass}>Prix minute (€)</label>
+                      <input
+                        type="number"
+                        step="0.0001"
+                        min="0"
+                        id={prixId}
+                        value={config.mobile?.[op]?.prix ?? ''}
+                        onChange={(e) => handleMobileChange(op, 'prix', e.target.value)}
+                        className={inputClass}
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label htmlFor={prefixesId} className={labelClass}>Préfixes mobiles (séparés par des virgules)</label>
+                      <input
+                        type="text"
+                        id={prefixesId}
+                        value={config.mobile?.[op]?.prefixes ?? ''}
+                        onChange={(e) => handleMobileChange(op, 'prefixes', e.target.value)}
+                        placeholder="ex: 6,7"
+                        className={inputClass}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             <Button type="submit" variant="primary" disabled={saving}>
               {saving ? 'Enregistrement...' : 'Enregistrer'}

@@ -1,17 +1,26 @@
-// src/pages/crm/Leads/LeadsMatching.jsx
-import { useState, useEffect, useRef } from 'react';
-import { PlayCircle, Database, UploadCloud, RotateCcw, CheckCircle2 } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  PlayCircle,
+  Database,
+  UploadCloud,
+  RotateCcw,
+  CheckCircle2,
+} from 'lucide-react';
 import { getCustomTables, launchExtraction } from '../../../api/leads';
 import { getCampaigns } from '../../../api/campaigns';
 import Select from '../../../components/common/Select';
 import Button from '../../../components/common/ButtonCRM';
-import { formInputClass as inputClass, labelClass } from '../../../styles/formClasses';
+import {
+  formInputClass as inputClass,
+  labelClass,
+} from '../../../styles/formClasses';
 import { getDefaultDates } from '../../../utils/dateUtils';
+import DateInput from '../../../components/common/DateInput';
 
-const EXPORT_TYPE_OPTIONS = [
+const EXPORT_TYPE_OPTIONS = Object.freeze([
   { value: 'modele_ok', label: 'Modèle des OK (Ventes uniquement)' },
   { value: 'modele_outcome', label: 'Modèle Outcome (Toutes les lignes)' },
-];
+]);
 
 export default function LeadsMatching() {
   const [tables, setTables] = useState([]);
@@ -23,7 +32,7 @@ export default function LeadsMatching() {
   const [newTableName, setNewTableName] = useState('');
   const [file, setFile] = useState(null);
 
-  const [dates, setDates] = useState(getDefaultDates(0));
+  const [dates, setDates] = useState(() => getDefaultDates(0));
   const [exportType, setExportType] = useState('modele_ok');
   const [campaignId, setCampaignId] = useState('ALL');
 
@@ -35,14 +44,14 @@ export default function LeadsMatching() {
 
   useEffect(() => {
     getCustomTables()
-      .then((t) => setTables(t || []))
+      .then((t) => setTables(t ?? []))
       .catch(() => setError('Erreur lors du chargement des tables.'));
     getCampaigns()
-      .then((c) => setCampaigns(c || []))
+      .then((c) => setCampaigns(c ?? []))
       .catch(() => setError('Erreur lors du chargement des campagnes.'));
   }, []);
 
-  const handleReset = () => {
+  const handleReset = useCallback(() => {
     setSourceMode('existing');
     setSelectedTable('');
     setNewTableName('');
@@ -53,7 +62,19 @@ export default function LeadsMatching() {
     setResult(null);
     setError(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
-  };
+  }, []);
+
+  const handleSelectExistingMode = useCallback(() => {
+    setSourceMode('existing');
+    setNewTableName('');
+    setFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }, []);
+
+  const handleSelectNewMode = useCallback(() => {
+    setSourceMode('new');
+    setSelectedTable('');
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -83,7 +104,7 @@ export default function LeadsMatching() {
       const payload = {
         selected_table: sourceMode === 'existing' ? selectedTable : '',
         new_table_name: sourceMode === 'new' ? newTableName.trim() : '',
-        file: sourceMode === 'new' ? file : null, // Transmission du fichier
+        file: sourceMode === 'new' ? file : null,
         date_start: dates.startDate,
         date_end: dates.endDate,
         export_type: exportType,
@@ -93,10 +114,9 @@ export default function LeadsMatching() {
       const res = await launchExtraction(payload);
       setResult(res);
 
-      // Si création réussie, rafraîchir la liste et basculer sur la nouvelle table
       if (sourceMode === 'new' && newTableName) {
         const updatedTables = await getCustomTables();
-        setTables(updatedTables || []);
+        setTables(updatedTables ?? []);
         setSelectedTable(`custom_${newTableName.trim()}`);
         setSourceMode('existing');
         setNewTableName('');
@@ -104,18 +124,21 @@ export default function LeadsMatching() {
         if (fileInputRef.current) fileInputRef.current.value = '';
       }
     } catch (err) {
-      setError(err.message || "Erreur lors de l meffetuation de l'extraction.");
+      setError(err.message || "Erreur lors de l'extraction.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100">
       <div className="px-6 py-4 border-b border-gray-100">
-        <h2 className="font-sans font-semibold text-sm text-gray-900">Bases & Matching</h2>
+        <h2 className="font-sans font-semibold text-sm text-gray-900">
+          Bases & Matching
+        </h2>
         <p className="text-xs text-gray-400 mt-0.5">
-          Croisez vos bases de contacts avec les historiques Vicidial et lancez des extractions ciblées.
+          Croisez vos bases de contacts avec les historiques Vicidial et lancez
+          des extractions ciblées.
         </p>
       </div>
 
@@ -125,7 +148,9 @@ export default function LeadsMatching() {
           <div className="px-4 py-3 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-100 text-sm flex items-center gap-2">
             <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
             <span>
-              Extraction terminée : <strong>{result.rows_matched ?? 0}</strong> ligne(s) correspondante(s).
+              Extraction terminée :{' '}
+              <strong>{result.rows_matched ?? 0}</strong> ligne(s)
+              correspondante(s).
             </span>
           </div>
         )}
@@ -139,53 +164,61 @@ export default function LeadsMatching() {
 
         {/* Étape 1 : Source de la base client */}
         <div className="space-y-3">
-          <label className={`${labelClass} font-semibold text-gray-900 block`}>
+          <h3 className="text-xs font-semibold text-gray-900 block">
             1. Source de la base client
-          </label>
+          </h3>
 
           {/* Commutateur de Mode */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => {
-                setSourceMode('existing');
-                setNewTableName('');
-                setFile(null);
-                if (fileInputRef.current) fileInputRef.current.value = '';
-              }}
+              onClick={handleSelectExistingMode}
               className={`flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all ${
                 sourceMode === 'existing'
                   ? 'border-emerald-500 bg-emerald-50/30 text-emerald-900 shadow-sm'
                   : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
               }`}
             >
-              <div className={`p-2 rounded-lg ${sourceMode === 'existing' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
+              <div
+                className={`p-2 rounded-lg ${
+                  sourceMode === 'existing'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : 'bg-gray-100 text-gray-500'
+                }`}
+              >
                 <Database className="w-4 h-4" />
               </div>
               <div>
                 <p className="text-xs font-semibold">Base existante</p>
-                <p className="text-[11px] text-gray-400">Choisir une table déjà enregistrée</p>
+                <p className="text-[11px] text-gray-400">
+                  Choisir une table déjà enregistrée
+                </p>
               </div>
             </button>
 
             <button
               type="button"
-              onClick={() => {
-                setSourceMode('new');
-                setSelectedTable('');
-              }}
+              onClick={handleSelectNewMode}
               className={`flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all ${
                 sourceMode === 'new'
                   ? 'border-emerald-500 bg-emerald-50/30 text-emerald-900 shadow-sm'
                   : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
               }`}
             >
-              <div className={`p-2 rounded-lg ${sourceMode === 'new' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
+              <div
+                className={`p-2 rounded-lg ${
+                  sourceMode === 'new'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : 'bg-gray-100 text-gray-500'
+                }`}
+              >
                 <UploadCloud className="w-4 h-4" />
               </div>
               <div>
                 <p className="text-xs font-semibold">Nouvelle base</p>
-                <p className="text-[11px] text-gray-400">Importer un nouveau fichier CSV</p>
+                <p className="text-[11px] text-gray-400">
+                  Importer un nouveau fichier CSV
+                </p>
               </div>
             </button>
           </div>
@@ -194,8 +227,11 @@ export default function LeadsMatching() {
           <div className="p-4 border border-gray-100 rounded-xl bg-gray-50/50 mt-2">
             {sourceMode === 'existing' ? (
               <div>
-                <label className={labelClass}>Sélectionner la table existante *</label>
+                <label htmlFor="selectedTable" className={labelClass}>
+                  Sélectionner la table existante *
+                </label>
                 <Select
+                  id="selectedTable"
                   value={selectedTable}
                   onChange={setSelectedTable}
                   options={[
@@ -210,9 +246,12 @@ export default function LeadsMatching() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>Nom de la nouvelle table *</label>
+                  <label htmlFor="newTableName" className={labelClass}>
+                    Nom de la nouvelle table *
+                  </label>
                   <input
                     type="text"
+                    id="newTableName"
                     value={newTableName}
                     onChange={(e) => setNewTableName(e.target.value)}
                     placeholder="ex: ooredoo_mars"
@@ -221,24 +260,27 @@ export default function LeadsMatching() {
                 </div>
 
                 <div>
-                  <label className={labelClass}>Fichier CSV *</label>
+                  <label htmlFor="matching-csv-upload" className={labelClass}>
+                    Fichier CSV *
+                  </label>
                   <div className="relative">
                     <input
                       ref={fileInputRef}
                       id="matching-csv-upload"
                       type="file"
                       accept=".csv"
-                      onChange={(e) => setFile(e.target.files[0] || null)}
+                      onChange={(e) => setFile(e.target.files?.[0] ?? null)}
                       className="hidden"
                     />
-                    <label
-                      htmlFor="matching-csv-upload"
-                      className="flex items-center justify-between w-full px-3 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 cursor-pointer text-sm transition-colors"
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center justify-between w-full px-3 py-2 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 cursor-pointer text-sm transition-colors text-left"
                     >
                       <span className="truncate text-gray-600 font-normal">
                         {file ? file.name : 'Choisir le fichier CSV...'}
                       </span>
-                    </label>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -248,36 +290,42 @@ export default function LeadsMatching() {
 
         {/* Étape 2 : Filtres et configuration de l'extraction */}
         <div className="space-y-3 pt-2">
-          <label className={`${labelClass} font-semibold text-gray-900 block`}>
+          <h3 className="text-xs font-semibold text-gray-900 block">
             2. Paramètres d'extraction
-          </label>
+          </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className={labelClass}>Date de début *</label>
-              <input
-                type="date"
-                value={dates.startDate}
-                onChange={(e) => setDates({ ...dates, startDate: e.target.value })}
-                className={inputClass}
-                required
-              />
-            </div>
+          <div className="w-40">
+            <label htmlFor="startDate" className={labelClass}>Du</label>
+            <DateInput
+              id="startDate"
+              value={dates.startDate}
+              onChange={(e) =>
+                setDates((prev) => ({ ...prev, startDate: e.target.value }))
+              }
+              rangeStart={dates.startDate}
+              rangeEnd={dates.endDate}
+            />
+          </div>
+          <div className="w-40">
+            <label htmlFor="endDate" className={labelClass}>Au</label>
+            <DateInput
+              id="endDate"
+              value={dates.endDate}
+              onChange={(e) =>
+                setDates((prev) => ({ ...prev, endDate: e.target.value }))
+              }
+              rangeStart={dates.startDate}
+              rangeEnd={dates.endDate}
+            />
+          </div>
 
             <div>
-              <label className={labelClass}>Date de fin *</label>
-              <input
-                type="date"
-                value={dates.endDate}
-                onChange={(e) => setDates({ ...dates, endDate: e.target.value })}
-                className={inputClass}
-                required
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>Modèle d'export *</label>
+              <label htmlFor="exportType" className={labelClass}>
+                Modèle d'export *
+              </label>
               <Select
+                id="exportType"
                 value={exportType}
                 onChange={setExportType}
                 options={EXPORT_TYPE_OPTIONS}
@@ -285,8 +333,11 @@ export default function LeadsMatching() {
             </div>
 
             <div>
-              <label className={labelClass}>Campagne Vicidial</label>
+              <label htmlFor="campaignId" className={labelClass}>
+                Campagne Vicidial
+              </label>
               <Select
+                id="campaignId"
                 value={campaignId}
                 onChange={setCampaignId}
                 options={[

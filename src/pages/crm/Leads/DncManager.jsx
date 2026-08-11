@@ -1,5 +1,4 @@
-// src/pages/crm/Leads/DncManager.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, Trash2, Plus, Ban, PhoneOff, AlertCircle, X } from 'lucide-react';
 import { getDncList, addDncNumber, deleteDncNumber } from '../../../api/leads';
 import Button from '../../../components/common/ButtonCRM';
@@ -15,7 +14,8 @@ export default function DncManager() {
   const [error, setError] = useState(null);
   const [toDelete, setToDelete] = useState(null);
 
-  const load = async () => {
+  // Fonction de chargement stabilisée pour la réutilisation après ajout/suppression
+  const load = useCallback(async () => {
     setLoading(true);
     try {
       const list = await getDncList();
@@ -25,10 +25,29 @@ export default function DncManager() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
+  // Chargement initial sécurisé avec vérification du montage du composant
   useEffect(() => {
-    load();
+    let isMounted = true;
+
+    getDncList()
+      .then((list) => {
+        if (isMounted) {
+          setNumbers(list || []);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setError('Erreur lors du chargement de la liste DNC.');
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleAdd = async (e) => {
@@ -46,7 +65,7 @@ export default function DncManager() {
     try {
       await addDncNumber(cleanPhone);
       setPhone('');
-      load();
+      await load();
     } catch (err) {
       setError(err?.response?.data?.message || 'Ce numéro existe déjà ou est invalide.');
     } finally {
@@ -59,15 +78,73 @@ export default function DncManager() {
     try {
       await deleteDncNumber(toDelete);
       setToDelete(null);
-      load();
+      await load();
     } catch {
       setError('Erreur lors de la suppression du numéro.');
     }
   };
 
-  const filtered = numbers.filter((n) =>
-    n.toLowerCase().includes(search.toLowerCase().trim())
-  );
+  // Mémoïsation du filtrage pour éviter les recalculs inutiles à chaque re-rendu
+  const filtered = useMemo(() => {
+    const query = search.toLowerCase().trim();
+    if (!query) return numbers;
+    return numbers.filter((n) => n.toLowerCase().includes(query));
+  }, [numbers, search]);
+
+  // Fonction de rendu de la liste évitant l'imbrication de ternaires
+  const renderListContent = () => {
+    if (loading) {
+      return (
+        <div className="p-8 text-center text-xs text-gray-400">
+          Chargement de la liste DNC...
+        </div>
+      );
+    }
+
+    if (filtered.length === 0) {
+      return (
+        <div className="p-10 border border-dashed border-gray-200 rounded-xl text-center">
+          <PhoneOff className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+          <p className="text-xs font-medium text-gray-600">
+            {search ? 'Aucun numéro ne correspond à votre recherche.' : 'Aucun numéro dans la liste DNC.'}
+          </p>
+          <p className="text-[11px] text-gray-400 mt-0.5">
+            {search ? 'Essayez de modifier la saisie.' : 'Utilisez le champ ci-dessus pour en enregistrer un.'}
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="border border-gray-100 rounded-xl overflow-hidden divide-y divide-gray-100 bg-white">
+        {filtered.map((num) => (
+          <div
+            key={num}
+            className="flex items-center justify-between px-4 py-3 hover:bg-gray-50/50 transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-1.5 rounded-lg bg-red-50 text-red-600">
+                <Ban className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-xs font-mono font-semibold text-gray-800 tracking-wider">
+                {num}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setToDelete(num)}
+              className="p-1.5 rounded-lg border border-gray-200 text-gray-400 hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-colors"
+              title="Retirer de la liste"
+              aria-label={`Retirer le numéro ${num} de la liste`}
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -97,7 +174,9 @@ export default function DncManager() {
               <span>{error}</span>
             </div>
             <button
+              type="button"
               onClick={() => setError(null)}
+              aria-label="Fermer le message d'erreur"
               className="text-red-400 hover:text-red-600 transition-colors"
             >
               <X className="w-4 h-4" />
@@ -107,11 +186,14 @@ export default function DncManager() {
 
         {/* Formulaire d'ajout rapide */}
         <form onSubmit={handleAdd} className="bg-gray-50/60 p-4 rounded-xl border border-gray-100">
-          <label className={`${labelClass} mb-2 block`}>Ajouter un numéro à la liste noire</label>
+          <label htmlFor="phone" className={`${labelClass} mb-2 block`}>
+            Ajouter un numéro à la liste noire
+          </label>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div className="relative flex-1">
               <input
                 type="text"
+                id="phone"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="ex: +33612345678 ou 0612345678"
@@ -121,6 +203,7 @@ export default function DncManager() {
                 <button
                   type="button"
                   onClick={() => setPhone('')}
+                  aria-label="Effacer le champ de téléphone"
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -153,7 +236,9 @@ export default function DncManager() {
               />
               {search && (
                 <button
+                  type="button"
                   onClick={() => setSearch('')}
+                  aria-label="Effacer la recherche"
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -168,48 +253,8 @@ export default function DncManager() {
             )}
           </div>
 
-          {/* Affichage des états : Chargement / Vide / Résultats */}
-          {loading ? (
-            <div className="p-8 text-center text-xs text-gray-400">
-              Chargement de la liste DNC...
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="p-10 border border-dashed border-gray-200 rounded-xl text-center">
-              <PhoneOff className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-              <p className="text-xs font-medium text-gray-600">
-                {search ? 'Aucun numéro ne correspond à votre recherche.' : 'Aucun numéro dans la liste DNC.'}
-              </p>
-              <p className="text-[11px] text-gray-400 mt-0.5">
-                {search ? 'Essayez de modifier la saisie.' : 'Utilisez le champ ci-dessus pour en enregistrer un.'}
-              </p>
-            </div>
-          ) : (
-            <div className="border border-gray-100 rounded-xl overflow-hidden divide-y divide-gray-100 bg-white">
-              {filtered.map((num) => (
-                <div
-                  key={num}
-                  className="flex items-center justify-between px-4 py-3 hover:bg-gray-50/50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-1.5 rounded-lg bg-red-50 text-red-600">
-                      <Ban className="w-3.5 h-3.5" />
-                    </div>
-                    <span className="text-xs font-mono font-semibold text-gray-800 tracking-wider">
-                      {num}
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={() => setToDelete(num)}
-                    className="p-1.5 rounded-lg border border-gray-200 text-gray-400 hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-colors"
-                    title="Retirer de la liste"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* Affichage des états via helper */}
+          {renderListContent()}
         </div>
       </div>
 

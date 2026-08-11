@@ -12,8 +12,6 @@ const formatDisplay = (value) => {
 
 // Remplace un <input type="date"> natif : affiche jj/mm/aaaa, ouvre un
 // calendrier custom (CalendarPopover) au clic, se ferme au clic exterieur.
-// L'onChange reste compatible avec le pattern (e) => e.target.value pour ne
-// rien casser dans les composants parents (ex: PeriodFilter) qui l'utilisent deja.
 export default function DateInput({
   value,
   onChange,
