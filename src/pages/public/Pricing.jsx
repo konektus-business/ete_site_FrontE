@@ -1,6 +1,6 @@
 // ========== Core Imports ==========
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 
 // ========== Asset Imports ==========
 import imgBg from "../../assets/pricing/bg.png";
@@ -59,6 +59,20 @@ const priceSwap = {
   animate: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
   exit: { opacity: 0, y: -8, transition: { duration: 0.2, ease: "easeIn" } },
 };
+
+// ========== Responsive helper ==========
+function useIsMobile(breakpoint = 640) {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth < breakpoint : false
+  );
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < breakpoint);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [breakpoint]);
+  return isMobile;
+}
 
 // ========== Content Data ==========
 // Pricing tiers
@@ -177,6 +191,15 @@ export default function Pricing() {
   const [billingCycle, setBillingCycle] = useState("monthly");
   const [openFaq, setOpenFaq] = useState(1);
   const isAnnual = billingCycle === "annual";
+
+  // ---- In‑view detection for the CTA blobs ----
+  const ctaRef = useRef(null);
+  const isCtaVisible = useInView(ctaRef, { once: false, amount: 0.1 });
+  const isMobile = useIsMobile();
+
+  // ---- Responsive blob config ----
+  const blobSize = isMobile ? "size-48" : "size-96";
+  const blobBlur = isMobile ? "blur-[20px]" : "blur-[50px]";
 
   return (
     <div className="relative w-full overflow-hidden bg-cover bg-center bg-no-repeat" style={{ backgroundImage: `url(${imgBg})` }}>
@@ -352,18 +375,19 @@ export default function Pricing() {
       </section>
 
       {/* ===== FINAL CALL-TO-ACTION ===== */}
-      <section className="mx-auto max-w-[1216px] px-5 py-8 sm:px-6">
+      <section ref={ctaRef} className="mx-auto max-w-[1216px] px-5 py-8 sm:px-6">
         <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.4 }} className="relative flex flex-col items-center justify-center gap-6 overflow-hidden rounded-[32px] bg-[#126b59] px-6 py-14 sm:gap-8 sm:rounded-[48px] sm:py-24">
+          {/* ---- Decorative blobs – only animate when the CTA is visible ---- */}
           <motion.div
             aria-hidden
-            className="pointer-events-none absolute -right-48 -top-40 size-96 rounded-full bg-[#77f9d6]/30 blur-[50px]"
-            animate={{ x: [0, 20, 0], y: [0, -15, 0] }}
+            className={`pointer-events-none absolute -right-48 -top-40 ${blobSize} rounded-full bg-[#77f9d6]/30 ${blobBlur}`}
+            animate={isCtaVisible ? { x: [0, 20, 0], y: [0, -15, 0] } : {}}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
             aria-hidden
-            className="pointer-events-none absolute -bottom-48 -left-48 size-96 rounded-full bg-[#003e32]/30 blur-[50px]"
-            animate={{ x: [0, -15, 0], y: [0, 20, 0] }}
+            className={`pointer-events-none absolute -bottom-48 -left-48 ${blobSize} rounded-full bg-[#003e32]/30 ${blobBlur}`}
+            animate={isCtaVisible ? { x: [0, -15, 0], y: [0, 20, 0] } : {}}
             transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
           />
           <h2 className="max-w-3xl text-center text-2xl font-extrabold leading-tight text-white sm:text-[32px] lg:text-[44px]">Prêt à transformer votre performance ?</h2>

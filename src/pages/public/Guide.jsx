@@ -1,6 +1,6 @@
 // ========== Core Imports ==========
 import React, { useState, useEffect } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 
 import GuideSkeleton from "../../components/skeleton/Guideskeleton.jsx";
 
@@ -28,21 +28,17 @@ import imgStatsNumbersGlow from "../../assets/about/stats-numbers-glow.png";
 const F = "font-['Archivo']";
 
 // ========== Animation Presets ==========
-// Spring physics for smooth motion
 const SPRING = { type: "spring", stiffness: 100, damping: 16, mass: 1 };
-// Fade-up variants for reveal animations
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: { opacity: 1, y: 0, transition: SPRING },
 };
-// Stagger children for lists
 const staggerContainer = {
   hidden: {},
   visible: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
 };
 
 // ========== Per‑digit Odometer Timing ==========
-// From About page (same profiles)
 const DIGIT_PROFILES = [
   { delay: 0.15, duration: 1.6, ease: "easeOut" },
   { delay: 0.3, duration: 1.4, ease: "easeOut" },
@@ -52,7 +48,6 @@ const DIGIT_PROFILES = [
 ];
 
 // ========== Wave Lines Constants ==========
-// SVG paths and spark animations (same as About)
 const WAVE_PATHS = [
   "M0.359375 1.75655C134.329 140.171 282.518 201.571 474.117 201.571C665.716 201.571 730.081 201.571 967.332 201.571C1204.58 201.571 1347.92 101.486 1440.34 0.336914",
   "M0.359375 139.571C138.733 199.8 251.607 226.371 472.854 226.371C694.102 226.371 734.602 226.371 967.849 226.371C1201.1 226.371 1309.47 195.548 1440.34 139.571",
@@ -67,9 +62,6 @@ const SPARK_ANIMS = [
 ];
 
 // ========== Responsive helper ==========
-// The odometer digits below are sized with raw pixel `height`/`width` props
-// (not Tailwind classes), so a breakpoint check in JS is needed to scale
-// them down on small screens alongside the responsive font-size classes.
 function useIsMobile(breakpoint = 640) {
   const [isMobile, setIsMobile] = React.useState(
     typeof window !== "undefined" ? window.innerWidth < breakpoint : false
@@ -84,14 +76,12 @@ function useIsMobile(breakpoint = 640) {
 }
 
 // ========== Content Data ==========
-// Statistics for the wave section
 const STATS = [
   { value: "18", label: "Guides disponibles" },
   { value: "+3200", label: "Téléchargements" },
   { value: "2025", label: "Mis à jour" },
 ];
 
-// Guide categories and their guides
 const GUIDE_CATEGORIES = [
   {
     id: "voip",
@@ -205,7 +195,6 @@ const GUIDE_CATEGORIES = [
 
 // ========== Sub‑components ==========
 
-// ----- WaveLines (animated sparks on wave paths) -----
 const WaveLines = React.memo(({ start }) => (
   <svg
     viewBox="0 0 1440 501"
@@ -239,7 +228,6 @@ const WaveLines = React.memo(({ start }) => (
   </svg>
 ));
 
-// ----- RollingDigit (odometer digit) -----
 const RollingDigit = React.memo(({ digit, start, height, width, extraDelay = 0, profile }) => {
   const totalSteps = 2 * 10 + digit;
   const sequence = Array.from({ length: totalSteps + 1 }, (_, i) => i % 10);
@@ -268,9 +256,6 @@ const RollingDigit = React.memo(({ digit, start, height, width, extraDelay = 0, 
   );
 });
 
-// ----- StatDisplay (one statistic block with rolling numbers) -----
-// digitHeight/digitWidth are the desktop pixel sizes; `isMobile` scales them
-// down (~0.7x) to match the responsive font-size classes below.
 const StatDisplay = React.memo(({ stat, start, index, isMobile }) => {
   const { value, label } = stat;
   const chars = value.split("");
@@ -311,7 +296,6 @@ const StatDisplay = React.memo(({ stat, start, index, isMobile }) => {
   );
 });
 
-// ----- GuideCard (single guide preview) -----
 const GuideCard = React.memo(({ guide }) => (
   <motion.article
     variants={fadeUp}
@@ -346,7 +330,6 @@ const GuideCard = React.memo(({ guide }) => (
   </motion.article>
 ));
 
-// ----- CategorySection (one category with its guides) -----
 const CategorySection = React.memo(({ category }) => (
   <motion.div
     variants={fadeUp}
@@ -381,9 +364,26 @@ const CategorySection = React.memo(({ category }) => (
 // ========== Main Component ==========
 export default function Guide() {
   const [isLoaded, setIsLoaded] = useState(false);
-  const statsRef = React.useRef(null);
-  const isStatsInView = useInView(statsRef, { once: true, amount: 0.4 });
   const isMobile = useIsMobile();
+
+  // ---- Stats in‑view detection ----
+  // Single source of truth via Framer Motion's own onViewportEnter, fired
+  // directly by the stats <motion.section> below. Everything that depends
+  // on the reveal (wave sparks, digit roll, the stagger wrapper) reads this
+  // one piece of state — no separate ref/hook pairing, and no second
+  // independent whileInView trigger competing with it.
+  const [statsActive, setStatsActive] = useState(false);
+
+  // ---- Prevent browser scroll-restoration race with the preload gate ----
+  // Without this, a refresh can restore a scrolled-down position before
+  // `isLoaded` flips true, so the stats section could mount already
+  // scrolled past the viewport.
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const images = [
@@ -487,9 +487,10 @@ export default function Guide() {
       </div>
 
       {/* ===== STATISTICS SECTION – FULL WIDTH (matches About) ===== */}
-      <section
-        ref={statsRef}
+      <motion.section
         className="relative mt-10 flex w-full min-h-[320px] items-center justify-center overflow-hidden py-16 sm:mt-16 sm:min-h-[480px] sm:py-24 lg:py-32"
+        onViewportEnter={() => setStatsActive(true)}
+        viewport={{ once: true, amount: 0.3 }}
       >
         <img
           src={imgStatsBg}
@@ -503,20 +504,19 @@ export default function Guide() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-[5] h-full w-full object-contain object-center opacity-70"
         />
-        <WaveLines start={isStatsInView} />
+        <WaveLines start={statsActive} />
 
         <motion.div
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.3 }}
+          animate={statsActive ? "visible" : "hidden"}
           variants={staggerContainer}
           className="relative z-10 mx-auto flex w-full max-w-[900px] flex-wrap items-start justify-center gap-x-6 gap-y-8 px-5 sm:gap-x-8 sm:gap-y-10 sm:px-6"
         >
           {STATS.map((stat, i) => (
-            <StatDisplay key={stat.label} stat={stat} start={isStatsInView} index={i} isMobile={isMobile} />
+            <StatDisplay key={stat.label} stat={stat} start={statsActive} index={i} isMobile={isMobile} />
           ))}
         </motion.div>
-      </section>
+      </motion.section>
 
       {/* ===== GUIDES BY CATEGORY ===== */}
       <div className="mx-auto flex w-full max-w-[1440px] flex-col items-center px-5 sm:px-6">

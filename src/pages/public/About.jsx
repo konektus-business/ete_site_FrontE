@@ -1,7 +1,7 @@
 // ========== Core Imports ==========
 import { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 
 import AboutSkeleton from "../../components/skeleton/Aboutskeleton .jsx";
 
@@ -29,16 +29,12 @@ import imgArrowRight from "../../assets/about/arrow-right.svg";
 const F = "font-['Archivo']";
 
 // ========== Animation Presets ==========
-// Spring physics for smooth motion
 const SPRING = { type: "spring", stiffness: 100, damping: 16, mass: 1 };
-// Section-level fade-up variants
 const sectionVars = { hidden: { opacity: 0, y: 36 }, visible: { opacity: 1, y: 0, transition: SPRING } };
-// Stagger children with slight delay
 const staggerParent = { hidden: {}, visible: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } } };
 const staggerChild = { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: SPRING } };
 
 // ========== Per‑digit Odometer Timing ==========
-// From Figma's "After delay" reactions
 const DIGIT_PROFILES = [
   { delay: 0.15, duration: 1.6, ease: "easeOut" },
   { delay: 0.3, duration: 1.4, ease: "easeOut" },
@@ -48,14 +44,12 @@ const DIGIT_PROFILES = [
 ];
 
 // ========== Static Data ==========
-// Missions for the slider
 const MISSIONS = [
   { image: imgMission1, title: "Transformation Digitale", description: "Modernisation complète des infrastructures et processus métier." },
   { image: imgMission2, title: "Techniques de communication", description: "Optimisation des flux d'information internes et externes." },
   { image: imgMission3, title: "Relations professionnelles", description: "Développement d'écosystèmes collaboratifs durables." },
 ];
 
-// Company values
 const VALUES = [
   { icon: imgIconTransparency, title: "Transparence Totale", description: "Une communication honnête et des processus ouverts à chaque étape du cycle de développement." },
   { icon: imgIconInnovation, title: "Innovation Continue", description: "Veille technologique permanente pour intégrer les dernières avancées Open Source." },
@@ -64,7 +58,6 @@ const VALUES = [
   { icon: imgIconEcosystem, title: "Écosystème Évolutif", description: "Architectures modulaires conçues pour grandir avec les ambitions de votre entreprise." },
 ];
 
-// Team members (duplicated for demo)
 const TEAM = [
   { name: "Ahmed Youssef", role: "Direction", title: "Directeur Général", bio: "Pilote la stratégie et l'entreprise.", image: imgTeamDirecteur, linkedin: "#", website: "#" },
   { name: "Salma Bouzid", role: "Marketing", title: "Responsable Marketing", bio: "Construit la marque et la croissance.", image: imgTeamMarketing, linkedin: "#", website: "#" },
@@ -72,15 +65,11 @@ const TEAM = [
   { name: "Salma Bouzid", role: "Marketing", title: "Responsable Marketing", bio: "Construit la marque et la croissance.", image: imgTeamMarketing, linkedin: "#", website: "#" },
 ];
 
-// Hero badges (experience & international presence)
 const HERO_BADGES = [
   { icon: imgIconExperience, text: "+20 ans Expérience", iconClass: "h-[21px] w-[22px]" },
   { icon: imgIconGlobal, text: "Présence internationale", iconClass: "size-5" },
 ];
 
-// Statistics displayed in the wave section
-// digitHeight / digitWidth are the DESKTOP (sm+) pixel sizes; they are scaled
-// down responsively at render time via the useIsMobile hook below.
 const STATS = [
   { value: 1, suffix: "", label: "Écosystème", fontSize: "text-[38px] sm:text-[64px]", digitHeight: 64, digitWidth: 38 },
   { value: 40, suffix: "+", label: "Années", fontSize: "text-[38px] sm:text-[64px]", digitHeight: 64, digitWidth: 38 },
@@ -109,10 +98,6 @@ const SPARK_ANIMS = [
 ];
 
 // ========== Responsive helper ==========
-// Tracks whether the viewport is below Tailwind's `sm` breakpoint (640px).
-// Used anywhere a component needs a *pixel* value (not just a class) to
-// change between mobile and desktop, e.g. the mission slider step width and
-// the odometer digit sizing.
 function useIsMobile(breakpoint = 640) {
   const [isMobile, setIsMobile] = useState(
     typeof window !== "undefined" ? window.innerWidth < breakpoint : false
@@ -127,7 +112,6 @@ function useIsMobile(breakpoint = 640) {
 }
 
 // ========== Reusable Icons ==========
-// Chevron icon for team card expand/collapse
 const ChevronIcon = ({ expanded }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"
     className={`h-4 w-4 transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}>
@@ -135,7 +119,6 @@ const ChevronIcon = ({ expanded }) => (
   </svg>
 );
 
-// LinkedIn icon
 const LinkedinIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-[18px] w-[18px]" aria-hidden="true">
     <rect x="3" y="3" width="18" height="18" rx="3" />
@@ -145,7 +128,6 @@ const LinkedinIcon = () => (
   </svg>
 );
 
-// Globe icon for website link
 const GlobeIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-[18px] w-[18px]" aria-hidden="true">
     <circle cx="12" cy="12" r="9" />
@@ -155,10 +137,6 @@ const GlobeIcon = () => (
 );
 
 // ========== Sub‑components ==========
-
-// Mission card – image with overlay and hover reveal
-// Sizing is now fully controlled by its parent slide wrapper (see mission
-// slider below), so the card itself just fills 100% of that wrapper.
 const MissionCard = ({ mission }) => (
   <div className="relative h-full w-full shrink-0 overflow-hidden rounded-[20px] sm:rounded-[30px] group">
     <img src={mission.image} alt={mission.title} className="absolute inset-0 h-full w-full object-cover transition-all duration-700 ease-in-out group-hover:blur-sm group-hover:scale-105" />
@@ -172,7 +150,6 @@ const MissionCard = ({ mission }) => (
   </div>
 );
 
-// Value card – with hover lift and rotation on icon
 const ValueCard = ({ value }) => (
   <motion.div
     variants={staggerChild}
@@ -191,7 +168,6 @@ const ValueCard = ({ value }) => (
   </motion.div>
 );
 
-// Team card – with expandable bio on hover/click
 const TeamCard = ({ member }) => {
   const isMarketing = member.role === "Marketing";
   const [expanded, setExpanded] = useState(false);
@@ -232,7 +208,6 @@ const TeamCard = ({ member }) => {
 };
 
 // ========== Odometer Digit ==========
-// Single rolling digit with animated sequence and blur
 const RollingDigit = ({ digit, start, height, width, extraDelay = 0, profile }) => {
   const totalSteps = 2 * 10 + digit;
   const sequence = Array.from({ length: totalSteps + 1 }, (_, i) => i % 10);
@@ -250,11 +225,8 @@ const RollingDigit = ({ digit, start, height, width, extraDelay = 0, profile }) 
 };
 
 // ========== Stat Display ==========
-// Renders either a rolling number or an infinity symbol (with animated stroke)
 const StatDisplay = ({ stat, start, index, isMobile }) => {
   const { value, suffix, fontSize, digitHeight, digitWidth, label } = stat;
-  // Scale the pixel-based odometer digits down on small screens so they stay
-  // in proportion with the responsive `fontSize` text classes above.
   const scale = isMobile ? 0.6 : 1;
   const scaledHeight = digitHeight ? Math.round(digitHeight * scale) : digitHeight;
   const scaledWidth = digitWidth ? Math.round(digitWidth * scale) : digitWidth;
@@ -265,7 +237,6 @@ const StatDisplay = ({ stat, start, index, isMobile }) => {
     >
       <div className="flex h-12 sm:h-16 items-end justify-center">
         {value == null ? (
-          // Infinity symbol with stroke‑dasharray animation
           <div className="relative h-12 w-12 sm:h-16 sm:w-16" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" className="h-full w-full">
               {start && (
@@ -315,13 +286,25 @@ const WaveLines = ({ start }) => (
 
 // ========== Main About Component ==========
 export default function About() {
-  // Mission slider state
   const [missionIndex, setMissionIndex] = useState(MISSION_START_INDEX);
   const [missionInstant, setMissionInstant] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const missionRef = useRef(null);
   const valuesRef = useRef(null);
   const location = useLocation();
+
+  // ---- FIX: prevent browser scroll-restoration race with the preload gate.
+  // Without this, a refresh can restore a scrolled-down position before
+  // `isLoaded` flips true, so the stats section could mount already
+  // scrolled past the viewport.
+  useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    if (!location.hash) {
+      window.scrollTo(0, 0);
+    }
+  }, [location.hash]);
 
   useEffect(() => {
     const images = [
@@ -369,18 +352,24 @@ export default function About() {
   }, []);
 
   useEffect(() => {
-    if (location.hash === "#valeurs") {
-      valuesRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
-    }
-    if (location.hash === "#mission") {
-      missionRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
-    }
-  }, [location.hash]);
+    if (!isLoaded || !location.hash) return;
 
-  // Measure the actual rendered width of the slider viewport so the card
-  // step (and therefore the translateX animation) always matches the real
-  // card size at every breakpoint, instead of relying on one hardcoded
-  // desktop pixel value.
+    const targetId = location.hash.replace("#", "");
+    const targetRef = targetId === "valeurs" ? valuesRef : targetId === "mission" ? missionRef : null;
+
+    const scrollToHashTarget = () => {
+      const element = targetRef?.current || document.getElementById(targetId);
+      if (!element) return;
+
+      const headerOffset = 110;
+      const top = element.getBoundingClientRect().top + window.scrollY - headerOffset;
+      window.scrollTo({ top, behavior: "auto" });
+    };
+
+    const raf = requestAnimationFrame(scrollToHashTarget);
+    return () => cancelAnimationFrame(raf);
+  }, [isLoaded, location.hash]);
+
   const missionViewportRef = useRef(null);
   const [cardStep, setCardStep] = useState(447);
   useEffect(() => {
@@ -394,16 +383,18 @@ export default function About() {
     return () => window.removeEventListener("resize", measure);
   }, []);
 
-  // Stats ref and in‑view detection
-  const statsRef = useRef(null);
-  const isStatsInView = useInView(statsRef, { once: true, amount: 0.4 });
+  // ---- Stats in‑view detection ----
+  // Uses Framer Motion's own onViewportEnter instead of a separate useInView
+  // hook + ref. This is more robust: Framer's `whileInView`/`onViewportEnter`
+  // observes the *animating element itself* via its own internal
+  // IntersectionObserver wiring, so there's no separate ref/hook pairing
+  // that can drift out of sync with what actually mounts and when.
+  const [statsActive, setStatsActive] = useState(false);
   const isMobile = useIsMobile();
 
-  // Mission navigation
   const prevMission = () => { setMissionInstant(false); setMissionIndex(i => i - 1); };
   const nextMission = () => { setMissionInstant(false); setMissionIndex(i => i + 1); };
 
-  // Re‑center slider when reaching buffer boundaries
   const handleMissionAnimComplete = () => {
     const drift = missionIndex - MISSION_START_INDEX;
     const maxDrift = MISSIONS.length * (Math.floor(LOOP_COPIES / 2) - 1);
@@ -451,14 +442,18 @@ export default function About() {
       </div>
 
       {/* ===== STATISTICS SECTION with wave lines and rolling numbers ===== */}
-      <section ref={statsRef} className="relative mt-16 flex w-full min-h-[380px] sm:min-h-[480px] items-center justify-center overflow-hidden py-16 sm:py-24 lg:py-32">
+      <motion.section
+        className="relative mt-16 flex w-full min-h-[380px] sm:min-h-[480px] items-center justify-center overflow-hidden py-16 sm:py-24 lg:py-32"
+        onViewportEnter={() => setStatsActive(true)}
+        viewport={{ once: true, amount: 0.3 }}
+      >
         <img src={imgStatsBg} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full object-cover object-center" />
-        <WaveLines start={isStatsInView} />
+        <WaveLines start={statsActive} />
         <img src={imgStatsNumbersGlow} alt="" aria-hidden="true" className="pointer-events-none absolute inset-0 z-[5] h-full w-full object-contain object-center opacity-70" />
         <div className="relative z-10 mx-auto flex w-full max-w-[900px] flex-wrap items-start justify-center gap-x-6 gap-y-10 px-6 sm:gap-x-8">
-          {STATS.map((stat, i) => <StatDisplay key={stat.label} stat={stat} start={isStatsInView} index={i} isMobile={isMobile} />)}
+          {STATS.map((stat, i) => <StatDisplay key={stat.label} stat={stat} start={statsActive} index={i} isMobile={isMobile} />)}
         </div>
-      </section>
+      </motion.section>
 
       {/* ===== MAIN CONTENT: Mission, Values, Team, CTA ===== */}
       <div className="mx-auto flex max-w-[1440px] flex-col gap-20 sm:gap-32 px-5 pb-20 sm:px-12 sm:pb-32 lg:px-24 mt-16">

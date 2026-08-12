@@ -1,6 +1,7 @@
 // ========== Core Imports ==========
 import { motion, useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 import ServicesSkeleton from "../../components/skeleton/ServicesSkeleton";
 
@@ -152,6 +153,7 @@ const STATS = [
 export default function Services() {
   // Refs for scrolling
   const servicesRef = useRef(null);
+  const location = useLocation();
   const scrollToSection = (ref) =>
     ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
 
@@ -203,6 +205,22 @@ export default function Services() {
       });
     };
   }, []);
+
+  useEffect(() => {
+    if (!isLoaded || location.hash !== "#services") return;
+
+    const scrollToServices = () => {
+      const servicesSection = servicesRef.current || document.getElementById("services");
+      if (!servicesSection) return;
+
+      const headerOffset = 110;
+      const top = servicesSection.getBoundingClientRect().top + window.scrollY - headerOffset;
+      window.scrollTo({ top, behavior: "auto" });
+    };
+
+    const frame = requestAnimationFrame(scrollToServices);
+    return () => cancelAnimationFrame(frame);
+  }, [isLoaded, location.hash]);
 
   if (!isLoaded) return <ServicesSkeleton />;
 
@@ -292,7 +310,7 @@ export default function Services() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.3 }}
           variants={staggerContainer}
-          className="grid grid-cols-1 gap-8 rounded-2xl border border-[rgba(45,212,191,0.1)] bg-[rgba(13,81,67,0.8)] p-8 shadow-[0px_8px_32px_0px_rgba(0,0,0,0.37)] backdrop-blur-md md:grid-cols-3"
+          className="grid grid-cols-1 gap-8 rounded-2xl border border-[rgba(45,212,191,0.1)] bg-[rgba(13,81,67,0.8)] p-8 shadow-[0px_8px_32px_0px_rgba(0,0,0,0.37)] sm:backdrop-blur-md md:grid-cols-3"
         >
           {FEATURES.map((f) => (
             <motion.div key={f.id} variants={staggerItem} className="flex items-center gap-4">
@@ -319,7 +337,7 @@ export default function Services() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.3 }}
           variants={staggerContainer}
-          className="flex flex-col gap-5 rounded-2xl border border-[rgba(45,212,191,0.1)] bg-[rgba(13,81,67,0.8)] p-5 shadow-[0px_8px_32px_0px_rgba(0,0,0,0.37)] backdrop-blur-md sm:p-6"
+          className="flex flex-col gap-5 rounded-2xl border border-[rgba(45,212,191,0.1)] bg-[rgba(13,81,67,0.8)] p-5 shadow-[0px_8px_32px_0px_rgba(0,0,0,0.37)] sm:backdrop-blur-md sm:p-6"
         >
           {FEATURES.map((f) => (
             <motion.div key={f.id} variants={staggerItem} className="flex items-center gap-4">
@@ -336,7 +354,7 @@ export default function Services() {
       </section>
 
       {/* ===== SERVICES LIST ===== */}
-      <section ref={servicesRef} className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 md:gap-16 md:px-24 md:py-32">
+      <section id="services" ref={servicesRef} className="relative mx-auto flex max-w-[1390px] flex-col items-center gap-12 px-4 py-16 sm:px-6 sm:py-20 md:gap-16 md:px-24 md:py-32">
         <SectionTitle title="Nos services" />
 
         <div className="flex w-full flex-col gap-16 sm:gap-20 md:gap-32">
@@ -421,9 +439,9 @@ export default function Services() {
       <section className="relative mx-auto max-w-[1216px] px-4 pb-16 sm:px-6 sm:pb-20 md:px-0 md:pb-24">
         <Reveal>
           <div className="relative flex flex-col items-center gap-6 overflow-hidden rounded-[28px] bg-[#126b59] px-6 py-12 text-center sm:gap-8 sm:rounded-[36px] sm:px-8 sm:py-16 md:rounded-[48px] md:py-24">
-            {/* Decorative blobs */}
-            <div className="pointer-events-none absolute -right-24 -top-20 size-52 rounded-full bg-[rgba(119,249,214,0.3)] blur-[40px] sm:-right-36 sm:-top-28 sm:size-72 sm:blur-[50px] md:-right-48 md:-top-40 md:size-96" />
-            <div className="pointer-events-none absolute -bottom-24 -left-24 size-52 rounded-full bg-[rgba(0,62,50,0.3)] blur-[40px] sm:-bottom-36 sm:-left-36 sm:size-72 sm:blur-[50px] md:-bottom-48 md:-left-48 md:size-96" />
+            {/* Decorative blobs – reduced blur on mobile */}
+            <div className="pointer-events-none absolute -right-24 -top-20 size-52 rounded-full bg-[rgba(119,249,214,0.3)] blur-[20px] sm:-right-36 sm:-top-28 sm:size-72 sm:blur-[40px] md:-right-48 md:-top-40 md:size-96 md:blur-[50px]" />
+            <div className="pointer-events-none absolute -bottom-24 -left-24 size-52 rounded-full bg-[rgba(0,62,50,0.3)] blur-[20px] sm:-bottom-36 sm:-left-36 sm:size-72 sm:blur-[40px] md:-bottom-48 md:-left-48 md:size-96 md:blur-[50px]" />
 
             <h2 className="max-w-[944px] text-[24px] font-extrabold leading-[1.3] tracking-[-0.5px] text-white sm:text-[32px] md:text-[44px] md:leading-[1.36] md:tracking-[-1.5px]">
               Transformez votre communication dès aujourd'hui
@@ -434,7 +452,7 @@ export default function Services() {
                 <button
                   key={label}
                   type="button"
-                  className="w-full max-w-[320px] rounded-full bg-white px-6 py-3 text-base font-bold text-[#2b6859] drop-shadow-[0px_8px_10px_rgba(0,0,0,0.25)] transition-transform hover:scale-[1.02] sm:w-[279px] sm:px-8 sm:py-4 sm:text-lg"
+                  className="w-full max-w-[320px] rounded-full bg-white px-6 py-3 text-base font-bold text-[#2b6859] shadow-[0px_8px_10px_rgba(0,0,0,0.25)] transition-transform hover:scale-[1.02] sm:w-[279px] sm:px-8 sm:py-4 sm:text-lg"
                 >
                   {label}
                 </button>

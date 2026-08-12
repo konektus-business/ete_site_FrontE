@@ -48,6 +48,19 @@ const HERO_SPRING = {
   bounce: 0.18,
 };
 
+// ------ Hook for mobile detection (same as in Home) ------
+function useIsMobile(breakpoint = 640) {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth < breakpoint : false,
+  );
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 function PrimaryButton({ children, className = "", ...rest }) {
   return (
     <button
@@ -385,8 +398,12 @@ function Hero({ onDiscoveryClick, onSolutionsClick }) {
           transition={{ ...HERO_SPRING, delay: 0.3 }}
           className="flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-4"
         >
-          <PrimaryButton onClick={onDiscoveryClick}>Découvrir VTM</PrimaryButton>
-          <SecondaryButton onClick={onSolutionsClick}>Découvrir les solutions</SecondaryButton>
+          <PrimaryButton onClick={onDiscoveryClick}>
+            Découvrir VTM
+          </PrimaryButton>
+          <SecondaryButton onClick={onSolutionsClick}>
+            Découvrir les solutions
+          </SecondaryButton>
         </motion.div>
       </div>
 
@@ -441,7 +458,8 @@ function Stats() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-[5] h-full w-full object-contain object-center opacity-70"
       />
-      <WaveLines start={isInView} />
+      {/* Only render WaveLines when stats are in view – stops animation off-screen */}
+      {isInView && <WaveLines start={isInView} />}
 
       <div className="relative z-10 mx-auto grid w-full max-w-5xl grid-cols-1 sm:grid-cols-3 gap-6 px-4 text-center sm:gap-10 sm:px-6">
         {stats.map((s) => (
@@ -455,7 +473,9 @@ function Stats() {
             <span className="font-black text-4xl text-[#006b57] tracking-tight sm:text-5xl">
               {s.value}
             </span>
-            <span className="font-bold text-base text-black sm:text-lg">{s.label}</span>
+            <span className="font-bold text-base text-black sm:text-lg">
+              {s.label}
+            </span>
           </motion.div>
         ))}
       </div>
@@ -465,7 +485,10 @@ function Stats() {
 
 function SectionIntro({ sectionRef }) {
   return (
-    <section ref={sectionRef} className="w-full max-w-3xl mx-auto px-4 py-10 text-center flex flex-col gap-4 sm:px-6 sm:py-12 sm:gap-6">
+    <section
+      ref={sectionRef}
+      className="w-full max-w-3xl mx-auto px-4 py-10 text-center flex flex-col gap-4 sm:px-6 sm:py-12 sm:gap-6"
+    >
       <span className="uppercase tracking-wide text-xs font-semibold text-[#006b57] sm:text-sm">
         La plateforme VTM
       </span>
@@ -520,7 +543,7 @@ function ModuleCards() {
 // ---------- SolutionsSection with animated lines ----------
 function SolutionsSection({ sectionRef }) {
   const ref = sectionRef ?? useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const isInView = useInView(ref, { once: true, amount: 0 }); // ✅ FIX: 0 instead of 0.2
 
   const headingRef = useRef(null);
   const [lineOffset, setLineOffset] = useState(280);
@@ -545,7 +568,10 @@ function SolutionsSection({ sectionRef }) {
     >
       <div className="flex flex-col gap-12 max-w-6xl mx-auto sm:gap-16">
         {/* ---- HEADING with horizontal slide + fade ---- */}
-        <div ref={headingRef} className="flex items-center justify-center gap-3 overflow-hidden sm:gap-5">
+        <div
+          ref={headingRef}
+          className="flex items-center justify-center gap-3 overflow-hidden sm:gap-5"
+        >
           <motion.span
             className="h-px w-16 sm:w-24 md:w-40 bg-black/20 shrink-0"
             initial={{ x: 0, opacity: 0 }}
@@ -649,11 +675,23 @@ function Testimonials() {
 }
 
 function FinalCta({ onTrialClick, onGuideClick }) {
+  const isMobile = useIsMobile();
+
+  // Scale down blur and size on mobile
+  const blobSize = isMobile ? "size-32" : "size-52 sm:size-72 md:size-96";
+  const blobBlur = isMobile
+    ? "blur-[20px]"
+    : "blur-[40px] sm:blur-[50px] md:blur-[60px]";
+
   return (
     <section className="w-full px-4 py-10 relative z-10 sm:px-6 sm:py-12">
       <div className="relative max-w-6xl mx-auto rounded-[28px] bg-[#126B59] overflow-hidden px-6 py-10 flex flex-col items-center gap-6 text-center sm:rounded-[36px] sm:px-8 sm:py-16 sm:gap-9 md:rounded-[48px]">
-        <div className="absolute -top-20 -right-20 size-52 rounded-full bg-[rgba(119,249,214,0.2)] blur-[40px] sm:-top-32 sm:-right-32 sm:size-72 sm:blur-[50px] md:-top-40 md:-right-40 md:size-96 md:blur-[60px]" />
-        <div className="absolute -bottom-16 -left-16 size-52 rounded-full bg-[rgba(0,62,50,0.2)] blur-[40px] sm:-bottom-20 sm:-left-20 sm:size-72 sm:blur-[50px] md:-bottom-24 md:-left-24 md:size-96 md:blur-[60px]" />
+        <div
+          className={`absolute -top-20 -right-20 ${blobSize} rounded-full bg-[rgba(119,249,214,0.2)] ${blobBlur} sm:-top-32 sm:-right-32`}
+        />
+        <div
+          className={`absolute -bottom-16 -left-16 ${blobSize} rounded-full bg-[rgba(0,62,50,0.2)] ${blobBlur} sm:-bottom-20 sm:-left-20`}
+        />
         <div className="relative flex flex-col gap-3 max-w-3xl sm:gap-4">
           <h2 className="font-extrabold text-2xl leading-tight text-white tracking-tight sm:text-3xl md:text-[44px]">
             Prêt à unifier votre communication d'entreprise ?
@@ -664,10 +702,18 @@ function FinalCta({ onTrialClick, onGuideClick }) {
           </p>
         </div>
         <div className="relative flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-center sm:gap-7">
-          <button type="button" onClick={onTrialClick} className="w-full max-w-[320px] rounded-full bg-white px-6 py-3 text-[#2b6859] font-bold text-base shadow-[0_8px_10px_rgba(0,0,0,0.25)] sm:w-auto sm:px-8 sm:py-4 sm:text-lg">
+          <button
+            type="button"
+            onClick={onTrialClick}
+            className="w-full max-w-[320px] rounded-full bg-white px-6 py-3 text-[#2b6859] font-bold text-base shadow-[0_8px_10px_rgba(0,0,0,0.25)] sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+          >
             Démarrer l'essai gratuit
           </button>
-          <button type="button" onClick={onGuideClick} className="w-full max-w-[320px] rounded-full bg-white px-6 py-3 text-[#2b6859] font-bold text-base shadow-[0_8px_10px_rgba(0,0,0,0.25)] sm:w-auto sm:px-8 sm:py-4 sm:text-lg">
+          <button
+            type="button"
+            onClick={onGuideClick}
+            className="w-full max-w-[320px] rounded-full bg-white px-6 py-3 text-[#2b6859] font-bold text-base shadow-[0_8px_10px_rgba(0,0,0,0.25)] sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+          >
             Télécharger nos guides
           </button>
         </div>
@@ -681,7 +727,8 @@ export default function Solutions() {
   const navigate = useNavigate();
   const vtmRef = useRef(null);
   const solutionsRef = useRef(null);
-  const scrollToSection = (ref) => ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollToSection = (ref) =>
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   const handleSolutionsClick = () => scrollToSection(solutionsRef);
   const handleStartTrialClick = () => navigate("/contact");
   const handleDownloadGuideClick = () => navigate("/ressources/guide");
@@ -747,15 +794,25 @@ export default function Solutions() {
         backgroundPosition: "center",
       }}
     >
-      <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
+      {/* 
+        FIX: backdrop-blur only on sm and up.
+        On mobile, just a white tint – much cheaper.
+      */}
+      <div className="absolute inset-0 bg-white/60 sm:backdrop-blur-sm" />
       <div className="relative z-10 flex flex-col">
-        <Hero onDiscoveryClick={() => scrollToSection(vtmRef)} onSolutionsClick={handleSolutionsClick} />
+        <Hero
+          onDiscoveryClick={() => scrollToSection(vtmRef)}
+          onSolutionsClick={handleSolutionsClick}
+        />
         <Stats />
         <SectionIntro sectionRef={vtmRef} />
         <ModuleCards />
         <SolutionsSection sectionRef={solutionsRef} />
         <Testimonials />
-        <FinalCta onTrialClick={handleStartTrialClick} onGuideClick={handleDownloadGuideClick} />
+        <FinalCta
+          onTrialClick={handleStartTrialClick}
+          onGuideClick={handleDownloadGuideClick}
+        />
       </div>
     </div>
   );

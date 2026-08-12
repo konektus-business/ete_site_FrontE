@@ -36,6 +36,20 @@ const stagger = (children = 0.15, delay = 0) => ({
   show: { transition: { staggerChildren: children, delayChildren: delay } },
 });
 
+// ========== Responsive helper ==========
+function useIsMobile(breakpoint = 640) {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" ? window.innerWidth < breakpoint : false
+  );
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < breakpoint);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [breakpoint]);
+  return isMobile;
+}
+
 // ========== Reusable Wrappers ==========
 // Reveal on scroll with customizable variants and delay
 const Reveal = ({ children, className, delay = 0, variants = fadeUp }) => (
@@ -62,8 +76,8 @@ const ContactCard = ({ icon, iconBg, title, description, stats, buttonText, butt
     variants={slideIn(slideX)}
     className="relative w-full max-w-[560px] overflow-hidden rounded-3xl border border-white shadow-[0px_4px_15px_-1px_rgba(0,0,0,0.1),0px_10px_30px_-3px_#0d3f34,0px_20px_40px_-5px_rgba(0,0,0,0.05)] sm:min-h-[378px]"
   >
-    {/* Glass background */}
-    <div className="absolute inset-0 rounded-3xl bg-[#ddf4ef] backdrop-blur-[20px]" />
+    {/* Glass background – lighter blur on mobile for performance */}
+    <div className="absolute inset-0 rounded-3xl bg-[#ddf4ef] backdrop-blur-[6px] sm:backdrop-blur-[20px]" />
     <div className="absolute -top-10 left-1/2 size-40 -translate-x-1/2 rounded-full bg-[#1eb394]/10 blur-[32px]" />
     <div className="relative flex flex-col gap-6 p-6 sm:gap-8 sm:p-8">
       <div className={`flex size-14 items-center justify-center rounded-3xl ${iconBg}`}>
@@ -101,7 +115,10 @@ const OfficeCard = ({ image, alt, country, city, address, phone }) => (
     variants={fadeUp}
     className="relative w-full max-w-[389px] overflow-hidden rounded-3xl border border-white/70 shadow-[0px_4px_15px_-1px_rgba(0,0,0,0.1),0px_10px_30px_-3px_rgba(30,179,148,0.1),0px_20px_40px_-5px_rgba(0,0,0,0.05)]"
   >
-    <div className="absolute inset-0 rounded-3xl backdrop-blur-[20px]" style={{ background: "linear-gradient(123deg, #b9e7de 0%, rgba(255,255,255,0.3) 100%)" }} />
+    <div
+      className="absolute inset-0 rounded-3xl backdrop-blur-[6px] sm:backdrop-blur-[20px]"
+      style={{ background: "linear-gradient(123deg, #b9e7de 0%, rgba(255,255,255,0.3) 100%)" }}
+    />
     <div className="absolute -top-10 right-[-40px] size-40 rounded-full bg-[#1eb394]/10 blur-[32px]" />
     <div className="relative flex flex-col gap-4 p-4">
       <div className="h-44 w-full overflow-hidden rounded-3xl bg-slate-100 sm:h-48">
@@ -179,6 +196,7 @@ const orbTransition = { duration: 3, ease: "linear", repeat: Infinity, repeatTyp
 // ========== Main Component ==========
 export default function Contact() {
   const [isLoaded, setIsLoaded] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const images = [
@@ -239,7 +257,14 @@ export default function Contact() {
             <motion.div
               key={idx}
               className="absolute rounded-full"
-              style={{ left: orb.left, top: orb.top, width: orb.size, height: orb.size, backgroundColor: orb.color, filter: `blur(${orb.blur}px)` }}
+              style={{
+                left: orb.left,
+                top: orb.top,
+                width: orb.size,
+                height: orb.size,
+                backgroundColor: orb.color,
+                filter: `blur(${isMobile ? orb.blur * 0.35 : orb.blur}px)`,
+              }}
               animate={{ x: [0, orb.x], y: [0, orb.y] }}
               transition={{ x: orbTransition, y: orbTransition }}
             />
