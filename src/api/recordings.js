@@ -11,10 +11,9 @@ const AGENT_CONFIGS = [
   { agent: 'Mouna Ferjani', list: 'Liste Relance Q3', phonePrefix: '+216 98' },
 ];
 
-// URLs d'exemple d'enregistrements audio pour tester le lecteur audio du CRM
+//  exemple d'enregistrement audio pour tester le lecteur audio du CRM
 const SAMPLE_AUDIO_URLS = [
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-  'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+  new URL('./recording_mock.mp3', import.meta.url).href,
 ];
 
 const generateMockRecordings = (count = 145) => {
